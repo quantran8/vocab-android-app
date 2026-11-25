@@ -16,8 +16,11 @@ import com.syll.features.main.LearnerStore
 import com.syll.features.onboarding.OnboardingStore
 import com.syll.features.placement.PlacementTestStore
 import com.syll.features.practice.PracticeSessionStore
-import com.syll.platform.NoVoiceRecorder
-import com.syll.platform.SilentAudioClips
+import com.syll.platform.AudioClipPlayer
+import com.syll.platform.MicrophonePermission
+import com.syll.platform.OnDeviceSpeechTranscriber
+import com.syll.platform.SoundEffects
+import com.syll.platform.VoiceRecorder
 import com.syll.features.plan.CatalogState
 import com.syll.features.plan.KeyValuePreferencesStore
 import com.syll.features.plan.LearningPlanStore
@@ -50,8 +53,14 @@ class AppContainer(context: Context) {
     val learner = LearnerStore(api, plan, language = { settings.language })
     val onboarding = OnboardingStore(plan, api, haptics)
     val placement = PlacementTestStore(api, haptics, appScope)
-    // Clip playback, the recorder, on-device recognition and sound cues land with steps 4c and 5.
-    val practice = PracticeSessionStore(api, SilentAudioClips, NoVoiceRecorder, haptics, appScope)
+    /** Attached by `MainActivity`, which hosts the system permission dialog. */
+    val microphone = MicrophonePermission(context, storage)
+    val sounds = SoundEffects(context)
+    val practice = PracticeSessionStore(
+        api, AudioClipPlayer(context), VoiceRecorder(microphone), haptics, appScope,
+        sounds = sounds,
+        transcriber = OnDeviceSpeechTranscriber(context, microphone),
+    )
 
     init {
         apiClient.setSessionEndedHandler {

@@ -23,8 +23,10 @@ import com.syll.designsystem.components.ActionContext
 import com.syll.designsystem.components.LocalActionContext
 import com.syll.features.practice.PracticeSessionStore
 import com.syll.features.practice.PracticeSessionView
-import com.syll.platform.NoVoiceRecorder
-import com.syll.platform.SilentAudioClips
+import com.syll.platform.VoiceRecorder
+import com.syll.platform.AudioClipPlayer
+import com.syll.VocabFlowApplication
+import androidx.compose.ui.platform.LocalContext
 import com.syll.features.main.LearnerStore
 import com.syll.features.main.MainShellView
 import com.syll.features.main.MainTab
@@ -49,7 +51,14 @@ fun OfflineOnboarding(onClose: () -> Unit) {
     val learner = remember { LearnerStore(api, plan, language = { AppLanguage.ENGLISH }) }
     val onboarding = remember { OnboardingStore(plan, api, NoOpFeedback) }
     val placement = remember { PlacementTestStore(api, NoOpFeedback, scope) }
-    val practice = remember { PracticeSessionStore(api, SilentAudioClips, NoVoiceRecorder, NoOpFeedback, scope) }
+    // Real audio, recorder and cues (as iOS's offline preview), so the read-aloud can be tried on a device.
+    val context = LocalContext.current.applicationContext
+    val container = (context as VocabFlowApplication).container
+    val practice = remember {
+        PracticeSessionStore(
+            api, AudioClipPlayer(context), VoiceRecorder(container.microphone), NoOpFeedback, scope, sounds = container.sounds,
+        )
+    }
 
     var tab by remember { mutableStateOf(MainTab.HOME) }
 

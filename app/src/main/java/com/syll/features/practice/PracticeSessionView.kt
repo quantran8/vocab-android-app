@@ -485,7 +485,7 @@ private fun LearnCardStep(card: LearnCard, offersKnownCheck: Boolean = false) {
             .padding(horizontal = Spacing.practiceGutter)
             .padding(top = Spacing.m + Spacing.xxs, bottom = Spacing.l),
     ) {
-        WordIntroCard(card, playAudio = card.audio?.let { clip -> { store.playClip(clip) } })
+        WordIntroCard(card, playAudio = card.audio?.let { clip -> { store.playClip(clip) } }, isPlayingAudio = store.audio.isPlaying)
     }
     // A new word is heard once as its card appears, after the step transition, only while the session runs.
     LaunchedEffect(card) {

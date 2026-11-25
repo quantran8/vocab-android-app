@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         )
         super.onCreate(savedInstanceState)
         val container = (application as VocabFlowApplication).container
+        container.microphone.attach(this)
         setContent {
             VocabFlowTheme {
                 ProvideStores(container) {
@@ -27,5 +28,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        (application as VocabFlowApplication).container.microphone.detach(this)
+        super.onDestroy()
     }
 }

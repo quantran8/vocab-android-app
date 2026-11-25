@@ -48,9 +48,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.syll.R
+import com.syll.designsystem.components.SpeakerWaveIcon
 import com.syll.designsystem.components.CardDivider
+import com.syll.designsystem.components.SpeakerWaveIcon
 import com.syll.designsystem.components.Eyebrow
+import com.syll.designsystem.components.SpeakerWaveIcon
 import com.syll.designsystem.components.cardSurface
+import com.syll.designsystem.components.SpeakerWaveIcon
 import com.syll.designsystem.components.pressScaleClickable
 import com.syll.designsystem.motion.LocalMotion
 import com.syll.designsystem.tokens.Spacing
@@ -66,7 +70,7 @@ import kotlinx.coroutines.launch
  * The hero's six iOS motion recipes are a later polish; here the letters cascade in.
  */
 @Composable
-fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?) {
+fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boolean = false) {
     var showsDetails by rememberSaveable(card.word) { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth()) {
         Column(
@@ -92,12 +96,7 @@ fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?) {
                         .background(if (playAudio != null) SyllColors.selectedSurface else SyllColors.disabledSurface, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.VolumeUp,
-                        contentDescription = null,
-                        tint = if (playAudio != null) SyllColors.link else SyllColors.disabledInk,
-                        modifier = Modifier.size(22.dp),
-                    )
+                    SpeakerWaveIcon(isPlayingAudio, tint = if (playAudio != null) SyllColors.link else SyllColors.disabledInk, side = 22.dp)
                 }
             }
         }

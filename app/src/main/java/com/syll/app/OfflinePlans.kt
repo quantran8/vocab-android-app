@@ -101,6 +101,14 @@ object OfflinePlans {
         PlanStep.Practice(
             TaskPhase.NEW_PRACTICE,
             PracticeTask(
+                id = "n-recording", template = TaskTemplate.RECORDING, variant = "scripted_pronunciation", prompt = text("clarify"),
+                question = "Read the word aloud", body = TaskBody.Recording(listOf("clarify")), maxRetries = 2,
+                ipa = "/ˈklær.ə.faɪ/",
+            ),
+        ),
+        PlanStep.Practice(
+            TaskPhase.NEW_PRACTICE,
+            PracticeTask(
                 id = "n-match", template = TaskTemplate.MATCH, variant = "meaning_pairs", prompt = text("Match"),
                 question = "Match the pairs",
                 body = TaskBody.Match(

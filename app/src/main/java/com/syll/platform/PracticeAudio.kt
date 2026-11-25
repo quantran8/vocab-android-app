@@ -4,6 +4,8 @@ import com.syll.domain.practice.RecordedAudio
 
 /** iOS `AudioClipPlaying`: plays the plan's word clips. */
 interface AudioClipPlaying {
+    /** Snapshot state: a clip is sounding now (drives `SpeakerWaveIcon`). */
+    val isPlaying: Boolean
     val canPlay: Boolean
     /** Returns true only if sound really started, which is what `deliveryMode: audio` claims. */
     suspend fun play(url: String): Boolean
@@ -14,12 +16,13 @@ interface AudioClipPlaying {
 
 /** iOS `SilentAudioClips`, for tests and previews. */
 object SilentAudioClips : AudioClipPlaying {
+    override val isPlaying = false
     override val canPlay = false
     override suspend fun play(url: String) = false
     override fun stop() {}
 }
 
-/** iOS `VoiceRecording`: records one take as 16 kHz mono WAV. The Android recorder arrives with Speaking (step 5). */
+/** iOS `VoiceRecording`: records one take as 16 kHz mono WAV. */
 interface VoiceRecording {
     /** False once the learner has denied the microphone. */
     val canRecord: Boolean

@@ -8,6 +8,9 @@ import com.syll.domain.practice.CommitSummary
 import com.syll.domain.practice.PlanRequest
 import com.syll.domain.practice.RecordedAudio
 import com.syll.domain.practice.RecordingAssessment
+import com.syll.domain.practice.PronunciationBand
+import com.syll.domain.practice.PronunciationSyllable
+import com.syll.domain.practice.SyllableBand
 import com.syll.domain.practice.SessionPlan
 import com.syll.network.CatalogCollection
 import com.syll.network.CatalogTopic
@@ -96,8 +99,26 @@ class OfflineVocabApi : VocabApi {
     override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {}
 
     override suspend fun planSession(request: PlanRequest): SessionPlan = OfflinePlans.plan(request)
-    override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio) =
-        RecordingAssessment(assessmentReceiptId = "offline", validity = "valid", passed = true, accuracyScore = 88.0)
+    private var takes = 0
+
+    /** The offline read-aloud is "clarify": the first take misses one syllable, the next one passes. */
+    override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio): RecordingAssessment {
+        delay(900)
+        val take = takes++
+        val passed = take % 2 == 1
+        return RecordingAssessment(
+            assessmentReceiptId = "offline-$take",
+            validity = "valid",
+            passed = passed,
+            accuracyScore = if (passed) 93.0 else 68.0,
+            band = if (passed) PronunciationBand.EXCELLENT else PronunciationBand.FAIR,
+            syllables = listOf(
+                PronunciationSyllable("cla", "klæ", 92.0, SyllableBand.GOOD),
+                PronunciationSyllable("ri", "rə", if (passed) 90.0 else 41.0, if (passed) SyllableBand.GOOD else SyllableBand.POOR),
+                PronunciationSyllable("fy", "faɪ", 88.0, SyllableBand.GOOD),
+            ),
+        )
+    }
     override suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse {
         delay(800)
         return CommitResponse(sessionId, CommitSummary(newWordGoalSlots = 2, reviewedMeanings = 2, practiceTasks = 6))

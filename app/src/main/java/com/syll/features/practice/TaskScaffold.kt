@@ -30,7 +30,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PriorityHigh
@@ -56,6 +55,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import com.syll.R
 import com.syll.app.LocalPracticeSessionStore
 import com.syll.designsystem.components.ActionButtonKind
+import com.syll.designsystem.components.AudioPlayButton
 import com.syll.designsystem.components.PrimaryButton
 import com.syll.designsystem.components.SyllieMood
 import com.syll.designsystem.components.SyllieView
@@ -122,6 +123,11 @@ fun TaskScaffold(
     attempt: TaskAttempt,
     feedback: FeedbackCopy? = null,
     onTapOutside: (() -> Unit)? = null,
+    /** Recording scored by the backend: the word sweeps while the take is scored, then shows its syllables' colours. */
+    promptStyle: RecordingPromptStyle? = null,
+    /** Off when the result is shown above the panel (scored Recording); [feedbackDetail] takes the title's place. */
+    feedbackShowsHeading: Boolean = true,
+    feedbackDetail: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
     action: @Composable ColumnScope.() -> Unit,
 ) {
@@ -137,6 +143,13 @@ fun TaskScaffold(
         if (old.isMiss() && !new.isMiss()) oopsMood = SyllieMood.nextOopsReaction()
         if (old != TaskAttempt.Status.ANSWERING && new == TaskAttempt.Status.ANSWERING) thinkingMood = SyllieMood.nextThinking()
         previousStatus = new
+    }
+    // Recording: each take's result comes through `feedback` while the status stays `answering`.
+    var previousFeedbackKind by remember { mutableStateOf(feedback?.kind) }
+    LaunchedEffect(feedback?.kind) {
+        if (previousFeedbackKind == FeedbackKind.SUCCESS) happyMood = SyllieMood.nextHappyReaction()
+        if (previousFeedbackKind == FeedbackKind.ERROR) oopsMood = SyllieMood.nextOopsReaction()
+        previousFeedbackKind = feedback?.kind
     }
     val shownFeedback = feedback ?: taskFeedbackCopy(attempt)
     val mascot = when {
@@ -168,7 +181,8 @@ fun TaskScaffold(
     ) {
         attempt.task.question?.let { ExerciseHeading(it) }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            TaskPromptView(attempt)
+            TaskPromptView(attempt, promptStyle)
+            // Recording: which of the word's sounds to read.
             attempt.task.ipa?.let { ipa ->
                 val label = stringResource(R.string.ipa_x, ipa)
                 Text(
@@ -189,7 +203,7 @@ fun TaskScaffold(
     }
 
     StepActionBar {
-        FeedbackActionPanel(shownFeedback, mascot, action = action)
+        FeedbackActionPanel(shownFeedback, mascot, showsHeading = feedbackShowsHeading, detail = feedbackDetail, action = action)
     }
 }
 
@@ -220,7 +234,7 @@ private val PROMPT_MIN_HEIGHT = 96.dp
 
 /** iOS `TaskPromptView`: a task has at most one prompt kind. Audio stays audio: showing the text would give the answer away. */
 @Composable
-fun TaskPromptView(attempt: TaskAttempt) {
+fun TaskPromptView(attempt: TaskAttempt, style: RecordingPromptStyle? = null) {
     val store = LocalPracticeSessionStore.current
     val scope = rememberCoroutineScope()
     when (val prompt = attempt.task.prompt) {
@@ -241,18 +255,18 @@ fun TaskPromptView(attempt: TaskAttempt) {
                 Text(text, style = Typography.body, color = SyllColors.bodyInk, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             } else {
                 // The word or meaning stands alone: 36 sp for a word, 30 sp for a meaning to type or spell.
-                val style = if (attempt.task.template == TaskTemplate.TYPING || attempt.task.template == TaskTemplate.FLY_REORDER) {
+                val fontStyle = if (attempt.task.template == TaskTemplate.TYPING || attempt.task.template == TaskTemplate.FLY_REORDER) {
                     Typography.stat
                 } else {
                     Typography.challengeTerm
                 }
+                val textStyle = fontStyle.copy(letterSpacing = Typography.displayTracking.sp)
                 Box(Modifier.fillMaxWidth().defaultMinSize(minHeight = PROMPT_MIN_HEIGHT), contentAlignment = Alignment.Center) {
-                    Text(
-                        text,
-                        style = style.copy(letterSpacing = Typography.displayTracking.sp),
-                        color = SyllColors.ink,
-                        textAlign = TextAlign.Center,
-                    )
+                    if (style != null && prompt.highlight == null) {
+                        RecordingPromptWord(prompt.text, style, textStyle)
+                    } else {
+                        Text(text, style = textStyle, color = SyllColors.ink, textAlign = TextAlign.Center)
+                    }
                 }
             }
         }
@@ -261,7 +275,12 @@ fun TaskPromptView(attempt: TaskAttempt) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
-            AudioPlayButton(isAvailable = true, isLarge = true, onClick = { scope.launch { store.playPromptAudio() } })
+            AudioPlayButton(
+                isSpeaking = store.audio.isPlaying,
+                isAvailable = true,
+                isLarge = true,
+                onClick = { scope.launch { store.playPromptAudio() } },
+            )
             if (store.audioFailed) {
                 Text(
                     stringResource(R.string.sound_didn_t_play_try_again_or_answer_without_it),
@@ -281,45 +300,6 @@ fun TaskPromptView(attempt: TaskAttempt) {
 
 const val AUTOPLAY_DELAY_MS = 350L
 
-/** iOS `AudioPlayButton`: a user-triggered pronunciation control that never reveals the answer in its label. */
-@Composable
-fun AudioPlayButton(isAvailable: Boolean, onClick: () -> Unit, isLarge: Boolean = false) {
-    val size = if (isLarge) 128.dp else 44.dp
-    val label = stringResource(if (isAvailable) R.string.play_pronunciation else R.string.audio_unavailable)
-    val hint = stringResource(R.string.replays_the_word_you_can_play_it_as_often_as_you)
-    Box(
-        Modifier
-            .size(if (isLarge) 176.dp else 44.dp)
-            .semantics { contentDescription = "$label. $hint" },
-        contentAlignment = Alignment.Center,
-    ) {
-        if (isLarge && isAvailable) {
-            Box(Modifier.size(size).offset(y = 5.dp).background(SyllColors.interactiveDepth, CircleShape))
-        }
-        Box(
-            Modifier
-                .size(size)
-                .pressScaleClickable(enabled = isAvailable, onClick = onClick)
-                .background(
-                    when {
-                        !isAvailable -> SyllColors.disabledSurface
-                        isLarge -> SyllColors.interactive
-                        else -> SyllColors.selectedSurface
-                    },
-                    CircleShape,
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                Icons.AutoMirrored.Filled.VolumeUp,
-                contentDescription = null,
-                tint = if (!isAvailable) SyllColors.disabledInk else if (isLarge) Color.White else SyllColors.blue600,
-                modifier = Modifier.size(if (isLarge) 48.dp else 22.dp),
-            )
-        }
-    }
-}
-
 /**
  * iOS `FeedbackActionPanel`: the pinned bottom panel where explanation and primary action share one surface. With
  * feedback present, the whole panel takes the status colour. Syllie sits beside the action, reacting with [mascot].
@@ -328,6 +308,12 @@ fun AudioPlayButton(isAvailable: Boolean, onClick: () -> Unit, isLarge: Boolean 
 fun FeedbackActionPanel(
     feedback: FeedbackCopy?,
     mascot: SyllieMood?,
+    /**
+     * Off when the result is shown above the panel (a scored read-aloud): the panel keeps the feedback's colour and
+     * announcement, and shows [detail] (if any) instead of the icon and title.
+     */
+    showsHeading: Boolean = true,
+    detail: (@Composable () -> Unit)? = null,
     action: @Composable ColumnScope.() -> Unit,
 ) {
     val motion = LocalMotion.current
@@ -347,11 +333,22 @@ fun FeedbackActionPanel(
             .background(surface, RoundedCornerShape(topStart = Radii.hero, topEnd = Radii.hero))
             .navigationBarsPadding()
             .padding(horizontal = Spacing.practiceGutter)
-            .padding(top = if (feedback == null) Spacing.s else Spacing.l - 4.dp, bottom = Spacing.m),
+            .padding(top = if (feedback == null || (!showsHeading && detail == null)) Spacing.s else Spacing.l - 4.dp, bottom = Spacing.m),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         AnimatedVisibility(
-            visible = feedback != null,
+            visible = feedback != null && !showsHeading && detail != null,
+            enter = if (motion.reduceMotion) fadeIn() else slideInVertically { it / 2 } + fadeIn(),
+            exit = fadeOut(),
+        ) {
+            val shownDetail = remember(feedback) { detail } ?: return@AnimatedVisibility
+            val announcement = feedback?.let { "${it.title}. ${it.message}" }.orEmpty()
+            Box(Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite; stateDescription = announcement }) {
+                shownDetail()
+            }
+        }
+        AnimatedVisibility(
+            visible = feedback != null && showsHeading,
             enter = if (motion.reduceMotion) fadeIn() else slideInVertically { it / 2 } + fadeIn(),
             exit = fadeOut(),
         ) {
