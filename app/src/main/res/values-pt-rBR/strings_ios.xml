@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">Complete a frase</string>
     <string name="completed">concluído</string>
     <string name="conjunction">conjunção</string>
-    <string name="continue">Continuar</string>
     <string name="continue_daily">Continuar Lição Diária</string>
     <string name="continue_to_recall">Continuar para Lembrar</string>
     <string name="continue_with_google">Continuar com o Google</string>
@@ -591,6 +590,7 @@
     <string name="s_1_of_1_meaning_learned">1 de 1 significado aprendido</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3–20 letras, números, “_” ou “.”, começando com uma letra.</string>
     <string name="s_6_digit_code">Código de 6 dígitos</string>
+    <string name="s_continue">Continuar</string>
     <string name="said_fluently">Ditas com fluência</string>
     <string name="said_right">ditas certo</string>
     <string name="said_right_again_and_again">Ditas certo várias vezes</string>

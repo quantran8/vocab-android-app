@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">文を完成させよう</string>
     <string name="completed">完了</string>
     <string name="conjunction">接続詞</string>
-    <string name="continue">続ける</string>
     <string name="continue_daily">毎日のレッスンを続ける</string>
     <string name="continue_to_recall">思い出しへ進む</string>
     <string name="continue_with_google">Googleで続ける</string>
@@ -589,6 +588,7 @@
     <string name="s_1_of_1_meaning_learned">学習済みの意味 1 / 1</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3〜20文字の英字、数字、“_”、“.” で、先頭は英字にしてください。</string>
     <string name="s_6_digit_code">6桁のコード</string>
+    <string name="s_continue">続ける</string>
     <string name="said_fluently">すらすら言える</string>
     <string name="said_right">正しく言えた</string>
     <string name="said_right_again_and_again">何度も正しく言えた</string>

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.lamls.vocabflow.data"
+    namespace = "com.vocabflow.data"
     compileSdk = 35
 
     defaultConfig {

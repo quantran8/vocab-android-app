@@ -139,7 +139,6 @@
     <string name="complete_the_sentence">Hoàn thành câu</string>
     <string name="completed">đã hoàn thành</string>
     <string name="conjunction">liên từ</string>
-    <string name="continue">Tiếp tục</string>
     <string name="continue_daily">Tiếp tục bài hằng ngày</string>
     <string name="continue_to_recall">Tiếp tục nhớ lại</string>
     <string name="continue_with_google">Tiếp tục với Google</string>
@@ -590,6 +589,7 @@
     <string name="s_1_of_1_meaning_learned">Đã học 1 / 1 nghĩa</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3–20 ký tự gồm chữ, số, “_” hoặc “.”, bắt đầu bằng chữ cái.</string>
     <string name="s_6_digit_code">Mã 6 chữ số</string>
+    <string name="s_continue">Tiếp tục</string>
     <string name="said_fluently">Nói thành thạo</string>
     <string name="said_right">nói đúng</string>
     <string name="said_right_again_and_again">Nói đúng nhiều lần liên tiếp</string>

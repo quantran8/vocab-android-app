@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">Lengkapi kalimat</string>
     <string name="completed">selesai</string>
     <string name="conjunction">kata hubung</string>
-    <string name="continue">Lanjut</string>
     <string name="continue_daily">Lanjutkan Pelajaran Harian</string>
     <string name="continue_to_recall">Lanjut ke mengingat</string>
     <string name="continue_with_google">Lanjutkan dengan Google</string>
@@ -589,6 +588,7 @@
     <string name="s_1_of_1_meaning_learned">1 dari 1 arti dipelajari</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3–20 huruf, angka, “_” atau “.”, diawali huruf.</string>
     <string name="s_6_digit_code">Kode 6 digit</string>
+    <string name="s_continue">Lanjut</string>
     <string name="said_fluently">Diucapkan lancar</string>
     <string name="said_right">diucapkan benar</string>
     <string name="said_right_again_and_again">Diucapkan benar berkali-kali</string>

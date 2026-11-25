@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">完成句子</string>
     <string name="completed">已完成</string>
     <string name="conjunction">連接詞</string>
-    <string name="continue">繼續</string>
     <string name="continue_daily">繼續每日課程</string>
     <string name="continue_to_recall">繼續進入回想</string>
     <string name="continue_with_google">使用 Google 帳號繼續</string>
@@ -589,6 +588,7 @@
     <string name="s_1_of_1_meaning_learned">已學會 1／1 個詞義</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3–20 個字元，可使用字母、數字、“_”或“.”，且必須以字母開頭。</string>
     <string name="s_6_digit_code">6 位數驗證碼</string>
+    <string name="s_continue">繼續</string>
     <string name="said_fluently">說得流利</string>
     <string name="said_right">說對了</string>
     <string name="said_right_again_and_again">一次又一次都說對了</string>

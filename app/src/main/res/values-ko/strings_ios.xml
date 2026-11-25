@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">문장 완성하기</string>
     <string name="completed">완료됨</string>
     <string name="conjunction">접속사</string>
-    <string name="continue">계속</string>
     <string name="continue_daily">일일 학습 계속</string>
     <string name="continue_to_recall">떠올리기로 계속</string>
     <string name="continue_with_google">Google로 계속하기</string>
@@ -589,6 +588,7 @@
     <string name="s_1_of_1_meaning_learned">뜻 1 / 1개 학습함</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">문자로 시작하는 3–20자의 문자, 숫자, “_” 또는 “.”</string>
     <string name="s_6_digit_code">6자리 코드</string>
+    <string name="s_continue">계속</string>
     <string name="said_fluently">유창하게 말함</string>
     <string name="said_right">맞게 말함</string>
     <string name="said_right_again_and_again">여러 번 연속으로 맞게 말함</string>

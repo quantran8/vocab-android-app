@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">أكمل الجملة</string>
     <string name="completed">مكتمل</string>
     <string name="conjunction">حرف عطف</string>
-    <string name="continue">متابعة</string>
     <string name="continue_daily">متابعة الدرس اليومي</string>
     <string name="continue_to_recall">المتابعة إلى الاستذكار</string>
     <string name="continue_with_google">المتابعة باستخدام Google</string>
@@ -594,6 +593,7 @@
     <string name="s_1_of_1_meaning_learned">تم تعلّم معنى واحد من أصل معنى واحد</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">من 3 إلى 20 حرفًا أو رقمًا أو “_” أو “.”، وتبدأ بحرف.</string>
     <string name="s_6_digit_code">رمز من 6 أرقام</string>
+    <string name="s_continue">متابعة</string>
     <string name="said_fluently">تنطقها بطلاقة</string>
     <string name="said_right">نُطقت صحيحة</string>
     <string name="said_right_again_and_again">نطقتها صحيحة مرة بعد مرة</string>

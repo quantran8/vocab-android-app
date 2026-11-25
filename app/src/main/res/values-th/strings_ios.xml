@@ -138,7 +138,6 @@
     <string name="complete_the_sentence">เติมประโยคให้สมบูรณ์</string>
     <string name="completed">เสร็จแล้ว</string>
     <string name="conjunction">คำสันธาน</string>
-    <string name="continue">ต่อไป</string>
     <string name="continue_daily">เรียนประจำวันต่อ</string>
     <string name="continue_to_recall">ไปต่อที่การนึกคำ</string>
     <string name="continue_with_google">ดำเนินการต่อด้วย Google</string>
@@ -589,6 +588,7 @@
     <string name="s_1_of_1_meaning_learned">เรียนแล้ว 1 จาก 1 ความหมาย</string>
     <string name="s_3_20_letters_numbers_or_starting_with_a_letter">3–20 ตัวอักษร ตัวเลข “_” หรือ “.” และขึ้นต้นด้วยตัวอักษร</string>
     <string name="s_6_digit_code">รหัส 6 หลัก</string>
+    <string name="s_continue">ต่อไป</string>
     <string name="said_fluently">พูดได้คล่อง</string>
     <string name="said_right">พูดถูก</string>
     <string name="said_right_again_and_again">พูดถูกซ้ำหลายครั้ง</string>

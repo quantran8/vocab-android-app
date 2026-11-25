@@ -55,20 +55,30 @@ SPEC = re.compile(r"%(?:(\d+)\$)?([-+ 0#]*)(\d+)?(?:\.(\d+))?(lld|llu|ld|lu|hhd|
 PLURAL_ORDER = ["zero", "one", "two", "few", "many", "other"]
 
 
+# Resource names become Java fields in R.string, so a keyword can't be one.
+JAVA_KEYWORDS = {
+    "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+    "default", "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
+    "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "null", "package",
+    "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+    "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while",
+}
+
+
 def slug(key: str) -> str:
     text = SPEC.sub(" x ", key)
     text = re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_").lower()
     text = re.sub(r"_+", "_", text)[:48].strip("_")
     if not text:
         text = "str"
-    if text[0].isdigit():
+    if text[0].isdigit() or text in JAVA_KEYWORDS:
         text = "s_" + text
     return text
 
 
 def assign_names(keys: list[str]) -> dict[str, str]:
     names: dict[str, str] = json.loads(NAMES_FILE.read_text()) if NAMES_FILE.exists() else {}
-    names = {k: v for k, v in names.items() if k in keys}
+    names = {k: v for k, v in names.items() if k in keys and v not in JAVA_KEYWORDS}
     taken = set(names.values())
     for key in sorted(keys):
         if key in names:
