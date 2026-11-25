@@ -8,6 +8,7 @@ import com.syll.domain.AppLanguage
 import com.syll.domain.CefrLevel
 import com.syll.domain.LearningPreferences
 import com.syll.domain.TopicCatalog
+import com.syll.domain.practice.RecordingScoring
 import com.syll.features.plan.LearningPlanStore
 import com.syll.network.LearnHome
 import com.syll.network.LearningScope
@@ -198,6 +199,9 @@ class LearnerStore(
     val canRedeem: Boolean get() = false
     /** The most topics the learner may choose; null means no limit. */
     val maxTopics: Int? get() = freeLimits?.maxTopics
+
+    /** Free learners are scored on the device; Premium by the backend. */
+    val recordingScoring: RecordingScoring get() = if (freeLimits == null) RecordingScoring.BACKEND else RecordingScoring.ON_DEVICE_ONLY
 
     /** The collection a limited learner is kept on: the backend answers `FREE_COLLECTION_LOCKED` to any other. */
     fun lockedCollectionId(saved: String): String? = if (freeLimits == null) null else saved

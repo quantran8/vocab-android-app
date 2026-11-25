@@ -15,6 +15,9 @@ import com.syll.network.VocabApi
 import com.syll.features.main.LearnerStore
 import com.syll.features.onboarding.OnboardingStore
 import com.syll.features.placement.PlacementTestStore
+import com.syll.features.practice.PracticeSessionStore
+import com.syll.platform.NoVoiceRecorder
+import com.syll.platform.SilentAudioClips
 import com.syll.features.plan.CatalogState
 import com.syll.features.plan.KeyValuePreferencesStore
 import com.syll.features.plan.LearningPlanStore
@@ -46,6 +49,8 @@ class AppContainer(context: Context) {
     val learner = LearnerStore(api, plan, language = { settings.language })
     val onboarding = OnboardingStore(plan, api, haptics)
     val placement = PlacementTestStore(api, haptics, appScope)
+    // Clip playback, the recorder, on-device recognition and sound cues land with steps 4c and 5.
+    val practice = PracticeSessionStore(api, SilentAudioClips, NoVoiceRecorder, haptics, appScope)
 
     init {
         apiClient.setSessionEndedHandler {
@@ -53,9 +58,12 @@ class AppContainer(context: Context) {
         }
         CatalogState.install()
         placement.onPlaced = { learner.reloadProfile() }
+        // Free learners are scored on the device; read per session, since the plan can change in between.
+        practice.scoringForSession = { learner.recordingScoring }
         auth.onSignedOut = {
             // Later steps add practice, custom words, challenge and ranking.
             placement.cancel()
+            practice.close()
             learner.reset()
             onboarding.reset()
         }
@@ -70,6 +78,7 @@ val LocalAppSettingsStore = staticCompositionLocalOf<AppSettingsStore> { error("
 val LocalLearningPlanStore = staticCompositionLocalOf<LearningPlanStore> { error("LearningPlanStore not provided") }
 val LocalLearnerStore = staticCompositionLocalOf<LearnerStore> { error("LearnerStore not provided") }
 val LocalOnboardingStore = staticCompositionLocalOf<OnboardingStore> { error("OnboardingStore not provided") }
+val LocalPracticeSessionStore = staticCompositionLocalOf<PracticeSessionStore> { error("PracticeSessionStore not provided") }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
 @Composable
@@ -81,6 +90,7 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalLearnerStore provides container.learner,
         LocalOnboardingStore provides container.onboarding,
         LocalPlacementTestStore provides container.placement,
+        LocalPracticeSessionStore provides container.practice,
         content = content,
     )
 }
