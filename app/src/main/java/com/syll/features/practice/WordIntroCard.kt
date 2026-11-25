@@ -80,7 +80,7 @@ fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boo
         ) {
             IntroMotionHost(card.word, remember(card.word) { IntroductionPresentation.forTerm(card.word) })
             card.partOfSpeech?.let {
-                Text(it.replace('_', ' '), style = Typography.secondary.copy(fontStyle = FontStyle.Italic), color = SyllColors.mutedInk)
+                Text(com.syll.features.words.localizedPartOfSpeech(it), style = Typography.secondary.copy(fontStyle = FontStyle.Italic), color = SyllColors.mutedInk)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), verticalAlignment = Alignment.CenterVertically) {
                 card.ipa?.let { ipa ->
@@ -154,7 +154,7 @@ fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boo
 }
 
 /** The example sentence with the word in bold Ink. */
-private fun highlighted(sentence: String, term: String) = buildAnnotatedString {
+internal fun highlighted(sentence: String, term: String) = buildAnnotatedString {
     val start = sentence.indexOf(term, ignoreCase = true)
     if (start < 0) {
         append(sentence)

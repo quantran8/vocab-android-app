@@ -62,6 +62,15 @@ import com.syll.domain.AppLanguage
 @Composable
 fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {}) {
     val settings = LocalAppSettingsStore.current
+    // One artboard at a time: the gallery keeps every section composed, which is too much Rive for a slow device.
+    var showsCelebrateLab by remember { mutableStateOf(false) }
+    if (showsCelebrateLab) {
+        Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = Spacing.screenGutter, vertical = Spacing.m)) {
+            SecondaryButton("Back to gallery", onClick = { showsCelebrateLab = false })
+            CelebrateV2Timelines()
+        }
+        return
+    }
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState())
             .padding(horizontal = Spacing.screenGutter, vertical = Spacing.m),
@@ -71,6 +80,7 @@ fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {})
 
         Section("Flows (offline API)") {
             SecondaryButton("Onboarding → Home", onClick = onOpenOfflineOnboarding)
+            SecondaryButton("CelebrateV2 timelines", onClick = { showsCelebrateLab = true })
         }
 
         Section("Buttons (app context)") {
@@ -183,4 +193,40 @@ private fun Confetti() {
         }
     }
     SmallButton("Play confetti", onClick = { plays += 1 })
+}
+
+/** Debug: plays one `CelebrateV2` timeline at a time (they are combined per variant on the celebration screen). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CelebrateV2Timelines() {
+    val names = listOf(
+        "v1_puff", "v2_fireworks", "v3_flip", "v4_loop", "v5_bounce", "fx_air", "fx_fireworks", "fx_wind", "fx_sparkle",
+        "fx_dust", "fx_confetti", "fx_idle", "perfect_crown", "crown_wait", "crown_sway", "collection_trophy", "rays_spin", "hold",
+    )
+    var view by remember { mutableStateOf<RiveAnimationView?>(null) }
+    var current by remember { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            names.forEach { name ->
+                SmallButton(name, onClick = {
+                    current = name
+                    view?.let {
+                        runCatching {
+                            it.stop()
+                            it.play(name, Loop.ONESHOT, app.rive.runtime.kotlin.core.Direction.AUTO, false, true)
+                        }
+                    }
+                })
+            }
+        }
+        Text("Playing: $current", style = Typography.micro, color = SyllColors.mutedInk)
+        RiveArtboard(
+            "CelebrateV2",
+            modifier = Modifier.fillMaxWidth().height(420.dp),
+            // Autoplay picks the artboard; without it the view stays on the file's default (Syllie).
+            animation = "hold",
+            autoplay = true,
+            onReady = { view = it },
+        )
+    }
 }

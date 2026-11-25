@@ -1,5 +1,10 @@
 package com.syll.app
 
+import com.syll.platform.AlarmReminderScheduler
+import com.syll.platform.NotificationPermission
+import com.syll.platform.SpeechPlayer
+import com.syll.platform.SilentSoundEffects
+import com.syll.platform.SoundEffectsPlaying
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -24,7 +29,6 @@ import com.syll.platform.VoiceRecorder
 import com.syll.features.plan.CatalogState
 import com.syll.features.plan.KeyValuePreferencesStore
 import com.syll.features.plan.LearningPlanStore
-import com.syll.features.plan.NoReminders
 import com.syll.platform.FeedbackProviding
 import com.syll.platform.SettingsAwareFeedback
 import com.syll.platform.VibratorFeedback
@@ -49,13 +53,16 @@ class AppContainer(context: Context) {
     val appScope = MainScope()
     val api: VocabApi = LiveVocabApi(apiClient)
     val auth = AuthStore(api)
-    val plan = LearningPlanStore(KeyValuePreferencesStore(storage), NoReminders)
+    /** Attached by `MainActivity`, which hosts the system permission dialogs. */
+    val notifications = NotificationPermission(context, storage)
+    val plan = LearningPlanStore(KeyValuePreferencesStore(storage), AlarmReminderScheduler(context, notifications, appScope))
     val learner = LearnerStore(api, plan, language = { settings.language })
     val onboarding = OnboardingStore(plan, api, haptics)
     val placement = PlacementTestStore(api, haptics, appScope)
     /** Attached by `MainActivity`, which hosts the system permission dialog. */
     val microphone = MicrophonePermission(context, storage)
     val sounds = SoundEffects(context)
+    val speech = SpeechPlayer(context)
     val practice = PracticeSessionStore(
         api, AudioClipPlayer(context), VoiceRecorder(microphone), haptics, appScope,
         sounds = sounds,
@@ -94,6 +101,10 @@ val LocalOnboardingStore = staticCompositionLocalOf<OnboardingStore> { error("On
  */
 val LocalAppScope = staticCompositionLocalOf<CoroutineScope> { error("App scope not provided") }
 val LocalPracticeSessionStore = staticCompositionLocalOf<PracticeSessionStore> { error("PracticeSessionStore not provided") }
+/** iOS `@Environment(\.soundEffects)`: for views that play cues themselves (the end-of-session celebration). */
+/** iOS `@Environment(SpeechPlayer.self)`: speaks a word that has no recorded clip. Null in previews. */
+val LocalSpeechPlayer = staticCompositionLocalOf<SpeechPlayer?> { null }
+val LocalSoundEffects = staticCompositionLocalOf<SoundEffectsPlaying> { SilentSoundEffects }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
 @Composable
@@ -107,6 +118,8 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalPlacementTestStore provides container.placement,
         LocalPracticeSessionStore provides container.practice,
         LocalAppScope provides container.appScope,
+        LocalSoundEffects provides container.sounds,
+        LocalSpeechPlayer provides container.speech,
         content = content,
     )
 }

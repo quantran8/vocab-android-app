@@ -1,5 +1,8 @@
 package com.syll.features.main
 
+import com.syll.network.WordDetail
+import com.syll.network.WordStats
+import com.syll.network.WordProgress
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -50,6 +53,26 @@ class LearnerStore(
         private set
     /** The review-load choice shows at most once per launch, whatever the server says. */
     var hasShownReviewChoice by mutableStateOf(false)
+
+    // My Words
+
+    /** The pages loaded so far for [wordsQuery], not the whole library. */
+    var words by mutableStateOf<List<WordProgress>>(emptyList())
+        private set
+    var wordStats by mutableStateOf<WordStats?>(null)
+        private set
+    var wordsQuery by mutableStateOf("")
+        private set
+    var hasMoreWords by mutableStateOf(false)
+        private set
+    var isSearchingWords by mutableStateOf(false)
+        private set
+    var isLoadingMoreWords by mutableStateOf(false)
+        private set
+    var wordsError by mutableStateOf<UserMessage?>(null)
+        private set
+    /** Bumped by every new load, so an answer for an older query or a reset is ignored. */
+    private var wordsGeneration = 0
         private set
 
     /**
@@ -94,7 +117,11 @@ class LearnerStore(
         val home = async { runCatchingApi { api.learnHome() } }
         // Topic progress ("45/120", "Finished") moves with every session.
         val catalog = async { runCatchingApi { api.catalog() } }
+        val stats = async { runCatchingApi { api.wordStats() } }
+        val library = async { loadWords(wordsQuery) }
         home.await()?.let { this@LearnerStore.home = it }
+        stats.await()?.let { wordStats = it }
+        library.await()
         catalog.await()?.let { list -> TopicCatalog.update(list.map { it.toEntry() }) }
         profile.await()
     }
@@ -214,11 +241,75 @@ class LearnerStore(
         runCatchingApi { api.profile() }?.let { profile = it }
     }
 
+    /**
+     * Replaces the list with the first page for [query]. A failed reload keeps what is on screen, but a failed new
+     * search clears it: those rows don't answer the new query.
+     */
+    suspend fun loadWords(query: String) {
+        val generation = ++wordsGeneration
+        val isNewQuery = query != wordsQuery
+        wordsQuery = query
+        isSearchingWords = true
+        isLoadingMoreWords = false
+        wordsError = null
+        try {
+            val page = api.words(WORDS_PAGE_SIZE, 0, query)
+            if (generation != wordsGeneration) return
+            words = page
+            hasMoreWords = page.size == WORDS_PAGE_SIZE
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (generation != wordsGeneration) return
+            if (isNewQuery) {
+                words = emptyList()
+                hasMoreWords = false
+            }
+            wordsError = UserMessage.Api(e.asApiError)
+        } finally {
+            if (generation == wordsGeneration) isSearchingWords = false
+        }
+    }
+
+    /** Appends the next page, if there is one and nothing is loading already. */
+    suspend fun loadMoreWords() {
+        if (!hasMoreWords || isLoadingMoreWords || isSearchingWords) return
+        val generation = wordsGeneration
+        isLoadingMoreWords = true
+        wordsError = null
+        try {
+            val page = api.words(WORDS_PAGE_SIZE, words.size, wordsQuery)
+            if (generation != wordsGeneration) return
+            // Learning a word between pages shifts the offsets, so a word can come back twice.
+            val known = words.map { it.id }.toSet()
+            words = words + page.filter { it.id !in known }
+            hasMoreWords = page.size == WORDS_PAGE_SIZE
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (generation != wordsGeneration) return
+            wordsError = UserMessage.Api(e.asApiError)
+        } finally {
+            if (generation == wordsGeneration) isLoadingMoreWords = false
+        }
+    }
+
+    /** Skill states are only read when a word is opened. */
+    suspend fun wordDetail(id: String): WordDetail = api.wordDetail(id)
+
     fun reset() {
         phase = Phase.Loading
         profile = null
         home = null
         hasShownReviewChoice = false
+        wordsGeneration += 1
+        words = emptyList()
+        wordStats = null
+        wordsQuery = ""
+        hasMoreWords = false
+        isSearchingWords = false
+        isLoadingMoreWords = false
+        wordsError = null
     }
 
     /**
@@ -240,5 +331,9 @@ class LearnerStore(
         throw e
     } catch (e: Exception) {
         null
+    }
+
+    companion object {
+        const val WORDS_PAGE_SIZE = 50
     }
 }

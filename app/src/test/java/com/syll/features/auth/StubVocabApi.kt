@@ -1,5 +1,8 @@
 package com.syll.features.auth
 
+import com.syll.network.WordDetail
+import com.syll.network.WordStats
+import com.syll.network.WordProgress
 import com.syll.domain.CefrLevel
 import com.syll.domain.TopicCatalog
 import com.syll.domain.practice.CommitResponse
@@ -120,6 +123,20 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     val commitBodies = mutableListOf<ByteArray>()
     var assessResult: Result<RecordingAssessment> = Result.failure(ApiError.Transport)
     var status: CommitStatus? = null
+
+    /** iOS `StubVocabAPI.library`: pages are served from it, filtered by the lemma. */
+    var library = mutableListOf<WordProgress>()
+    var wordsError: ApiError? = null
+    /** Runs inside [words] before it answers, to hold an answer back. */
+    var onWords: (suspend () -> Unit)? = null
+
+    override suspend fun words(limit: Int, offset: Int, query: String?): List<WordProgress> {
+        onWords?.invoke()
+        wordsError?.let { throw it }
+        return library.filter { query.isNullOrEmpty() || it.lemma.contains(query) }.drop(offset).take(limit)
+    }
+    override suspend fun wordStats(): WordStats = WordStats(learnedWords = library.size, needPracticeWords = 0)
+    override suspend fun wordDetail(id: String): WordDetail = throw ApiError.Transport
 
     override suspend fun planSession(request: PlanRequest): SessionPlan {
         planRequests += request

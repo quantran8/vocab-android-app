@@ -1,5 +1,24 @@
 package com.syll.app
 
+import com.syll.domain.practice.ResultGroups
+import com.syll.domain.practice.SpeakingGroup
+import com.syll.domain.practice.SpeakingSummary
+import com.syll.domain.practice.NewWordGroup
+import com.syll.domain.practice.NewWordSummary
+import com.syll.domain.practice.ReviewGroup
+import com.syll.domain.practice.ReviewSummary
+import com.syll.domain.practice.ResultSkill
+import com.syll.domain.practice.ResultCause
+import com.syll.domain.practice.ResultItem
+import com.syll.network.ApiError
+import com.syll.domain.practice.LearnCard
+import com.syll.domain.practice.SpeakingStatus
+import com.syll.network.MeaningSpeaking
+import com.syll.network.MeaningMemory
+import com.syll.network.WordMeaning
+import com.syll.network.WordDetail
+import com.syll.network.WordStats
+import com.syll.network.WordProgress
 import com.syll.domain.CefrLevel
 import com.syll.domain.TopicCatalog
 import com.syll.domain.practice.CommitResponse
@@ -99,6 +118,48 @@ class OfflineVocabApi : VocabApi {
     override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {}
 
     override suspend fun planSession(request: PlanRequest): SessionPlan = OfflinePlans.plan(request)
+
+    private val sampleWords = listOf(
+        OfflineWord("w-arrive", "arrive", "verb", "đến nơi", "/əˈraɪv/", "to reach a place", "We arrived at the hotel late."),
+        OfflineWord("w-luggage", "luggage", "noun", "hành lý", "/ˈlʌɡ.ɪdʒ/", "bags and cases for travel", "Please put your luggage in the overhead bin."),
+        OfflineWord("w-clarify", "clarify", "verb", "làm rõ", "/ˈklær.ə.faɪ/", "to make something clear", "Could you clarify what you mean?"),
+    )
+
+    override suspend fun words(limit: Int, offset: Int, query: String?): List<WordProgress> {
+        delay(300)
+        val matching = sampleWords.filter { query.isNullOrEmpty() || it.lemma.contains(query, ignoreCase = true) || it.meaning.contains(query, ignoreCase = true) }
+        return matching.drop(offset).take(limit).map { it.progress }
+    }
+
+    override suspend fun wordStats() = WordStats(learnedWords = sampleWords.size, needPracticeWords = 1, fluentWords = 1)
+
+    override suspend fun wordDetail(id: String): WordDetail {
+        delay(300)
+        val word = sampleWords.firstOrNull { it.id == id } ?: throw ApiError.InvalidResponse
+        return WordDetail(
+            word.id, word.lemma,
+            listOf(
+                WordDetail.Meaning(
+                    "${word.id}-1", word.sense, learnedAt = Instant.now().minusSeconds(86_400 * 3),
+                    memory = MeaningMemory(stabilityDays = 6.0, retrievability = 0.86, nextReviewAt = Instant.now().plusSeconds(86_400 * 2)),
+                    speaking = MeaningSpeaking(SpeakingStatus.PRACTICING, lastScore = 74.0, bestScore = 88.0),
+                    needsPractice = word.id == "w-luggage",
+                ),
+                WordDetail.Meaning("${word.id}-2", word.sense.copy(text = "(another meaning)", definition = null, examples = null)),
+            ),
+        )
+    }
+
+    private data class OfflineWord(
+        val id: String, val lemma: String, val partOfSpeech: String, val meaning: String, val ipa: String,
+        val definition: String, val example: String,
+    ) {
+        val sense get() = WordMeaning.Sense(partOfSpeech, meaning, ipa, definition, examples = listOf(LearnCard.Example(example)))
+        val progress get() = WordProgress(
+            id, lemma, listOf(WordMeaning("$id-1", sense, learnedAt = Instant.now(), nextReviewAt = Instant.now().plusSeconds(86_400))),
+            meaningCount = 2,
+        )
+    }
     private var takes = 0
 
     /** The offline read-aloud is "clarify": the first take misses one syllable, the next one passes. */
@@ -121,7 +182,33 @@ class OfflineVocabApi : VocabApi {
     }
     override suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse {
         delay(800)
-        return CommitResponse(sessionId, CommitSummary(newWordGoalSlots = 2, reviewedMeanings = 2, practiceTasks = 6))
+        val tomorrow = Instant.now().plusSeconds(86_400)
+        fun item(id: String, lemma: String, gloss: String, cause: ResultCause? = null, struggledAt: ResultSkill? = null) =
+            ResultItem(meaningId = id, wordId = "w-$lemma", lemma = lemma, gloss = gloss, nextReviewAt = tomorrow, cause = cause, struggledAt = struggledAt)
+        // Result groups as the backend sends them, so the tiles and the detail sheet can be tried offline.
+        return CommitResponse(
+            sessionId,
+            CommitSummary(
+                newWordGoalSlots = 1, reviewedMeanings = 2, practiceTasks = 8,
+                review = ReviewSummary(
+                    total = 2,
+                    groups = ResultGroups(
+                        mapOf(
+                            ReviewGroup.SOLID to listOf(item("m-arrive", "arrive", "đến nơi")),
+                            ReviewGroup.SHAKY to listOf(item("m-luggage", "luggage", "hành lý", ResultCause.REVEALED, ResultSkill.SPELLING)),
+                        ),
+                    ),
+                ),
+                newWords = NewWordSummary(
+                    total = 1,
+                    groups = ResultGroups(mapOf(NewWordGroup.RETRIED to listOf(item("m-clarify", "clarify", "làm rõ", ResultCause.RETRIED, ResultSkill.SPELLING)))),
+                ),
+                speaking = SpeakingSummary(
+                    total = 1, passed = 1,
+                    groups = ResultGroups(mapOf(SpeakingGroup.PASSED to listOf(ResultItem("m-clarify", lemma = "clarify", gloss = "làm rõ", score = 93.0, band = PronunciationBand.EXCELLENT)))),
+                ),
+            ),
+        )
     }
     override suspend fun commitStatus(sessionId: String) = CommitStatus("not_committed")
 

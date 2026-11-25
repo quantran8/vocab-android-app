@@ -45,6 +45,14 @@ fun RiveArtboard(
                     runCatching {
                         val board = controller.activeArtboard
                         Log.d("RiveArtboard", "$artboard: timelines=${board?.animationNames} stateMachines=${board?.stateMachineNames}")
+                        board?.animationNames?.forEach { name ->
+                            val a = board.animation(name)
+                            Log.d("RiveArtboard", "$artboard/$name duration=${a.effectiveDurationInSeconds}s loop=${a.loop} fps=${a.fps}")
+                        }
+                        board?.stateMachineNames?.forEach { name ->
+                            val inputs = board.stateMachine(name).inputs.map { "${it.name}(${it::class.simpleName})" }
+                            Log.d("RiveArtboard", "$artboard/$name inputs=$inputs")
+                        }
                     }
                 }
                 onReady(this)

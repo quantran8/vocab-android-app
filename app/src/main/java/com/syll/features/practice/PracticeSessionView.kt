@@ -1,5 +1,18 @@
 package com.syll.features.practice
 
+import kotlinx.coroutines.CancellationException
+import androidx.compose.animation.AnimatedVisibility
+import com.syll.features.words.OtherMeaningsSheet
+import com.syll.features.words.OtherMeaningsLink
+import com.syll.app.LocalLearnerStore
+import com.syll.network.WordDetail
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.syll.app.LocalAppScope
+import com.syll.features.practice.results.SessionCelebrationView
+import com.syll.features.practice.results.SessionCelebration
+import com.syll.features.practice.results.PracticeResultsView
+import com.syll.domain.practice.CommitSummary
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.keyframes
@@ -123,16 +136,7 @@ fun PracticeSessionView() {
             is PracticeSessionStore.Stage.ReviewPreview -> ReviewPreviewView(stage.words)
             PracticeSessionStore.Stage.ReviewFinished -> ReviewFinishedView(store.upcomingCards)
             PracticeSessionStore.Stage.Running -> PracticeFlowView()
-            // The celebration and results screens arrive with step 6.
-            is PracticeSessionStore.Stage.Finished -> Column(
-                Modifier.fillMaxSize().safeDrawingPadding().padding(Spacing.screenGutter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.weight(1f))
-                SyllieView(SyllieMood.PROUD, Modifier.size(187.dp, 154.dp))
-                Spacer(Modifier.weight(1f))
-                PrimaryButton(stringResource(R.string.done), onClick = close)
-            }
+            is PracticeSessionStore.Stage.Finished -> SessionFinishView(stage.summary)
             is PracticeSessionStore.Stage.Failed -> when (val failure = stage.failure) {
                 is PracticeSessionStore.Failure.Planning -> StatusScreen(
                     stringResource(R.string.couldn_t_start_the_session), Modifier.safeDrawingPadding(), message = failure.message.text(),
@@ -510,6 +514,9 @@ fun PracticeTaskView(attempt: com.syll.domain.practice.TaskAttempt) {
 @Composable
 private fun LearnCardStep(card: LearnCard, offersKnownCheck: Boolean = false) {
     val store = LocalPracticeSessionStore.current
+    val learner = LocalLearnerStore.current
+    var otherMeanings by remember(card.wordId) { mutableStateOf<List<WordDetail.Meaning>>(emptyList()) }
+    var isShowingOtherMeanings by remember { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -518,6 +525,30 @@ private fun LearnCardStep(card: LearnCard, offersKnownCheck: Boolean = false) {
             .padding(top = Spacing.m + Spacing.xxs, bottom = Spacing.l),
     ) {
         WordIntroCard(card, playAudio = card.audio?.let { clip -> { store.playClip(clip) } }, isPlayingAudio = store.audio.isPlaying)
+        // Reference only: the word's other meanings, outside the lesson. Fades in once loaded.
+        val motion = LocalMotion.current
+        AnimatedVisibility(
+            otherMeanings.isNotEmpty(),
+            enter = fadeIn(motion.animation(MotionTokens.transition)),
+            exit = fadeOut(motion.animation(MotionTokens.transition)),
+        ) {
+            OtherMeaningsLink(otherMeanings.size) { isShowingOtherMeanings = true }
+        }
+    }
+    // A failed load just leaves the link out.
+    LaunchedEffect(card.wordId) {
+        val wordId = card.wordId ?: return@LaunchedEffect
+        val detail = try {
+            learner.wordDetail(wordId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return@LaunchedEffect
+        }
+        otherMeanings = detail.meanings.filter { it.meaningId != card.meaningId }
+    }
+    if (isShowingOtherMeanings) {
+        OtherMeaningsSheet(card.word, otherMeanings, onDismiss = { isShowingOtherMeanings = false })
     }
     // A new word is heard once as its card appears, after the step transition, only while the session runs.
     LaunchedEffect(card) {
@@ -646,5 +677,43 @@ private fun Modifier.tileWiggle(trigger: Int): Modifier = composed {
     graphicsLayer {
         rotationZ = angle.value
         translationY = lift.value.dp.toPx()
+    }
+}
+
+/** iOS `SessionFinishView`: the end of a session in two beats, the celebration first, then the numbers. */
+@Composable
+private fun SessionFinishView(summary: CommitSummary) {
+    val store = LocalPracticeSessionStore.current
+    val plan = LocalLearningPlanStore.current
+    val appScope = LocalAppScope.current
+    val motion = LocalMotion.current
+    var showsSummary by rememberSaveable { mutableStateOf(false) }
+    val result = remember(summary) { store.result(summary) }
+    // The collection this session finished; a finished topic alone is not called out.
+    val finishedScopeName = if (store.scopeEvents?.collectionCompleted == true) plan.current.collection?.displayName() else null
+    AnimatedContent(
+        showsSummary,
+        Modifier.fillMaxSize(),
+        transitionSpec = { motion.stepTransition(isMovingBack = false) },
+        label = "sessionFinish",
+    ) { summaryShown ->
+        if (summaryShown) {
+            Box(Modifier.fillMaxSize()) {
+                PracticeResultsView(
+                    result = result,
+                    scopeEvents = store.scopeEvents,
+                    onChooseTopics = { store.close(PracticeSessionStore.FollowUp.CHOOSE_TOPICS) },
+                    firstTryCount = store.firstTryCount,
+                    // Planning swaps this screen out, so it runs in the app's scope.
+                    onPracticeAgain = if (store.canPracticeAgain) ({ appScope.launch { store.practiceAgain() } }) else null,
+                    onDone = { store.close() },
+                )
+            }
+        } else {
+            SessionCelebrationView(
+                SessionCelebration.of(result, store.scopeEvents, finishedScopeName),
+                onContinue = { showsSummary = true },
+            )
+        }
     }
 }

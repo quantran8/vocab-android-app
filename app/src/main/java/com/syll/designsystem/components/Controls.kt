@@ -241,6 +241,8 @@ fun TopicChip(
     progress: Pair<Int, Int>? = null,
     isFinished: Boolean = false,
     isLocked: Boolean = false,
+    /** iOS `selectedFill`: Random Practice's tinted topic panel selects on white. */
+    selectedFill: Color = SyllColors.selectedSurface,
 ) {
     val motion = LocalMotion.current
     val foreground by animateColorAsState(if (isSelected) SyllColors.selectedInk else SyllColors.ink, motion.animation(MotionTokens.press), label = "chipInk")
@@ -254,7 +256,7 @@ fun TopicChip(
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            Modifier.alpha(lockAlpha).chipSurface(isSelected),
+            Modifier.alpha(lockAlpha).chipSurface(isSelected, selectedFill),
             horizontalArrangement = Arrangement.spacedBy(Spacing.xs - 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

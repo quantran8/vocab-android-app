@@ -1,5 +1,7 @@
 package com.syll.features.debug
 
+import com.syll.app.LocalSpeechPlayer
+import com.syll.app.LocalSoundEffects
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -73,6 +75,8 @@ fun OfflineOnboarding(onClose: () -> Unit) {
         LocalPlacementTestStore provides placement,
         LocalPracticeSessionStore provides practice,
         LocalAppScope provides scope,
+        LocalSoundEffects provides container.sounds,
+        LocalSpeechPlayer provides container.speech,
     ) {
         when {
             !plan.hasCompletedOnboarding -> OnboardingView()

@@ -44,7 +44,7 @@ fun interface ReminderScheduling {
     fun apply(preferences: LearningPreferences)
 }
 
-/** iOS `NoReminders`. Also the app's scheduler until reminders are ported with Settings (Phase 1 step 7). */
+/** iOS `NoReminders`, for tests and previews. The app uses `AlarmReminderScheduler`. */
 object NoReminders : ReminderScheduling {
     override fun apply(preferences: LearningPreferences) {}
 }

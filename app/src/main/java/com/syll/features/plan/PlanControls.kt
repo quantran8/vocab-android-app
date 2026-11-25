@@ -400,16 +400,19 @@ fun ReviewsPerSessionPicker(preferences: LearningPreferences, onChange: (Learnin
 }
 
 @Composable
-private fun SyllSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, contentDescription: String) {
+fun SyllSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, contentDescription: String, enabled: Boolean = true) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
+        enabled = enabled,
         colors = SwitchDefaults.colors(
             checkedTrackColor = SyllColors.interactive,
             checkedThumbColor = androidx.compose.ui.graphics.Color.White,
             uncheckedTrackColor = SyllColors.ink200,
             uncheckedThumbColor = androidx.compose.ui.graphics.Color.White,
             uncheckedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+            disabledCheckedTrackColor = SyllColors.interactive.copy(alpha = 0.4f),
+            disabledCheckedThumbColor = androidx.compose.ui.graphics.Color.White,
         ),
         modifier = Modifier.semantics { this.contentDescription = contentDescription },
     )

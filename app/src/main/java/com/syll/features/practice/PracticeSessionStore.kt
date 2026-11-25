@@ -1,5 +1,6 @@
 package com.syll.features.practice
 
+import com.syll.domain.practice.PracticeResult
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -248,6 +249,9 @@ class PracticeSessionStore(
     val firstTryCount: Int get() = attempts.values.count { it.isRightFirstTime }
 
     val mode: SessionMode? get() = lastRequest?.mode
+
+    /** iOS `result(for:)`: what the results screen shows for [summary], the summary in `Stage.Finished`. */
+    fun result(summary: CommitSummary): PracticeResult = PracticeResult.of(lastRequest?.mode ?: SessionMode.DAILY, summary)
     val isWeakPractice: Boolean get() = lastRequest?.mode == SessionMode.WEAK_WORDS_PRACTICE
     val isSpeakingPractice: Boolean get() = lastRequest?.mode == SessionMode.SPEAKING_PRACTICE
     val isDaily: Boolean get() = lastRequest?.mode == SessionMode.DAILY

@@ -49,6 +49,11 @@ interface VocabApi {
     suspend fun clearNewWordOverride()
     suspend fun setReviewPaused(collectionId: String, paused: Boolean)
 
+    /** One page of the learned library; [query] filters by spelling or meaning. */
+    suspend fun words(limit: Int, offset: Int, query: String?): List<WordProgress>
+    suspend fun wordStats(): WordStats
+    suspend fun wordDetail(id: String): WordDetail
+
     suspend fun planSession(request: PlanRequest): SessionPlan
     suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio): RecordingAssessment
     /** [body] is sent as is: a retried commit must repeat the first attempt's bytes. */
@@ -148,6 +153,15 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
 
     override suspend fun planSession(request: PlanRequest): SessionPlan =
         client.send(postJson("sessions/plan", request.toJson()), SessionPlan.serializer())
+
+    override suspend fun words(limit: Int, offset: Int, query: String?): List<WordProgress> {
+        val params = listOf("limit" to "$limit", "offset" to "$offset") + listOfNotNull(query?.takeIf { it.isNotEmpty() }?.let { "q" to it })
+        return client.send(get("me/words").copy(query = params), WordsResponse.serializer()).words
+    }
+
+    override suspend fun wordStats(): WordStats = client.send(get("me/words/stats"), WordStats.serializer())
+
+    override suspend fun wordDetail(id: String): WordDetail = client.send(get("words/$id"), WordDetail.serializer())
 
     override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio): RecordingAssessment {
         val form = MultipartForm()
