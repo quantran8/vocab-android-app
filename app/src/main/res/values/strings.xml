@@ -7,6 +7,11 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">Continue with Apple</string>
     <string name="apple_sign_in_isn_t_set_up_yet">Apple sign-in isn’t set up yet.</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">Subscriptions renew automatically until you cancel. Manage or cancel them in Google Play under Payments &amp; subscriptions.</string>
+    <string name="your_plan_is_managed_in_google_play">Your plan is managed in Google Play. Cancel before it renews to avoid being charged for the next period.</string>
+    <string name="no_subscription_found_for_this_google_account">No subscription found for this Google account.</string>
+    <string name="couldn_t_reach_google_play_please_try_again">Couldn’t reach Google Play. Please try again.</string>
     <!-- Debug-only screens (design gallery) are not translated. -->
     <string name="debug_design_gallery" translatable="false">Design gallery</string>
 </resources>

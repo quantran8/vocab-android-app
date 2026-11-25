@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         val container = (application as VocabFlowApplication).container
         container.microphone.attach(this)
         container.notifications.attach(this)
+        container.billing.attach(this)
+        container.adProvider.attach(this)
         setContent {
             VocabFlowTheme {
                 ProvideStores(container) {
@@ -47,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         val container = (application as VocabFlowApplication).container
         container.microphone.detach(this)
         container.notifications.detach(this)
+        container.billing.detach(this)
+        container.adProvider.detach(this)
         super.onDestroy()
     }
 }

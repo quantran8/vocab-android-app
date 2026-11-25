@@ -4,4 +4,9 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">المتابعة باستخدام Apple</string>
     <string name="apple_sign_in_isn_t_set_up_yet">لم يتم إعداد تسجيل الدخول عبر Apple بعد.</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">تتجدّد الاشتراكات تلقائيًا إلى أن تُلغيها. يمكنك إدارتها أو إلغاؤها من Google Play ضمن «الدفعات والاشتراكات».</string>
+    <string name="your_plan_is_managed_in_google_play">تُدار خطتك في Google Play. ألغِها قبل التجديد حتى لا تُحاسَب على الفترة التالية.</string>
+    <string name="no_subscription_found_for_this_google_account">لم يُعثر على اشتراك لحساب Google هذا.</string>
+    <string name="couldn_t_reach_google_play_please_try_again">تعذّر الوصول إلى Google Play. حاول مرة أخرى.</string>
 </resources>

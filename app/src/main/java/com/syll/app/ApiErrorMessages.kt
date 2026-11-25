@@ -6,7 +6,7 @@ import com.syll.network.ApiError
 
 /**
  * iOS `APIError.userMessage`. Uses the activity context, whose resources follow the per-app language.
- * `APPSTORE_*` codes stay mapped for parity; Play Billing codes arrive with Phase 4.
+ * `APPSTORE_*` codes stay mapped for parity with iOS; Android sends Play purchases (`PLAYSTORE_*`).
  */
 fun ApiError.userMessage(context: Context): String = when (this) {
     ApiError.Transport -> context.getString(R.string.can_t_reach_syll_check_your_connection_and_try_a)
@@ -42,4 +42,6 @@ private val serverMessages = mapOf(
     "REDEEM_ALREADY_USED" to R.string.you_ve_already_used_this_code,
     "APPSTORE_TRANSACTION_OWNED" to R.string.this_subscription_belongs_to_another_syll_accoun,
     "APPSTORE_TRANSACTION_INVALID" to R.string.we_couldn_t_confirm_this_purchase_please_try_aga,
+    "PLAYSTORE_PURCHASE_OWNED" to R.string.this_subscription_belongs_to_another_syll_accoun,
+    "PLAYSTORE_PURCHASE_INVALID" to R.string.we_couldn_t_confirm_this_purchase_please_try_aga,
 )

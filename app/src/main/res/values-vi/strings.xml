@@ -4,4 +4,9 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">Tiếp tục với Apple</string>
     <string name="apple_sign_in_isn_t_set_up_yet">Chưa thiết lập đăng nhập bằng Apple.</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">Gói đăng ký tự động gia hạn cho đến khi bạn hủy. Quản lý hoặc hủy trong Google Play, mục Thanh toán và gói thuê bao.</string>
+    <string name="your_plan_is_managed_in_google_play">Gói được quản lý trong Google Play. Hủy trước ngày gia hạn để không bị tính phí kỳ sau.</string>
+    <string name="no_subscription_found_for_this_google_account">Không tìm thấy gói đăng ký nào cho tài khoản Google này.</string>
+    <string name="couldn_t_reach_google_play_please_try_again">Không kết nối được Google Play. Vui lòng thử lại.</string>
 </resources>

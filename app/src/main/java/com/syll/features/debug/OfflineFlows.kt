@@ -82,6 +82,9 @@ fun OfflineOnboarding(onClose: () -> Unit, startOnChallengeMap: Boolean = false)
     val ranking = remember { RankingStore(api).also { it.onProfileChanged = { learner.reloadProfile() } } }
     val challengeRun = remember { ChallengeRunStore(api, NoOpFeedback, scope).also { it.onSettled = { challengeMap.refresh() } } }
 
+    val purchases = remember { com.syll.features.premium.PurchaseStore(com.syll.features.premium.NoPlayBilling, api, learner, scope) }
+    val ads = remember { com.syll.features.ads.AdStore(com.syll.features.ads.NoInterstitialAds, learner, scope) }
+
     // The app's Lab: it never touches the backend, so it works the same here.
     val lab = LocalTemplateSandboxStore.current
     var tab by remember { mutableStateOf(MainTab.HOME) }
@@ -101,6 +104,8 @@ fun OfflineOnboarding(onClose: () -> Unit, startOnChallengeMap: Boolean = false)
         LocalChallengeRunStore provides challengeRun,
         LocalRankingStore provides ranking,
         LocalCustomWordStore provides customWords,
+        com.syll.app.LocalPurchaseStore provides purchases,
+        com.syll.app.LocalAdStore provides ads,
         LocalAppScope provides scope,
         LocalSoundEffects provides container.sounds,
         LocalSpeechPlayer provides container.speech,

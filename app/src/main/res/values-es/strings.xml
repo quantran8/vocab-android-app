@@ -4,4 +4,9 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">Continuar con Apple</string>
     <string name="apple_sign_in_isn_t_set_up_yet">El inicio de sesión con Apple aún no está configurado.</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">Las suscripciones se renuevan automáticamente hasta que las canceles. Gestiónalas o cancélalas en Google Play, en Pagos y suscripciones.</string>
+    <string name="your_plan_is_managed_in_google_play">Tu plan se gestiona en Google Play. Cancélalo antes de que se renueve para que no se te cobre el siguiente periodo.</string>
+    <string name="no_subscription_found_for_this_google_account">No se encontró ninguna suscripción para esta cuenta de Google.</string>
+    <string name="couldn_t_reach_google_play_please_try_again">No se pudo conectar con Google Play. Inténtalo de nuevo.</string>
 </resources>

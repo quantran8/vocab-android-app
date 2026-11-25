@@ -65,6 +65,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- AdMob app ID (-PadmobAppId; Google's test ID by default). Interstitials for free learners only. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+
         <!-- Per-app language before Android 13: AppCompat stores the choice itself (iOS: Settings → Language). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

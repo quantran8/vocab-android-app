@@ -1,5 +1,8 @@
 package com.syll.features.main
 
+import com.syll.app.LocalAdStore
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
 import com.syll.app.userMessage
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.SnackbarHostState
@@ -98,6 +101,8 @@ fun MainShellView(
     val practice = LocalPracticeSessionStore.current
     val challengeMap = LocalChallengeMapStore.current
     val challengeRun = LocalChallengeRunStore.current
+    val ads = LocalAdStore.current
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
     val appScope = LocalAppScope.current
     val motion = LocalMotion.current
     var wordsPage by rememberSaveable { mutableStateOf<ShellPage?>(null) }
@@ -131,11 +136,13 @@ fun MainShellView(
     }
 
     LaunchedEffect(Unit) {
-        // A session screen may have asked for the next step as it closed. Premium arrives with Phase 4, ads after it.
+        // A session screen may have asked for the next step (choose topics, practise, Premium) as it closed.
         when (practice.consumeFollowUp()) {
             PracticeSessionStore.FollowUp.CHOOSE_TOPICS -> openFocus()
             PracticeSessionStore.FollowUp.RANDOM_PRACTICE -> openRandomPractice()
-            PracticeSessionStore.FollowUp.UPGRADE, null -> Unit
+            PracticeSessionStore.FollowUp.UPGRADE -> paywallReason = PaywallReason.Words(learner.freeLimits?.maxNewWords ?: 0)
+            // Between sessions only, and never over a next step the learner just picked.
+            null -> ads.presentIfDue()
         }
         coroutineScope {
             launch { learner.refresh() }
@@ -253,6 +260,8 @@ fun MainShellView(
             }
         }
     }
+
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
 
     val levelUpdated = UserMessage.Resource(R.string.level_updated)
     val focusUpdated = UserMessage.Resource(R.string.focus_updated)

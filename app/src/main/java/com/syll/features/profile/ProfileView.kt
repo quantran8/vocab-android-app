@@ -1,5 +1,10 @@
 package com.syll.features.profile
 
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
+import com.syll.features.premium.PremiumPlanSheet
+import com.syll.features.premium.ProfilePremiumCard
+import com.syll.features.premium.ProfileUpgradeCard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -94,7 +99,7 @@ private const val VISIBLE_TOPIC_LIMIT = 3
 
 /**
  * iOS `ProfileView`: identity, then the plan in four sections (level, focus, routine, review). The plan editors
- * open as sheets from the shell. Premium arrives with Phase 4.
+ * open as sheets from the shell. The plan card (upgrade or Premium) sits under the account block.
  */
 @Composable
 fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine: () -> Unit, onOpenSettings: () -> Unit) {
@@ -104,6 +109,8 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
     val scope = rememberCoroutineScope()
     var saveError by remember { mutableStateOf<UserMessage?>(null) }
     var isEditingPublicProfile by remember { mutableStateOf(false) }
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
+    var isShowingPlan by remember { mutableStateOf(false) }
     val preferences = plan.current
     val profileSummary = learner.profile?.tierSummary
 
@@ -148,6 +155,14 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
             modifier = Modifier.padding(top = Spacing.l),
         )
 
+        // Right under the account block (6.6 / 6.6a): Premium learners get their plan's status card, everyone else
+        // the upgrade card while the server sells Premium. Premium isn't in Settings.
+        if (learner.isPremium) {
+            ProfilePremiumCard(learner.profile?.plan, onClick = { isShowingPlan = true }, Modifier.padding(top = Spacing.screenGutter))
+        } else if (learner.offersPremium) {
+            ProfileUpgradeCard(learner.freeLimits, onUpgrade = { paywallReason = PaywallReason.General }, Modifier.padding(top = Spacing.screenGutter))
+        }
+
         tierCard(profileSummary, ranking.tier)?.let { (summary, next) ->
             ProfileTierCard(summary, next, Modifier.padding(top = Spacing.screenGutter))
         }
@@ -175,6 +190,8 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
         }
     }
     if (isEditingPublicProfile) EditPublicProfileSheet(onDismiss = { isEditingPublicProfile = false })
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
+    if (isShowingPlan) PremiumPlanSheet(onDismiss = { isShowingPlan = false })
 }
 
 /**

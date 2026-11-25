@@ -111,6 +111,13 @@ interface VocabApi {
     suspend fun removeCustomWord(meaningId: String)
     suspend fun overrideCustomWord(meaningId: String, edits: CustomWordEdits)
     suspend fun clearCustomWordOverride(meaningId: String)
+
+    // Premium (FRONTEND_FLOW §16)
+
+    /** `POST /me/subscriptions/playstore`: a Play purchase for the server to verify; answers the learner's plan. */
+    suspend fun syncPlayStorePurchase(purchaseToken: String, productId: String): PremiumPlan
+    /** `POST /me/redeem`: a Syll code (only while `features.redeemEnabled`). */
+    suspend fun redeem(code: String): PremiumPlan
 }
 
 /** iOS `LiveVocabAPI`. */
@@ -309,6 +316,17 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
     override suspend fun clearCustomWordOverride(meaningId: String) {
         client.sendRaw(ApiRequest(ApiRequest.Method.DELETE, "custom-words/$meaningId/override"))
     }
+
+    override suspend fun syncPlayStorePurchase(purchaseToken: String, productId: String): PremiumPlan = client.send(
+        postJson("me/subscriptions/playstore", buildJsonObject {
+            put("purchaseToken", purchaseToken)
+            put("productId", productId)
+        }),
+        PremiumPlan.serializer(),
+    )
+
+    override suspend fun redeem(code: String): PremiumPlan =
+        client.send(postJson("me/redeem", buildJsonObject { put("code", code) }), PremiumPlan.serializer())
 
     @kotlinx.serialization.Serializable
     private data class CustomWordsResponse(val words: List<CustomWord>)

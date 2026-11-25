@@ -23,6 +23,18 @@ val appleServiceId: String = providers.gradleProperty("appleServiceId").orNull.o
 val appleRedirectUri: String = providers.gradleProperty("appleRedirectUri").orNull
     ?: "https://moneytogether.dpdns.org/service/vocab/v1/auth/apple/callback"
 
+/**
+ * AdMob (iOS `GADApplicationIdentifier` / `AdMobInterstitialUnitID`): `-PadmobAppId=…` and `-PadmobInterstitialUnitId=…`.
+ * The defaults are Google's test IDs, like the IDs checked in on iOS; replace both for release (docs/ADS_SETUP.md).
+ */
+val admobAppId: String = providers.gradleProperty("admobAppId").orNull ?: "ca-app-pub-3940256099942544~3347511713"
+val admobInterstitialUnitId: String = providers.gradleProperty("admobInterstitialUnitId").orNull
+    ?: "ca-app-pub-3940256099942544/1033173712"
+
+/** Links next to the subscription (iOS `PremiumLinks`): `-PtermsUrl=…`, `-PprivacyPolicyUrl=…`; empty leaves a link out. */
+val termsUrl: String = providers.gradleProperty("termsUrl").orNull.orEmpty()
+val privacyPolicyUrl: String = providers.gradleProperty("privacyPolicyUrl").orNull.orEmpty()
+
 android {
     namespace = "com.syll"
     compileSdk = 36
@@ -36,6 +48,10 @@ android {
         buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"$googleServerClientId\"")
         buildConfigField("String", "APPLE_SERVICE_ID", "\"$appleServiceId\"")
         buildConfigField("String", "APPLE_REDIRECT_URI", "\"$appleRedirectUri\"")
+        buildConfigField("String", "ADMOB_INTERSTITIAL_UNIT_ID", "\"$admobInterstitialUnitId\"")
+        buildConfigField("String", "TERMS_URL", "\"$termsUrl\"")
+        buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
+        manifestPlaceholders["admobAppId"] = admobAppId
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -98,6 +114,10 @@ dependencies {
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.googleid)
     implementation(libs.androidx.browser)
+
+    implementation(libs.billing)
+    implementation(libs.play.services.ads)
+    implementation(libs.ump)
 
     implementation(libs.rive.android)
     implementation(libs.lottie.compose)

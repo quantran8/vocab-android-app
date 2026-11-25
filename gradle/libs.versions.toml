@@ -16,6 +16,10 @@ rive = "11.16.3"
 credentials = "1.3.0"
 googleid = "1.1.1"
 browser = "1.8.0"
+# Play Billing 8: Google Play requires 8+ for new releases.
+billing = "8.3.0"
+playServicesAds = "24.9.0"
+ump = "3.2.0"
 junit = "4.13.2"
 
 [libraries]
@@ -43,6 +47,9 @@ androidx-credentials = { module = "androidx.credentials:credentials", version.re
 androidx-credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
+billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]

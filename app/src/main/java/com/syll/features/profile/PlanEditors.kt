@@ -1,5 +1,12 @@
 package com.syll.features.profile
 
+import com.syll.designsystem.components.TextLink
+import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
+import androidx.compose.material.icons.outlined.WorkspacePremium
+
 import com.syll.designsystem.components.PrimaryButton
 import com.syll.designsystem.components.PinnedActionBar
 import androidx.compose.runtime.setValue
@@ -160,6 +167,7 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
     val settings = LocalAppSettingsStore.current
     val learner = LocalLearnerStore.current
     var draft by remember { mutableStateOf(initial) }
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
     val maxTopics = learner.maxTopics
     val withinLimit = maxTopics?.let { draft.topicIds.size <= it } ?: true
     // Topics the draft drops that the learner has learned from: their words stay in review.
@@ -186,13 +194,20 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
                 Text(note, style = Typography.micro, color = SyllColors.mutedInk, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             if (!withinLimit && maxTopics != null) {
-                // A scope kept from Premium can stay, but saving needs it within the free limit. Premium: Phase 4.
+                // A scope kept from Premium can stay, but saving needs it within the free limit.
                 Text(
                     stringResource(R.string.the_free_plan_includes_x_topics_remove_some_to_s, maxTopics),
                     style = Typography.micro.copy(fontWeight = FontWeight.SemiBold),
                     color = SyllColors.errorInk,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
+                )
+                TextLink(
+                    stringResource(R.string.get_premium),
+                    onClick = { paywallReason = PaywallReason.Topics(maxTopics) },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = SyllColors.grape600,
+                    icon = Icons.Outlined.WorkspacePremium,
                 )
             } else if (draft.topicIds.isNotEmpty()) {
                 Text(
@@ -218,6 +233,8 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
                             title = collection.displayName(),
                             isSelected = collection.id == draft.collectionId,
                             onClick = {
+                                // A free learner stays on the saved collection: the others offer Premium.
+                                if (isLocked) paywallReason = PaywallReason.Collection
                                 if (!isLocked && collection.id != draft.collectionId) {
                                     draft = draft.selectCollection(collection.id)
                                     settings.feedback.selectionChanged()
@@ -234,9 +251,12 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
                     collection = collection,
                     selectedIds = draft.topicIds,
                     onToggleTopic = { id ->
-                        draft.toggleTopic(id, maxTopics)?.let {
-                            draft = it
+                        val toggled = draft.toggleTopic(id, maxTopics)
+                        if (toggled != null) {
+                            draft = toggled
                             settings.feedback.selectionChanged()
+                        } else if (maxTopics != null) {
+                            paywallReason = PaywallReason.Topics(maxTopics)
                         }
                     },
                     onToggleAll = {
@@ -248,6 +268,7 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
             }
         }
     }
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
 }
 
 /** iOS `EditRoutineView`: daily goal, reviews per session, learning days and reminder; topics are untouched. */

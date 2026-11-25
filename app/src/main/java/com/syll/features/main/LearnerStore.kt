@@ -218,12 +218,27 @@ class LearnerStore(
     /** Null while nothing limits the learner: Premium, freemium off on the server, or an older backend. */
     val freeLimits: PremiumPlan.Limits? get() = profile?.plan?.limits
     val isPremium: Boolean get() = profile?.plan?.isPremium == true
+    /** Premium can be bought: the server runs freemium, or the learner already has it (to manage it). */
+    val offersPremium: Boolean get() = profile?.features?.freemiumEnabled == true || isPremium
+    val canRedeem: Boolean get() = profile?.features?.redeemEnabled == true
     /**
-     * Premium can be bought. Always false on Android until Play Billing lands (Phase 4): limits still apply,
-     * but nothing offers an upgrade.
+     * iOS `accountToken`: the Play purchase's `obfuscatedAccountId`, so the backend's Play notifications find this
+     * account.
      */
-    val offersPremium: Boolean get() = false
-    val canRedeem: Boolean get() = false
+    val accountId: String? get() = profile?.id
+
+    /** Applies the plan a purchase, restore or redeem answered with, then re-reads what it unlocks. */
+    suspend fun adoptPlan(premium: PremiumPlan) {
+        profile = profile?.copy(plan = premium)
+        coroutineScope {
+            launch { reloadProfile() }
+            launch { refreshHome() }
+        }
+    }
+
+    suspend fun redeem(code: String) {
+        adoptPlan(api.redeem(code))
+    }
     /** The most topics the learner may choose; null means no limit. */
     val maxTopics: Int? get() = freeLimits?.maxTopics
 

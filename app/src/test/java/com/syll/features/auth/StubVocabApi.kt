@@ -274,6 +274,18 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
         clearedOverrides += meaningId
     }
 
+    /** Answers for `syncPlayStorePurchase`, in order; the last one repeats. */
+    var syncResults: MutableList<Result<com.syll.network.PremiumPlan>> = mutableListOf(Result.failure(ApiError.Transport))
+    val syncedPurchases = mutableListOf<String>()
+    var redeemResult: Result<com.syll.network.PremiumPlan> = Result.failure(ApiError.Transport)
+
+    override suspend fun syncPlayStorePurchase(purchaseToken: String, productId: String): com.syll.network.PremiumPlan {
+        syncedPurchases += purchaseToken
+        val result = if (syncResults.size > 1) syncResults.removeAt(0) else syncResults.first()
+        return result.getOrThrow()
+    }
+    override suspend fun redeem(code: String): com.syll.network.PremiumPlan = redeemResult.getOrThrow()
+
     companion object {
         fun profile(
             level: CefrLevel? = null,

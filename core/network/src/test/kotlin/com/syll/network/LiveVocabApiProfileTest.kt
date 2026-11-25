@@ -108,4 +108,21 @@ class LiveVocabApiProfileTest {
         assertEquals("/v1/catalog/collections", server.takeRequest().path)
         assertEquals("Du lịch", catalog.single().topics.single().title)
     }
+
+    @Test
+    fun decodesAPlayStorePlanAndAnUnknownSource() = runBlocking {
+        enqueue("""{"tier":"premium","premiumUntil":"2027-11-23T10:00:00.000Z","source":"playstore","productId":"syll.premium.yearly","autoRenew":true,"limits":null}""")
+        enqueue("""{"tier":"premium","source":"lottery"}""")
+        val plan = api.syncPlayStorePurchase("token-1", "syll.premium.yearly")
+        assertEquals(PremiumPlan.Source.PLAYSTORE, plan.source)
+        assertEquals(java.time.Instant.parse("2027-11-23T10:00:00Z"), plan.premiumUntil)
+        assertTrue(plan.isPremium)
+        val request = server.takeRequest()
+        assertEquals("POST /v1/me/subscriptions/playstore", "${request.method} ${request.path}")
+        assertEquals("""{"purchaseToken":"token-1","productId":"syll.premium.yearly"}""", request.body.readUtf8())
+        assertEquals(PremiumPlan.Source.UNKNOWN, api.redeem("SYLL-1234").source)
+        val redeem = server.takeRequest()
+        assertEquals("POST /v1/me/redeem", "${redeem.method} ${redeem.path}")
+        assertEquals("""{"code":"SYLL-1234"}""", redeem.body.readUtf8())
+    }
 }

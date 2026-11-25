@@ -119,6 +119,15 @@ fun AppRoot() {
     LaunchedEffect(canLoadLearner) {
         if (canLoadLearner) learner.load()
     }
+    // Once the account is known: a purchase made signed out or on another device reaches it.
+    val purchases = LocalPurchaseStore.current
+    val ads = LocalAdStore.current
+    LaunchedEffect(learner.profile?.id) {
+        if (learner.profile != null) {
+            purchases.syncEntitlements()
+            ads.prepare()
+        }
+    }
     // The account is still loading, which would otherwise show the loading screen.
     val isLaunchLoading = auth.phase == AuthStore.Phase.LAUNCHING ||
         (canLoadLearner && learner.phase == LearnerStore.Phase.Loading)

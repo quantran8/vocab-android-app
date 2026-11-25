@@ -44,11 +44,16 @@ data class ReviewPause(val collectionId: String)
 @Serializable
 data class PremiumPlan(
     @Serializable(with = TierSerializer::class) val tier: Tier,
+    @Serializable(with = com.syll.domain.Iso8601InstantSerializer::class) val premiumUntil: java.time.Instant? = null,
+    @Serializable(with = SourceSerializer::class) val source: Source? = null,
     val productId: String? = null,
     val autoRenew: Boolean? = null,
     val limits: Limits? = null,
 ) {
     enum class Tier(val raw: String) { FREE("free"), PREMIUM("premium") }
+
+    /** Where Premium comes from. `appstore` is an iPhone subscription: it can't be managed from Android. */
+    enum class Source(val raw: String) { APPSTORE("appstore"), PLAYSTORE("playstore"), REDEEM("redeem"), UNKNOWN("unknown") }
 
     /** What the free tier still allows. Null whenever nothing limits the learner. */
     @Serializable
@@ -59,6 +64,7 @@ data class PremiumPlan(
     val isPremium: Boolean get() = tier == Tier.PREMIUM
 
     object TierSerializer : LenientEnumSerializer<Tier>("Tier", Tier.entries.toTypedArray(), { it.raw }, Tier.FREE)
+    object SourceSerializer : LenientEnumSerializer<Source>("Source", Source.entries.toTypedArray(), { it.raw }, Source.UNKNOWN)
 }
 
 /** Server-side switches the app follows. Null from an older backend: no freemium, no redeem. */

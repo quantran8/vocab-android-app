@@ -38,6 +38,10 @@ import com.syll.features.plan.LearningPlanStore
 import com.syll.platform.FeedbackProviding
 import com.syll.platform.SettingsAwareFeedback
 import com.syll.platform.VibratorFeedback
+import com.syll.features.ads.AdMobInterstitials
+import com.syll.features.ads.AdStore
+import com.syll.features.premium.LivePlayBilling
+import com.syll.features.premium.PurchaseStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -87,7 +91,17 @@ class AppContainer(context: Context) {
         session = PracticeSessionStore(OfflineVocabApi(), AudioClipPlayer(context), VoiceRecorder(microphone), haptics, appScope, sounds = sounds),
     )
 
+    /** Attached by `MainActivity`, which hosts Google Play's purchase sheet. */
+    val billing = LivePlayBilling(context)
+    val purchases = PurchaseStore(billing, api, learner, appScope)
+    /** Attached by `MainActivity`, which hosts the consent form and the ads. */
+    val adProvider = AdMobInterstitials(context, BuildConfig.ADMOB_INTERSTITIAL_UNIT_ID)
+    val ads = AdStore(adProvider, learner, appScope, storage)
+
     init {
+        // Renewals, pending payments completing and purchases from elsewhere arrive from launch on.
+        purchases.listen()
+        practice.onSessionFinished = { ads.sessionFinished() }
         apiClient.setSessionEndedHandler {
             withContext(Dispatchers.Main) { auth.sessionEnded() }
         }
@@ -135,6 +149,8 @@ val LocalChallengeRunStore = staticCompositionLocalOf<ChallengeRunStore> { error
 val LocalCustomWordStore = staticCompositionLocalOf<CustomWordStore> { error("CustomWordStore not provided") }
 val LocalTemplateSandboxStore = staticCompositionLocalOf<TemplateSandboxStore?> { null }
 val LocalRankingStore = staticCompositionLocalOf<RankingStore> { error("RankingStore not provided") }
+val LocalPurchaseStore = staticCompositionLocalOf<PurchaseStore> { error("PurchaseStore not provided") }
+val LocalAdStore = staticCompositionLocalOf<AdStore> { error("AdStore not provided") }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
 @Composable
@@ -152,6 +168,8 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalRankingStore provides container.ranking,
         LocalCustomWordStore provides container.customWords,
         LocalTemplateSandboxStore provides container.lab,
+        LocalPurchaseStore provides container.purchases,
+        LocalAdStore provides container.ads,
         LocalAppScope provides container.appScope,
         LocalSoundEffects provides container.sounds,
         LocalSpeechPlayer provides container.speech,

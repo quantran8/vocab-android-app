@@ -1,5 +1,8 @@
 package com.syll.features.practice
 
+import androidx.compose.runtime.mutableStateOf
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -85,6 +88,8 @@ fun RecordingTaskView(attempt: TaskAttempt) {
     val isRecording = stage == RecordingStage.Recording
     val assessment = (stage as? RecordingStage.Assessed)?.assessment
     val scored = assessment?.let { ScoredTake.of(it) }
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
 
     val promptStyle: RecordingPromptStyle? = when {
         stage == RecordingStage.Uploading && !store.scoresOnDevice -> RecordingPromptStyle.Scoring
@@ -130,7 +135,11 @@ fun RecordingTaskView(attempt: TaskAttempt) {
                     RecordingPulseButton(isRecording, canUseMic, level = store::inputLevel) {
                         appScope.launch { if (isRecording) store.stopRecording() else store.startRecording() }
                     }
-                    RecordingStatus(stage, showsPremium = store.isFreeSpeaking && learner.offersPremium)
+                    RecordingStatus(
+                        stage,
+                        showsPremium = store.isFreeSpeaking && learner.offersPremium,
+                        onPremium = { paywallReason = PaywallReason.Speaking },
+                    )
                 }
             }
         },
@@ -194,7 +203,7 @@ private fun recordingFeedback(attempt: TaskAttempt, stage: RecordingStage, score
 }
 
 @Composable
-private fun RecordingStatus(stage: RecordingStage, showsPremium: Boolean) {
+private fun RecordingStatus(stage: RecordingStage, showsPremium: Boolean, onPremium: () -> Unit) {
     val store = LocalPracticeSessionStore.current
     when (stage) {
         RecordingStage.Idle -> StatusText(stringResource(R.string.tap_the_microphone_and_read_aloud))
@@ -210,11 +219,11 @@ private fun RecordingStatus(stage: RecordingStage, showsPremium: Boolean) {
         } else {
             StatusText(stringResource(R.string.scoring))
         }
-        // A free take is right or wrong only; Premium scores it. Hidden until Android sells Premium (phase 4).
+        // A free take is right or wrong only; Premium scores it.
         is RecordingStage.Assessed -> if (showsPremium) {
             TextLink(
                 stringResource(R.string.get_a_pronunciation_score_with_premium),
-                onClick = {},
+                onClick = onPremium,
                 color = SyllColors.grape600,
                 icon = Icons.Outlined.WorkspacePremium,
             )

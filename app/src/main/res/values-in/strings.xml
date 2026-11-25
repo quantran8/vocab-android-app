@@ -4,4 +4,9 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">Lanjutkan dengan Apple</string>
     <string name="apple_sign_in_isn_t_set_up_yet">Masuk dengan Apple belum disiapkan.</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">Langganan diperpanjang otomatis sampai kamu membatalkannya. Kelola atau batalkan di Google Play, di Pembayaran &amp; langganan.</string>
+    <string name="your_plan_is_managed_in_google_play">Paketmu dikelola di Google Play. Batalkan sebelum diperpanjang agar tidak ditagih untuk periode berikutnya.</string>
+    <string name="no_subscription_found_for_this_google_account">Tidak ada langganan untuk Akun Google ini.</string>
+    <string name="couldn_t_reach_google_play_please_try_again">Tidak dapat terhubung ke Google Play. Coba lagi.</string>
 </resources>

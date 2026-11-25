@@ -4,4 +4,9 @@
     <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
     <string name="continue_with_apple">使用 Apple 帳號繼續</string>
     <string name="apple_sign_in_isn_t_set_up_yet">尚未設定 Apple 登入。</string>
+    <!-- Premium on Google Play (iOS says App Store and Apple ID). -->
+    <string name="subscriptions_renew_automatically_google_play">訂閱會自動續訂，直到你取消為止。你可以在 Google Play 的「付款和訂閱」中管理或取消。</string>
+    <string name="your_plan_is_managed_in_google_play">你的方案由 Google Play 管理。請在續訂前取消，以免被收取下一期的費用。</string>
+    <string name="no_subscription_found_for_this_google_account">找不到這個 Google 帳戶的訂閱。</string>
+    <string name="couldn_t_reach_google_play_please_try_again">無法連線至 Google Play，請再試一次。</string>
 </resources>

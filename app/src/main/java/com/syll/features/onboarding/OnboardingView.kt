@@ -1,5 +1,11 @@
 package com.syll.features.onboarding
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -319,6 +325,8 @@ private fun CollectionStep() {
 private fun TopicsStep() {
     val store = LocalOnboardingStore.current
     val learner = LocalLearnerStore.current
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
     StepPage {
         OnboardingTitle(
             stringResource(R.string.which_topics_interest_you),
@@ -329,8 +337,11 @@ private fun TopicsStep() {
                 TopicPicker(
                     collection = collection,
                     selectedIds = store.draft.topicIds,
-                    // Past the free limit nothing is added; Android offers no Premium until Phase 4.
-                    onToggleTopic = { store.toggleTopic(it, learner.maxTopics) },
+                    // Past the free limit nothing is added; Premium is offered instead.
+                    onToggleTopic = {
+                        val max = learner.maxTopics
+                        if (!store.toggleTopic(it, max) && max != null) paywallReason = PaywallReason.Topics(max)
+                    },
                     onToggleAll = { store.toggleAllTopics(learner.maxTopics) },
                     countsSelection = true,
                     showsProgress = false,

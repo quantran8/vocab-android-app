@@ -1,5 +1,7 @@
 package com.syll.features.practice
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import kotlinx.coroutines.CancellationException
 import androidx.compose.animation.AnimatedVisibility
 import com.syll.features.words.OtherMeaningsSheet
@@ -187,12 +189,17 @@ private fun EmptyScreen() {
             SecondaryButton(stringResource(R.string.practise), onClick = { store.close(PracticeSessionStore.FollowUp.RANDOM_PRACTICE) })
             closeButton()
         }
-        // Android offers no Premium until Phase 4: the free-words case keeps Practise and Close.
+        // The free plan's new words are used up and nothing is due.
         store.isDaily && withheld == NewWordReason.FREE_LIMIT -> StatusScreen(
             stringResource(R.string.you_ve_learned_all_your_free_words),
             modifier,
             message = stringResource(R.string.upgrade_to_premium_to_keep_learning_new_words_yo),
         ) {
+            PrimaryButton(
+                stringResource(R.string.get_premium),
+                onClick = { store.close(PracticeSessionStore.FollowUp.UPGRADE) },
+                icon = Icons.Filled.AutoAwesome,
+            )
             SecondaryButton(stringResource(R.string.practise), onClick = { store.close(PracticeSessionStore.FollowUp.RANDOM_PRACTICE) })
             closeButton()
         }

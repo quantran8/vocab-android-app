@@ -1,5 +1,9 @@
 package com.syll.features.home
 
+import com.syll.features.premium.PaywallReason
+import com.syll.features.premium.PaywallView
+import androidx.compose.material.icons.filled.WorkspacePremium
+
 import com.syll.designsystem.motion.MotionTokens
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.fadeIn
@@ -265,6 +269,8 @@ private fun showsExtraReview(status: DailyLessonStatus): Boolean =
 /** The screen's one main action: this session's counts and the Blue practice button. */
 @Composable
 private fun DailyLessonCard(status: DailyLessonStatus, due: Int, actions: HomeActions, modifier: Modifier = Modifier) {
+    var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
+    paywallReason?.let { PaywallView(it, onDismiss = { paywallReason = null }) }
     val plan = LocalLearningPlanStore.current
     val heroStyle = Typography.screenTitle.copy(fontWeight = FontWeight.ExtraBold)
     Column(modifier.cardSurface()) {
@@ -334,12 +340,18 @@ private fun DailyLessonCard(status: DailyLessonStatus, due: Int, actions: HomeAc
                                 shimmers = true,
                             )
                         }
-                        // Out of free words, Android offers no Premium until Play Billing (Phase 4).
-                        if (freeMax == null) {
+                        if (status.scope == DailyLessonStatus.Scope.ExhaustedNoCustom || freeMax == null) {
                             // Every topic is already chosen: only another collection brings new words.
                             SecondaryButton(
                                 stringResource(if (plan.current.hasAllTopics) R.string.choose_another_collection else R.string.choose_more_topics),
                                 onClick = actions.onChooseTopics,
+                            )
+                        } else {
+                            PrimaryButton(
+                                stringResource(R.string.get_premium),
+                                onClick = { paywallReason = PaywallReason.Words(freeMax) },
+                                icon = Icons.Filled.WorkspacePremium,
+                                kind = ActionButtonKind.PREMIUM,
                             )
                         }
                     }

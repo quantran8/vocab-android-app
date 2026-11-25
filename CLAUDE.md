@@ -14,6 +14,7 @@ Syll (VocabFlow) for Android: Kotlin + Jetpack Compose port of the SwiftUI app i
 ./gradlew :app:assembleDebug -PvocabflowApiUrl=https://…/   # other backend (iOS VOCABFLOW_API_URL)
 ./gradlew :app:assembleDebug -PgoogleServerClientId=….apps.googleusercontent.com   # Google sign-in (backend Web client ID)
 ./gradlew :app:assembleDebug -PappleServiceId=…               # Sign in with Apple (Services ID; web flow via backend auth/apple/callback)
+./gradlew :app:assembleRelease -PadmobAppId=… -PadmobInterstitialUnitId=… -PtermsUrl=… -PprivacyPolicyUrl=…   # Premium/ads (docs/PREMIUM_SETUP.md)
 python3 tools/xcstrings2android/convert.py [--strict]        # regenerate strings from the iOS catalog
 ```
 
