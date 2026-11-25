@@ -1,5 +1,9 @@
 package com.syll.features.profile
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.navigationBarsPadding
+import com.syll.designsystem.components.FullScreenDialog
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
@@ -9,46 +13,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.syll.R
 import com.syll.app.LocalAppSettingsStore
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalPlacementTestStore
-import com.syll.designsystem.components.CircleIconButton
 import com.syll.designsystem.components.Eyebrow
-import com.syll.designsystem.components.PinnedActionBar
 import com.syll.designsystem.components.PlanSectionTitle
-import com.syll.designsystem.components.PrimaryButton
 import com.syll.designsystem.components.TopicChip
-import com.syll.designsystem.tokens.Radii
 import com.syll.designsystem.tokens.Spacing
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
@@ -68,45 +55,44 @@ import com.syll.features.plan.WordsPerDayStepper
 import com.syll.features.plan.displayName
 
 /**
- * The plan editors' sheet (iOS `.presentationDetents([.large])`): ✕ in the corner, the title, the form scrolling,
- * and the save bar pinned at the bottom. Dismissing discards the draft.
+ * The plan editors as Material full-screen dialogs: ✕, the title and "Save" in the top app bar, the form scrolling,
+ * and its notes (why Save is off, what a change keeps) under it. Dismissing discards the draft.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PlanEditorSheet(
+private fun PlanEditorDialog(
     title: String,
     onDismiss: () -> Unit,
-    bar: @Composable ColumnScope.() -> Unit,
+    canSave: Boolean,
+    onSave: () -> Unit,
+    notes: @Composable ColumnScope.() -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = Radii.sheet, topEnd = Radii.sheet),
-        containerColor = SyllColors.canvas,
-    ) {
-        Column(Modifier.fillMaxSize()) {
-            Column(
-                Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Spacing.screenGutter)
-                    .padding(top = Spacing.s, bottom = Spacing.l),
-            ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
-                }
-                Text(
-                    title,
-                    style = Typography.sheetTitle.copy(letterSpacing = Typography.tightTracking.sp),
-                    color = SyllColors.ink,
-                    modifier = Modifier.padding(top = Spacing.xs, bottom = Spacing.l).semantics { heading() },
-                )
-                content()
-            }
-            PinnedActionBar(content = bar)
+    FullScreenDialog(
+        title = title,
+        onDismiss = onDismiss,
+        actionTitle = stringResource(R.string.save),
+        actionEnabled = canSave,
+        onAction = onSave,
+    ) { padding ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
+                .padding(horizontal = Spacing.screenGutter)
+                .padding(top = Spacing.s, bottom = Spacing.l),
+        ) {
+            content()
+            Column(Modifier.fillMaxWidth().padding(top = Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s), content = notes)
         }
     }
+}
+
+/** Why Save is off, under the form (iOS shows it on the disabled button). */
+@Composable
+private fun Requirement(text: String) {
+    Text(text, style = Typography.micro.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.mutedInk, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }
 
 /** iOS `EditLevelView`: take the placement test, or choose the level. */
@@ -119,21 +105,17 @@ fun EditLevelSheet(initial: CefrLevel?, onSave: (CefrLevel) -> Unit, onPlaced: (
     var draft by remember { mutableStateOf(initial) }
     var isTakingTest by remember { mutableStateOf(false) }
 
-    PlanEditorSheet(
+    PlanEditorDialog(
         stringResource(R.string.your_level),
         onDismiss,
-        bar = {
-            PrimaryButton(
-                stringResource(R.string.save_changes),
-                requirement = stringResource(R.string.choose_your_level),
-                enabled = draft != null && draft != saved,
-                onClick = {
-                    val level = draft ?: return@PrimaryButton
-                    settings.feedback.success()
-                    onSave(level)
-                },
-            )
+        canSave = draft != null && draft != saved,
+        onSave = {
+            draft?.let {
+                settings.feedback.success()
+                onSave(it)
+            }
         },
+        notes = { if (draft == null) Requirement(stringResource(R.string.choose_your_level)) },
     ) {
         PlacementTestCard(onClick = {
             placement.start()
@@ -188,10 +170,15 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
     val dropped = TopicCatalog.topics(initial.topicIds - draft.topicIds).filter { (it.learned ?: 0) > 0 }
     val locale = LocalConfiguration.current.locales[0]
 
-    PlanEditorSheet(
+    PlanEditorDialog(
         stringResource(R.string.your_focus),
         onDismiss,
-        bar = {
+        canSave = draft.isComplete && withinLimit,
+        onSave = {
+            settings.feedback.success()
+            onSave(draft)
+        },
+        notes = {
             if (dropped.isNotEmpty()) {
                 val note = if (dropped.size <= NAMED_DROP_LIMIT) {
                     val collection = initial.collection
@@ -220,15 +207,7 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            PrimaryButton(
-                stringResource(R.string.save_changes),
-                requirement = stringResource(R.string.choose_at_least_one_topic),
-                enabled = draft.isComplete && withinLimit,
-                onClick = {
-                    settings.feedback.success()
-                    onSave(draft)
-                },
-            )
+            if (draft.topicIds.isEmpty()) Requirement(stringResource(R.string.choose_at_least_one_topic))
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.l)) {
@@ -280,20 +259,15 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
 fun EditRoutineSheet(initial: LearningPreferences, onSave: (LearningPreferences) -> Unit, onDismiss: () -> Unit) {
     val settings = LocalAppSettingsStore.current
     var draft by remember { mutableStateOf(initial) }
-    PlanEditorSheet(
+    PlanEditorDialog(
         stringResource(R.string.your_routine),
         onDismiss,
-        bar = {
-            PrimaryButton(
-                stringResource(R.string.save_changes),
-                requirement = stringResource(R.string.choose_at_least_one_learning_day),
-                enabled = draft.isComplete,
-                onClick = {
-                    settings.feedback.success()
-                    onSave(draft)
-                },
-            )
+        canSave = draft.isComplete,
+        onSave = {
+            settings.feedback.success()
+            onSave(draft)
         },
+        notes = { if (draft.learningDays.isEmpty()) Requirement(stringResource(R.string.choose_at_least_one_learning_day)) },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.l)) {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s - 2.dp)) {

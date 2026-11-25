@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -42,7 +40,6 @@ import com.syll.R
 import com.syll.app.LocalAppSettingsStore
 import com.syll.app.UserMessage
 import com.syll.app.text
-import com.syll.designsystem.components.CircleIconButton
 import com.syll.designsystem.components.Eyebrow
 import com.syll.designsystem.components.PlanSectionTitle
 import com.syll.designsystem.components.PrimaryButton
@@ -108,10 +105,7 @@ fun ReviewLoadChoiceSheet(
                 .padding(horizontal = Spacing.screenGutter)
                 .padding(bottom = Spacing.l),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Eyebrow(stringResource(R.string.review), Modifier.weight(1f))
-                CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = { close() })
-            }
+            Eyebrow(stringResource(R.string.review))
             Text(
                 stringResource(R.string.you_have_x_learned_words_waiting_for_review, load.backlog),
                 style = Typography.screenTitle.copy(letterSpacing = Typography.tightTracking.sp),

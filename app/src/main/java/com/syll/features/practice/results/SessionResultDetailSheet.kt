@@ -11,7 +11,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,16 +24,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -50,18 +44,16 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.syll.R
 import com.syll.app.LocalLearnerStore
 import com.syll.designsystem.components.CardDivider
-import com.syll.designsystem.components.CircleIconButton
+import com.syll.designsystem.components.FullScreenDialog
 import com.syll.designsystem.components.Eyebrow
 import com.syll.designsystem.components.cardSurface
 import com.syll.designsystem.components.pressScaleClickable
 import com.syll.designsystem.motion.LocalMotion
 import com.syll.designsystem.motion.MotionTokens
 import com.syll.designsystem.motion.SymbolReplace
-import com.syll.designsystem.tokens.Radii
 import com.syll.designsystem.tokens.Spacing
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
@@ -86,13 +78,11 @@ import kotlin.math.roundToInt
  * iOS `SessionResultDetailSheet`: the words behind the tiles, grouped as the server decided. Opens scrolled to the
  * tapped tile's block. (Tapping a word opens its page once My Words lands, step 7.)
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionResultDetailSheet(result: PracticeResult, focus: ResultSection, onDismiss: () -> Unit) {
     val learner = LocalLearnerStore.current
     val zone = ResultDateText.zone(learner.profile?.settings?.timeZone)
     val blocks = remember(result) { ResultSheetModel.blocks(result) }
-    val sheetState = rememberModalBottomSheetState()
     val listState = rememberLazyListState()
     // Keys of groups opened against their default, and of groups closed against it.
     val expanded = remember { mutableStateListOf<String>() }
@@ -100,34 +90,18 @@ fun SessionResultDetailSheet(result: PracticeResult, focus: ResultSection, onDis
     var selectedWord by remember { mutableStateOf<ResultItem?>(null) }
 
     LaunchedEffect(focus) {
-        // The first block of the tapped tile's section (index + 1: the title row comes first).
+        // The first block of the tapped tile's section.
         val index = blocks.indexOfFirst { it.section == focus }
-        if (index > 0) listState.scrollToItem(index + 1)
+        if (index > 0) listState.scrollToItem(index)
     }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = Radii.sheet, topEnd = Radii.sheet),
-        containerColor = SyllColors.canvas,
-    ) {
+    FullScreenDialog(title = stringResource(R.string.session_details), onDismiss = onDismiss) { padding ->
         LazyColumn(
-            Modifier.fillMaxWidth().navigationBarsPadding(),
+            Modifier.fillMaxWidth().padding(padding).navigationBarsPadding(),
             state = listState,
             contentPadding = PaddingValues(start = Spacing.screenGutter, end = Spacing.screenGutter, top = Spacing.s, bottom = Spacing.l),
             verticalArrangement = Arrangement.spacedBy(Spacing.l + Spacing.xxs),
         ) {
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.session_details),
-                        style = Typography.sectionTitle.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = Typography.tightTracking.sp),
-                        color = SyllColors.ink,
-                        modifier = Modifier.weight(1f).semantics { heading() },
-                    )
-                    CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
-                }
-            }
             itemsIndexed(blocks, key = { _, block -> "${block.section}-${block.title}" }) { _, block ->
                 BlockView(block, zone, onOpenWord = { selectedWord = it }, isExpanded = { group ->
                     val key = "${block.section}-${block.title}-${group.kind}"

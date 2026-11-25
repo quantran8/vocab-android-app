@@ -1,5 +1,13 @@
 package com.syll.designsystem.components
 
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.rememberTooltipState
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.RichTooltip
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.animation.core.animateDpAsState
 import com.syll.designsystem.motion.SymbolReplace
 import androidx.compose.animation.animateColorAsState
@@ -23,11 +31,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
@@ -36,7 +42,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,11 +61,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.syll.R
 import com.syll.designsystem.motion.LocalMotion
 import com.syll.designsystem.motion.MotionTokens
@@ -333,58 +335,26 @@ fun ProgressTrack(fraction: Float, modifier: Modifier = Modifier, height: Dp = 8
     }
 }
 
-/** iOS `BackButton` / `IconButton`: a 36 dp round Ink 100 button inside a 44 dp touch target. */
-@Composable
-fun CircleIconButton(icon: ImageVector, label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier.size(Spacing.minTouchTarget).pressScaleClickable(onClick = onClick).semantics { contentDescription = label },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(Modifier.size(Spacing.iconButton).background(SyllColors.neutralSurface, CircleShape), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = SyllColors.ink800, modifier = Modifier.size(18.dp))
-        }
-    }
-}
-
-@Composable
-fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    CircleIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), onClick, modifier)
-}
-
 /**
- * iOS `InfoPopoverButton`: ⓘ beside a label; the explanation opens in a 280 dp popup, so rows keep a single line.
+ * ⓘ beside a label (iOS `InfoPopoverButton`): the explanation opens in a Material rich tooltip on tap, so rows keep
+ * a single line.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoPopoverButton(text: String, accessibilityLabel: String) {
-    var isShowing by remember { mutableStateOf(false) }
-    Box {
-        Box(
-            Modifier
-                .size(Spacing.minTouchTarget)
-                .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button) { isShowing = true }
-                .semantics { contentDescription = accessibilityLabel },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Outlined.Info, contentDescription = null, tint = SyllColors.mutedInk, modifier = Modifier.size(18.dp))
-        }
-        if (isShowing) {
-            Popup(
-                alignment = Alignment.TopStart,
-                offset = IntOffset(0, 120),
-                onDismissRequest = { isShowing = false },
-                properties = PopupProperties(focusable = true),
-            ) {
-                Text(
-                    text,
-                    style = Typography.secondary,
-                    color = SyllColors.ink,
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                        .background(SyllColors.surface, RoundedCornerShape(Radii.tile))
-                        .border(Borders.hairline, SyllColors.stroke, RoundedCornerShape(Radii.tile))
-                        .padding(Spacing.m),
-                )
+    val state = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        tooltip = {
+            RichTooltip(colors = TooltipDefaults.richTooltipColors(containerColor = SyllColors.surface, contentColor = SyllColors.ink)) {
+                Text(text, style = Typography.secondary, color = SyllColors.ink)
             }
+        },
+        state = state,
+    ) {
+        IconButton(onClick = { scope.launch { state.show() } }, modifier = Modifier.semantics { contentDescription = accessibilityLabel }) {
+            Icon(Icons.Outlined.Info, contentDescription = null, tint = SyllColors.mutedInk, modifier = Modifier.size(18.dp))
         }
     }
 }

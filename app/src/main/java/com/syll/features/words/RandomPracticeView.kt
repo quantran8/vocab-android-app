@@ -1,5 +1,6 @@
 package com.syll.features.words
 
+import com.syll.designsystem.components.PageScaffold
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,13 +39,11 @@ import com.syll.R
 import com.syll.app.LocalAppScope
 import com.syll.app.LocalAppSettingsStore
 import com.syll.app.LocalPracticeSessionStore
-import com.syll.designsystem.components.BackButton
 import com.syll.designsystem.components.CardDivider
 import com.syll.designsystem.components.CollectionMarkDot
 import com.syll.designsystem.components.Eyebrow
 import com.syll.designsystem.components.PinnedActionBar
 import com.syll.designsystem.components.PrimaryButton
-import com.syll.designsystem.components.ScreenTitle
 import com.syll.designsystem.components.SectionTitle
 import com.syll.designsystem.components.SelectionMark
 import com.syll.designsystem.components.SymbolIcons
@@ -104,27 +102,31 @@ fun RandomPracticeView(onBack: () -> Unit) {
     val collections = CatalogState.collections.filter { (it.learned ?: 0) > 0 }
     val requirement = (source as? WordSource.Collection)?.takeIf { it.topics.isEmpty() }?.let { stringResource(R.string.choose_at_least_one_topic) }
 
-    Column(Modifier.fillMaxSize().background(SyllColors.canvas).statusBarsPadding()) {
+    PageScaffold(
+        stringResource(R.string.random_practice),
+        onBack,
+        bottomBar = {
+            PinnedActionBar {
+                PrimaryButton(
+                    stringResource(R.string.start),
+                    requirement = requirement,
+                    enabled = requirement == null,
+                    // Planning swaps this screen out, so it runs in the app's scope.
+                    onClick = { appScope.launch { practice.startPractice(source.filter(collections)) } },
+                )
+            }
+        },
+    ) { padding ->
         Column(
             Modifier
-                .weight(1f)
+                .fillMaxSize()
+                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Spacing.screenGutter)
                 .padding(bottom = Spacing.l),
         ) {
-            BackButton(onClick = onBack)
-            ScreenTitle(stringResource(R.string.random_practice), Modifier.padding(top = Spacing.xxs))
-            SectionTitle(stringResource(R.string.word_source), Modifier.padding(top = Spacing.xl))
+            SectionTitle(stringResource(R.string.word_source), Modifier.padding(top = Spacing.s))
             WordSourceList(collections, source) { source = it }
-        }
-        PinnedActionBar {
-            PrimaryButton(
-                stringResource(R.string.start),
-                requirement = requirement,
-                enabled = requirement == null,
-                // Planning swaps this screen out, so it runs in the app's scope.
-                onClick = { appScope.launch { practice.startPractice(source.filter(collections)) } },
-            )
         }
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -118,17 +119,9 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ScreenTitle(stringResource(R.string.profile), Modifier.weight(1f))
-            val settingsLabel = stringResource(R.string.settings)
-            Box(
-                Modifier
-                    .size(Spacing.minTouchTarget)
-                    .pressScaleClickable(onClick = onOpenSettings)
-                    .semantics { contentDescription = settingsLabel },
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(Modifier.size(36.dp).background(SyllColors.neutralSurface, CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Outlined.Settings, null, tint = SyllColors.ink700, modifier = Modifier.size(20.dp))
-                }
+            // A plain action icon, as in an Android app bar (iOS draws a round bar button).
+            IconButton(onClick = onOpenSettings) {
+                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings), tint = SyllColors.ink700)
             }
         }
 

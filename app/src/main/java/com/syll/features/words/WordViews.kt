@@ -10,7 +10,6 @@ import com.syll.designsystem.components.cardSurface
 import com.syll.designsystem.components.StatusPillTone
 import com.syll.designsystem.components.StatusPill
 import com.syll.designsystem.components.Eyebrow
-import com.syll.designsystem.components.CircleIconButton
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateListOf
@@ -19,7 +18,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -198,7 +196,7 @@ fun OtherMeaningsSheet(lemma: String, meanings: List<WordDetail.Meaning>, onDism
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = Spacing.screenGutter)
-                .padding(top = Spacing.s, bottom = Spacing.l),
+                .padding(bottom = Spacing.l),
         ) {
             Row(Modifier.padding(bottom = Spacing.m), horizontalArrangement = Arrangement.spacedBy(Spacing.s), verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -210,7 +208,6 @@ fun OtherMeaningsSheet(lemma: String, meanings: List<WordDetail.Meaning>, onDism
                     )
                     Text(stringResource(R.string.for_reference_only_not_part_of_this_lesson), style = Typography.secondary, color = SyllColors.mutedInk)
                 }
-                CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
             }
             groupByPartOfSpeech(meanings) { it.meaning.partOfSpeech }.forEach { (partOfSpeech, items) ->
                 Column(Modifier.padding(bottom = Spacing.xs)) {

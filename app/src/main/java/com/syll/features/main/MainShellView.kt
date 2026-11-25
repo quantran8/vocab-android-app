@@ -1,20 +1,15 @@
 package com.syll.features.main
 
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.fadeIn
-import com.syll.designsystem.motion.MotionTokens
+import com.syll.app.userMessage
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AutoStories
@@ -29,24 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.syll.R
 import com.syll.app.LocalAppScope
 import com.syll.app.LocalLearnerStore
@@ -56,8 +41,6 @@ import com.syll.app.UserMessage
 import com.syll.app.text
 import com.syll.designsystem.components.StatusScreen
 import com.syll.designsystem.motion.LocalMotion
-import com.syll.designsystem.tokens.Radii
-import com.syll.designsystem.tokens.Spacing
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
 import com.syll.domain.CefrLevel
@@ -74,7 +57,6 @@ import com.syll.features.words.MyWordsView
 import com.syll.features.words.RandomPracticeView
 import com.syll.network.asApiError
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** iOS `MainTab`. */
@@ -107,16 +89,19 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
     var wordsPage by rememberSaveable { mutableStateOf<ShellPage?>(null) }
     var profilePage by rememberSaveable { mutableStateOf<ShellPage?>(null) }
     var planSheet by rememberSaveable { mutableStateOf<PlanSheet?>(null) }
-    var toast by remember { mutableStateOf<UserMessage?>(null) }
-    var toastToken by remember { mutableIntStateOf(0) }
-    val toastScope = rememberCoroutineScope()
+    // iOS shows a toast after a plan save; Android's equivalent is a snackbar.
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val snackbarScope = rememberCoroutineScope()
 
     fun showToast(message: UserMessage) {
-        val token = ++toastToken
-        toast = message
-        toastScope.launch {
-            delay(TOAST_MILLIS)
-            if (toastToken == token) toast = null
+        val text = when (message) {
+            is UserMessage.Resource -> context.getString(message.id)
+            is UserMessage.Api -> message.error.userMessage(context)
+        }
+        snackbarScope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            snackbar.showSnackbar(text)
         }
     }
 
@@ -166,6 +151,7 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
 
     Scaffold(
         containerColor = SyllColors.canvas,
+        snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             // Pushed pages hide the tab bar (iOS `.toolbar(.hidden, for: .tabBar)`).
             if (page == null) {
@@ -210,19 +196,6 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
                         )
                     }
                 }
-            }
-            // Pops in above the tab bar (iOS `ToastView` under `popTransition`).
-            AnimatedVisibility(
-                toast != null,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = Spacing.screenGutter, vertical = Spacing.s),
-                // In with the `feedback` spring, out with `press` (iOS `motion.perform` around the toast).
-                enter = if (motion.reduceMotion) fadeIn(motion.animation(MotionTokens.feedback)) else
-                    scaleIn(MotionTokens.feedback.spec(), initialScale = 0.88f) + fadeIn(MotionTokens.feedback.spec()),
-                exit = if (motion.reduceMotion) fadeOut(motion.animation(MotionTokens.press)) else
-                    scaleOut(MotionTokens.press.spec(), targetScale = 0.88f) + fadeOut(MotionTokens.press.spec()),
-            ) {
-                val shown = remember(toast) { toast }
-                shown?.let { ToastView(it.text()) }
             }
         }
     }
@@ -274,8 +247,6 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
     }
 }
 
-private const val TOAST_MILLIS = 2_400L
-
 /** A tab's root and the page pushed over it, swapped like a system push. */
 @Composable
 private fun PushedPage(page: ShellPage?, content: @Composable (ShellPage?) -> Unit) {
@@ -285,21 +256,4 @@ private fun PushedPage(page: ShellPage?, content: @Composable (ShellPage?) -> Un
         transitionSpec = { motion.stepTransition(isMovingBack = targetState == null) },
         label = "shellPage",
     ) { content(it) }
-}
-
-/** iOS `ToastView`: Ink pill, white bold caption, announced when it appears. */
-@Composable
-private fun ToastView(text: String) {
-    Text(
-        text,
-        style = Typography.micro.copy(fontWeight = FontWeight.Bold),
-        color = Color.White,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(10.dp, RoundedCornerShape(Radii.chip + 2.dp), ambientColor = SyllColors.ink.copy(alpha = 0.2f), spotColor = SyllColors.ink.copy(alpha = 0.2f))
-            .background(SyllColors.ink, RoundedCornerShape(Radii.chip + 2.dp))
-            .padding(vertical = Spacing.s + 1.dp, horizontal = Spacing.m)
-            .semantics { liveRegion = LiveRegionMode.Polite },
-    )
 }

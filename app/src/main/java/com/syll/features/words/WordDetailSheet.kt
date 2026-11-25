@@ -22,16 +22,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +50,7 @@ import com.syll.R
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalPracticeSessionStore
 import com.syll.app.LocalSpeechPlayer
-import com.syll.designsystem.components.CircleIconButton
+import com.syll.designsystem.components.FullScreenDialog
 import com.syll.designsystem.components.Eyebrow
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.SectionTitle
@@ -86,7 +82,6 @@ import kotlin.math.roundToInt
  * iOS `WordDetailSheet`: every meaning of a word grouped by part of speech; progress belongs to each meaning, not
  * the word. Each meaning is a card that opens to its definition, example, memory and speaking.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordDetailSheet(
     wordId: String,
@@ -137,23 +132,17 @@ fun WordDetailSheet(
     val clipPlay = detailClip?.let { clip -> { practice.playClip(clip) } }
     val heroPlay = if (pronunciationsDiffer) clipPlay else playAudio ?: clipPlay
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = Radii.sheet, topEnd = Radii.sheet),
-        containerColor = SyllColors.canvas,
-    ) {
+    // The word is the hero below, so the app bar holds only ✕.
+    FullScreenDialog(title = "", onDismiss = onDismiss) { padding ->
         Column(
             Modifier
                 .fillMaxWidth()
+                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = Spacing.screenGutter)
-                .padding(top = Spacing.xs, bottom = Spacing.l),
+                .padding(bottom = Spacing.l),
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
-            }
             WordHeroHeader(
                 lemma = lemma,
                 ipa = if (pronunciationsDiffer) null else ipa ?: loadedMeaning?.meaning?.ipa,

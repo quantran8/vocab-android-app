@@ -1,5 +1,7 @@
 package com.syll.features.settings
 
+import com.syll.designsystem.components.PageScaffold
+import com.syll.designsystem.components.FullScreenDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,7 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Key
@@ -64,9 +64,7 @@ import com.syll.app.LocalAppSettingsStore
 import com.syll.app.LocalAuthStore
 import com.syll.app.LocalLearnerStore
 import com.syll.app.text
-import com.syll.designsystem.components.BackButton
 import com.syll.designsystem.components.CardDivider
-import com.syll.designsystem.components.CircleIconButton
 import com.syll.designsystem.components.ConfirmSheet
 import com.syll.designsystem.components.ConfirmSheetStyle
 import com.syll.designsystem.components.Eyebrow
@@ -74,7 +72,6 @@ import com.syll.designsystem.components.FieldErrorText
 import com.syll.designsystem.components.LabeledField
 import com.syll.designsystem.components.PasswordInput
 import com.syll.designsystem.components.PrimaryButton
-import com.syll.designsystem.components.ScreenTitle
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.SyllieMood
 import com.syll.designsystem.components.SyllieView
@@ -108,17 +105,15 @@ fun AppSettingsView(onBack: () -> Unit) {
     var isConfirmingDeletion by remember { mutableStateOf(false) }
     val version = remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "1.0" }
 
+    PageScaffold(stringResource(R.string.settings), onBack) { padding ->
     Column(
         Modifier
             .fillMaxSize()
-            .background(SyllColors.canvas)
-            .statusBarsPadding()
+            .padding(padding)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = Spacing.screenGutter)
             .padding(bottom = Spacing.l),
     ) {
-        BackButton(onClick = onBack)
-        ScreenTitle(stringResource(R.string.settings), Modifier.padding(top = Spacing.xs))
 
         Group(stringResource(R.string.interaction)) {
             ToggleRow(Icons.Outlined.TouchApp, stringResource(R.string.haptics), settings.hapticsEnabled) { settings.hapticsEnabled = it }
@@ -167,6 +162,7 @@ fun AppSettingsView(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.m),
             )
         }
+    }
     }
 
     if (isChoosingLanguage) {
@@ -260,18 +256,15 @@ private fun LanguageSheet(current: AppLanguage, onSelect: (AppLanguage) -> Unit,
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = Spacing.screenGutter)
-                .padding(top = Spacing.s, bottom = Spacing.m),
+                .padding(bottom = Spacing.m),
             verticalArrangement = Arrangement.spacedBy(Spacing.l),
         ) {
-            Row(verticalAlignment = Alignment.Top) {
-                Text(
-                    stringResource(R.string.choose_your_language),
-                    style = Typography.sheetTitle.copy(letterSpacing = Typography.tightTracking.sp),
-                    color = SyllColors.ink,
-                    modifier = Modifier.weight(1f).semantics { heading() },
-                )
-                CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
-            }
+            Text(
+                stringResource(R.string.choose_your_language),
+                style = Typography.sheetTitle.copy(letterSpacing = Typography.tightTracking.sp),
+                color = SyllColors.ink,
+                modifier = Modifier.semantics { heading() },
+            )
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 AppLanguage.entries.forEach { language ->
                     val isSelected = language == current
@@ -302,7 +295,6 @@ private fun LanguageSheet(current: AppLanguage, onSelect: (AppLanguage) -> Unit,
 /**
  * iOS `ChangePasswordSheet`: the backend re-checks the current password. Success shows Syllie with a green check.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChangePasswordSheet(onDismiss: () -> Unit) {
     val auth = LocalAuthStore.current
@@ -329,16 +321,14 @@ private fun ChangePasswordSheet(onDismiss: () -> Unit) {
         }
     }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = Radii.sheet, topEnd = Radii.sheet),
-        containerColor = SyllColors.canvas,
-    ) {
-        Column(Modifier.fillMaxSize().navigationBarsPadding()) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.screenGutter, vertical = Spacing.xs), horizontalArrangement = Arrangement.End) {
-                CircleIconButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onDismiss)
-            }
+    FullScreenDialog(
+        title = stringResource(R.string.change_password),
+        onDismiss = onDismiss,
+        actionTitle = if (didChange) null else stringResource(R.string.save),
+        actionEnabled = canSubmit,
+        onAction = ::submit,
+    ) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).navigationBarsPadding()) {
             if (didChange) {
                 Column(
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = Spacing.xl),
@@ -375,13 +365,7 @@ private fun ChangePasswordSheet(onDismiss: () -> Unit) {
                         .padding(horizontal = Spacing.screenGutter)
                         .padding(bottom = Spacing.l),
                 ) {
-                    Text(
-                        stringResource(R.string.change_password),
-                        style = Typography.sheetTitle.copy(letterSpacing = Typography.tightTracking.sp),
-                        color = SyllColors.ink,
-                        modifier = Modifier.semantics { heading() },
-                    )
-                    Column(Modifier.padding(top = Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                    Column(Modifier.padding(top = Spacing.s), verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
                         LabeledField(stringResource(R.string.current_password), isFocused = focus == 0, isError = auth.passwordChangeError != null) {
                             PasswordInput(
                                 current,
@@ -417,13 +401,10 @@ private fun ChangePasswordSheet(onDismiss: () -> Unit) {
                         modifier = Modifier.padding(top = Spacing.l),
                     )
                 }
-                Column(
-                    Modifier.fillMaxWidth().background(SyllColors.canvas).padding(horizontal = Spacing.screenGutter).padding(top = Spacing.s, bottom = Spacing.xs),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(Spacing.s),
-                ) {
-                    if (auth.isChangingPassword) CircularProgressIndicator(Modifier.size(24.dp), color = SyllColors.mutedInk, strokeWidth = 2.5.dp)
-                    PrimaryButton(stringResource(R.string.change_password), onClick = ::submit, enabled = canSubmit)
+                if (auth.isChangingPassword) {
+                    Box(Modifier.fillMaxWidth().padding(bottom = Spacing.m), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(Modifier.size(24.dp), color = SyllColors.mutedInk, strokeWidth = 2.5.dp)
+                    }
                 }
             }
         }

@@ -1,33 +1,16 @@
 package com.syll.designsystem.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.syll.designsystem.tokens.Radii
-import com.syll.designsystem.tokens.Spacing
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
 
@@ -40,10 +23,10 @@ sealed interface ConfirmSheetStyle {
 }
 
 /**
- * iOS `ConfirmSheet`: a destructive / leave confirmation in a short bottom sheet sized to its content.
- * Cancel is always visible. [onDismiss] runs for Cancel, a swipe down or a tap outside.
+ * A destructive / leave confirmation as a Material `AlertDialog` (iOS shows a short sheet). Leaving practice offers
+ * "keep going" as the confirming button and leaving as the other; a destructive one confirms in red.
+ * [onDismiss] runs for Cancel, Back or a tap outside.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmSheet(
     style: ConfirmSheetStyle,
@@ -54,51 +37,39 @@ fun ConfirmSheet(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    ModalBottomSheet(
+    val buttonText = Typography.body.copy(fontWeight = FontWeight.Bold)
+    AlertDialog(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = Radii.sheet, topEnd = Radii.sheet),
-        containerColor = SyllColors.canvas,
-    ) {
-        val titleStyle = Typography.screenTitle.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = Typography.tightTracking.sp)
-        when (style) {
-            is ConfirmSheetStyle.Destructive -> Column(
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = Spacing.practiceGutter)
-                    .padding(top = Spacing.xs, bottom = Spacing.m),
-            ) {
-                Box(Modifier.size(48.dp).background(SyllColors.coral50, CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(style.icon, contentDescription = null, tint = SyllColors.coral600, modifier = Modifier.size(24.dp))
+        containerColor = SyllColors.surface,
+        titleContentColor = SyllColors.ink,
+        textContentColor = SyllColors.bodyInk,
+        icon = {
+            when (style) {
+                is ConfirmSheetStyle.Destructive -> Icon(style.icon, contentDescription = null, tint = SyllColors.coral600)
+                ConfirmSheetStyle.LeavePractice -> SyllieView(SyllieMood.OOPS, Modifier.size(96.dp, 80.dp))
+            }
+        },
+        title = { Text(title, style = Typography.sectionTitle.copy(fontWeight = FontWeight.ExtraBold), textAlign = TextAlign.Center) },
+        text = { Text(message, style = Typography.secondary, textAlign = TextAlign.Center) },
+        confirmButton = {
+            when (style) {
+                is ConfirmSheetStyle.Destructive -> TextButton(onClick = onConfirm) {
+                    Text(confirmTitle, style = buttonText, color = SyllColors.destructiveInk)
                 }
-                Text(title, style = titleStyle, color = SyllColors.ink, modifier = Modifier.padding(top = Spacing.m).semantics { heading() })
-                Text(message, style = Typography.secondary, color = SyllColors.bodyInk, modifier = Modifier.padding(top = Spacing.xs))
-                Row(Modifier.padding(top = Spacing.l), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                    SecondaryButton(cancelTitle, onClick = onDismiss, kind = ActionButtonKind.OUTLINE, modifier = Modifier.weight(1f))
-                    DestructiveButton(confirmTitle, onClick = onConfirm, modifier = Modifier.weight(1f))
+                ConfirmSheetStyle.LeavePractice -> TextButton(onClick = onDismiss) {
+                    Text(cancelTitle, style = buttonText, color = SyllColors.interactive)
                 }
             }
-            ConfirmSheetStyle.LeavePractice -> Column(
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = Spacing.practiceGutter).padding(bottom = Spacing.m),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                SyllieView(SyllieMood.OOPS, Modifier.size(96.dp, 80.dp))
-                Text(title, style = titleStyle, color = SyllColors.ink, modifier = Modifier.padding(top = Spacing.s).semantics { heading() })
-                Text(
-                    message,
-                    style = Typography.secondary,
-                    color = SyllColors.bodyInk,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = Spacing.xs),
-                )
-                Column(Modifier.padding(top = Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                    PrimaryButton(cancelTitle, onClick = onDismiss, kind = ActionButtonKind.APP)
-                    ActionButton(
-                        ActionButtonKind.OUTLINE,
-                        onClick = onConfirm,
-                        modifier = Modifier.fillMaxWidth(),
-                        foregroundOverride = SyllColors.destructiveInk,
-                    ) { Text(confirmTitle) }
+        },
+        dismissButton = {
+            when (style) {
+                is ConfirmSheetStyle.Destructive -> TextButton(onClick = onDismiss) {
+                    Text(cancelTitle, style = buttonText, color = SyllColors.ink)
+                }
+                ConfirmSheetStyle.LeavePractice -> TextButton(onClick = onConfirm) {
+                    Text(confirmTitle, style = buttonText, color = SyllColors.destructiveInk)
                 }
             }
-        }
-    }
+        },
+    )
 }
