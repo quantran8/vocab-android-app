@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -22,12 +23,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -43,6 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.syll.R
+import com.syll.app.UserMessage
 import com.syll.designsystem.components.ActionButton
 import com.syll.designsystem.components.ActionButtonKind
 import com.syll.designsystem.components.CardDivider
@@ -53,7 +57,6 @@ import com.syll.designsystem.components.SyllieView
 import com.syll.designsystem.tokens.Spacing
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
-import com.syll.app.UserMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -157,8 +160,9 @@ fun AuthBackBar(onBack: () -> Unit) {
 }
 
 /**
- * iOS `SocialSignInButtons`: "or", then the providers. Either provider creates the account on first use, so sign
- * up offers only email and password. Sign in with Apple arrives in Phase 3 (web flow), so only Google shows.
+ * iOS `SocialSignInButtons`: "or", then Sign in with Apple and Google. Either provider creates the account on first
+ * use, so sign up offers only email and password. Apple runs its web flow in a Custom Tab ([AppleSignIn]); its button
+ * is Apple's black one, above Google's like iOS.
  */
 @Composable
 fun SocialSignInButtons(auth: AuthStore, scope: CoroutineScope) {
@@ -172,6 +176,36 @@ fun SocialSignInButtons(auth: AuthStore, scope: CoroutineScope) {
             CardDivider(Modifier.weight(1f))
             Text(stringResource(R.string.or), style = Typography.micro, color = SyllColors.mutedInk)
             CardDivider(Modifier.weight(1f))
+        }
+
+        // Apple's black button, rounded like every other button in the app.
+        ActionButton(
+            kind = ActionButtonKind.PLAIN,
+            onClick = {
+                auth.clearError()
+                scope.launch {
+                    try {
+                        val result = AppleSignIn.signIn(context)
+                        auth.logInWithApple(result.idToken, result.nonce)
+                    } catch (e: AppleSignIn.Failure.Cancelled) {
+                        return@launch
+                    } catch (e: AppleSignIn.Failure.NotConfigured) {
+                        auth.providerSignInFailed(UserMessage.Resource(R.string.apple_sign_in_isn_t_set_up_yet))
+                    } catch (e: AppleSignIn.Failure) {
+                        auth.providerSignInFailed()
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Spacing.socialButtonHeight)
+                .clip(CircleShape)
+                .background(if (auth.isSubmitting) SyllColors.disabledSurface else Color.Black),
+            enabled = !auth.isSubmitting,
+            foregroundOverride = Color.White,
+        ) {
+            Icon(painterResource(R.drawable.ic_apple_logo), contentDescription = null, Modifier.size(18.dp))
+            Text(stringResource(R.string.continue_with_apple))
         }
 
         // The flat outline button.

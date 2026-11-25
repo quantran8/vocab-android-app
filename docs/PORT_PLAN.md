@@ -24,7 +24,7 @@ The iOS app is the spec. It is a port, not a redesign: same screens, rules, copy
 - [ ] Remaining shared services: `FeedbackProviding` (haptics), `SoundEffects`, `SpeechProviding` (TTS) (moved to Phase 1 step 4)
 
 ### Phase 1 — Core loop (done; device checks open)
-- [x] 1. Auth: `VocabApi`/`LiveVocabApi` (auth endpoints), `AuthStore`, `PasswordPolicy` + `PasswordRuleList`, log in / sign up + check email / reset password (2 steps), Google via Credential Manager (`-PgoogleServerClientId=…`). Change password + account deletion UI land with Profile (step 7). Apple: Phase 3.
+- [x] 1. Auth: `VocabApi`/`LiveVocabApi` (auth endpoints), `AuthStore`, `PasswordPolicy` + `PasswordRuleList`, log in / sign up + check email / reset password (2 steps), Google via Credential Manager (`-PgoogleServerClientId=…`). Change password + account deletion UI land with Profile (step 7). Apple: Phase 3 (done).
 - [x] 2. `LearnerStore` (load/profile/plan/Premium parts), `LearningPlanStore`, `TopicCatalog`, `OnboardingStore` + `OnboardingView` (welcome, level, collection, topics, routine incl. `DailySpeakingToggle`, ready), `PlacementTestStore` + `PlacementTestView`, haptics (`FeedbackProviding`). Open: reminders are saved but not scheduled yet (`NoReminders`, step 7); "Start my first lesson" opens the app until practice lands (step 4); past the free topic limit nothing offers Premium (Phase 4).
 - [x] 3. Home: `MainShellView` (NavigationBar; My Words/Profile placeholders until step 7, Ranking until Phase 2), `HomeView` (Daily Lesson card + ⓘ popover, extra-review footer, Learning section, pull to refresh), `DailyLessonStatus`, `LessonMascot`/`HomeSyllieView` (timelines, no view model), `ReviewLoadChoiceSheet` + ack + new-word override, button shimmer. Open: Start/Review/Practise/Change are wired with practice (step 4) and Focus/Random practice (step 7); session follow-ups (`consumeFollowUp`) come with `PracticeSessionStore`; LP pill with Ranking.
 - [x] 4. Practice session: plan/task models with strict decoding, `TaskAttempt` + events, byte-stable `CommitBody`, practice endpoints (4a); `PracticeSessionStore` (daily chain, review-only, known check, recording flow, commit retry/conflict) with the iOS tests ported (4b); `PracticeSessionView` (planning/empty/failed, review preview, review finished, flow with pinned action bar), `TaskScaffold` + feedback panel + Syllie reactions, Choice, Cloze, Typing, Reorder, Match, Surgery, Learn card with "I know this word" (4c). `OfflinePlans` walks every template in the debug gallery.
@@ -46,6 +46,10 @@ Deviations in Phase 2:
 - The Practice Lab entry is in Settings in every build, as on iOS (the plan above said debug builds).
 - Open: check Challenge, Ranking and Custom words against a live backend on a device (offline API returns errors for ranking and "not a word" for every lookup).
 
+### Phase 3 — Sign in with Apple (done; device check open)
+- [x] Web flow in a Custom Tab (`AppleWebAuth` builds the request and reads the callback, `AppleWebAuthTest`): Services ID as client ID (`-PappleServiceId=…`), `code id_token` + `form_post` + `email` scope like iOS, random `state`, SHA-256 nonce to Apple and the raw one to `POST /v1/auth/apple`. Apple posts to the backend's new `POST /v1/auth/apple/callback` (return URL, `-PappleRedirectUri=…`, production by default since it must be https), which 303s to `intent://callback?…;scheme=syll-apple` → `AppleSignInCallbackActivity` → `AppleSignIn`; closing the tab cancels silently (`MainActivity` resumes without a callback). Apple's black "Continue with Apple" button above Google's on the log-in screen. Setup: `ios_app/docs/AUTH_SETUP.md` §2.3 (Services ID, Supabase client IDs, `APPLE_ANDROID_PACKAGE`).
+- Open: register the Services ID and return URL, deploy the backend, then sign in on a device (Chrome and one other browser as the Custom Tab provider).
+
 Deviation from the table below: settings use SharedPreferences behind `KeyValueStore` (synchronous like `UserDefaults`, which the ported stores assume) instead of DataStore.
 
 ## Stack
@@ -65,7 +69,7 @@ Deviation from the table below: settings use SharedPreferences behind `KeyValueS
 | AVSpeechSynthesizer (`SpeechProviding`) | `TextToSpeech` en-US |
 | CoreHaptics (`FeedbackProviding`) | `Vibrator`/`HapticFeedback` behind the same interface, wrapped by the settings-aware decorator |
 | UserNotifications (`ReminderScheduling`) | WorkManager / AlarmManager + `POST_NOTIFICATIONS` permission |
-| Sign in with Apple / Google (PKCE web) | Google: Credential Manager (`GetGoogleIdOption` with nonce) → `POST /v1/auth/google` (idToken + raw nonce). Apple: web OAuth in Custom Tab (phase 3, see risks) |
+| Sign in with Apple / Google (PKCE web) | Google: Credential Manager (`GetGoogleIdOption` with nonce) → `POST /v1/auth/google` (idToken + raw nonce). Apple: web OAuth in a Custom Tab, returned through the backend's `auth/apple/callback` (phase 3) |
 | StoreKit 2 | Play Billing Library (phase 4, needs backend) |
 | GoogleMobileAds + UMP + ATT | Google Mobile Ads SDK + UMP (no ATT on Android) |
 | `Localizable.xcstrings` | `res/values-*/strings.xml` generated by a script (see Localization) |

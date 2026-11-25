@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 private enum class AuthPage { LOG_IN, SIGN_UP, RESET }
 
 /**
- * iOS `AuthView`: log in with email and password or Google (docs/app-redesign-v1.html, 0.1–0.2). Creating an
+ * iOS `AuthView`: log in with email and password, Apple or Google (docs/app-redesign-v1.html, 0.1–0.2). Creating an
  * account ([SignUpView]) and resetting a password ([ResetPasswordView]) are pushed pages with a back arrow.
  * The email typed on one page carries over to the others, like the iOS `@Binding`.
  */

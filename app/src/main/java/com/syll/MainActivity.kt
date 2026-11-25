@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.syll.app.AppRoot
 import com.syll.app.ProvideStores
 import com.syll.designsystem.theme.VocabFlowTheme
+import com.syll.features.auth.AppleSignIn
 
 /** AppCompat so per-app language (AppCompatDelegate.setApplicationLocales) works back to API 26. */
 class MainActivity : AppCompatActivity() {
@@ -29,6 +30,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Back from Sign in with Apple's Custom Tab without a callback: the tab was closed.
+        AppleSignIn.hostResumed()
+    }
+
+    override fun onStop() {
+        AppleSignIn.hostStopped()
+        super.onStop()
     }
 
     override fun onDestroy() {

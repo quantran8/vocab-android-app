@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android-only strings (see values/strings.xml). -->
+<resources>
+    <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
+    <string name="continue_with_apple">Continuar con Apple</string>
+    <string name="apple_sign_in_isn_t_set_up_yet">El inicio de sesión con Apple aún no está configurado.</string>
+</resources>

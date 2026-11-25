@@ -14,6 +14,15 @@ val apiUrlOverride: String? = providers.gradleProperty("vocabflowApiUrl").orNull
  */
 val googleServerClientId: String = providers.gradleProperty("googleServerClientId").orNull.orEmpty()
 
+/**
+ * Sign in with Apple (web flow): the Services ID (`-PappleServiceId=…`, the ID token's audience; empty shows
+ * "Apple sign-in isn't set up yet.") and its return URL, the backend's `v1/auth/apple/callback` (`-PappleRedirectUri=…`).
+ * The return URL must be an https address registered on the Services ID, so debug builds use production's by default.
+ */
+val appleServiceId: String = providers.gradleProperty("appleServiceId").orNull.orEmpty()
+val appleRedirectUri: String = providers.gradleProperty("appleRedirectUri").orNull
+    ?: "https://moneytogether.dpdns.org/service/vocab/v1/auth/apple/callback"
+
 android {
     namespace = "com.syll"
     compileSdk = 36
@@ -25,6 +34,8 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"$googleServerClientId\"")
+        buildConfigField("String", "APPLE_SERVICE_ID", "\"$appleServiceId\"")
+        buildConfigField("String", "APPLE_REDIRECT_URI", "\"$appleRedirectUri\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -86,6 +97,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.googleid)
+    implementation(libs.androidx.browser)
 
     implementation(libs.rive.android)
     implementation(libs.lottie.compose)

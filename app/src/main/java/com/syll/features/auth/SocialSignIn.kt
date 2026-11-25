@@ -1,7 +1,10 @@
 package com.syll.features.auth
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.net.Uri
 import android.util.Base64
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -13,8 +16,9 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.syll.BuildConfig
 import java.security.MessageDigest
 import java.security.SecureRandom
+import kotlinx.coroutines.CompletableDeferred
 
-/** iOS `SignInNonce`: a one-time value for an ID-token request. Google gets its SHA-256, the backend the raw value. */
+/** iOS `SignInNonce`: a one-time value for an ID-token request. Google and Apple get its SHA-256, the backend the raw value. */
 class SignInNonce {
     val raw: String = ByteArray(32).also(SecureRandom()::nextBytes)
         .let { Base64.encodeToString(it, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP) }
@@ -70,5 +74,78 @@ object GoogleSignIn {
             throw Failure.Rejected
         }
         return Result(idToken = token, nonce = nonce.raw)
+    }
+}
+
+/**
+ * iOS `SignInWithAppleButton`'s request, as Apple's web flow in a Custom Tab ([AppleWebAuth]). The audience of the
+ * ID token is the Services ID ([BuildConfig.APPLE_SERVICE_ID]); Apple returns through the backend's
+ * `v1/auth/apple/callback` ([BuildConfig.APPLE_REDIRECT_URI]) to [AppleSignInCallbackActivity].
+ *
+ * Main thread only. A request waits for [handleCallback]; closing the tab is seen as the app coming back
+ * ([hostResumed] after [hostStopped]) with no callback, which cancels. If the process dies while the tab is open,
+ * the callback finds no request and the learner simply taps again.
+ */
+object AppleSignIn {
+    sealed class Failure : Exception() {
+        data object NotConfigured : Failure()
+        data object Cancelled : Failure()
+        data object Rejected : Failure()
+    }
+
+    data class Result(val idToken: String, val nonce: String)
+
+    val serviceId: String?
+        get() = BuildConfig.APPLE_SERVICE_ID.trim().takeIf { it.isNotEmpty() && BuildConfig.APPLE_REDIRECT_URI.startsWith("https://") }
+
+    private class Request(val state: String) {
+        val outcome = CompletableDeferred<AppleWebAuth.Outcome>()
+        /** Set once the Custom Tab covers the app, so coming back without a callback means it was closed. */
+        var leftApp = false
+    }
+
+    private var pending: Request? = null
+
+    /** [context] must be an activity: the tab opens over it. */
+    suspend fun signIn(context: Context): Result {
+        val clientId = serviceId ?: throw Failure.NotConfigured
+        val nonce = SignInNonce()
+        val request = Request(state = SignInNonce().raw)
+        pending?.outcome?.complete(AppleWebAuth.Outcome.Cancelled)
+        pending = request
+        try {
+            val url = AppleWebAuth.authorizationUrl(clientId, BuildConfig.APPLE_REDIRECT_URI, request.state, nonce.hashed)
+            try {
+                CustomTabsIntent.Builder()
+                    .setShowTitle(true)
+                    .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+                    .build()
+                    .launchUrl(context, Uri.parse(url))
+            } catch (e: ActivityNotFoundException) {
+                throw Failure.Rejected
+            }
+            return when (val outcome = request.outcome.await()) {
+                is AppleWebAuth.Outcome.Token -> Result(idToken = outcome.idToken, nonce = nonce.raw)
+                AppleWebAuth.Outcome.Cancelled -> throw Failure.Cancelled
+                AppleWebAuth.Outcome.Failed -> throw Failure.Rejected
+            }
+        } finally {
+            if (pending === request) pending = null
+        }
+    }
+
+    /** `syll-apple://callback?…` from [AppleSignInCallbackActivity]. */
+    fun handleCallback(uri: Uri?) {
+        val request = pending ?: return
+        if (uri?.scheme != AppleWebAuth.CALLBACK_SCHEME) return
+        request.outcome.complete(AppleWebAuth.parseCallback(uri.encodedQuery, request.state))
+    }
+
+    fun hostStopped() {
+        pending?.leftApp = true
+    }
+
+    fun hostResumed() {
+        pending?.takeIf { it.leftApp }?.outcome?.complete(AppleWebAuth.Outcome.Cancelled)
     }
 }

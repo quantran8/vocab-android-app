@@ -4,6 +4,9 @@
     Same rule as iOS: every string here needs every language in values-*/strings.xml.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Sign in with Apple (web flow); iOS uses Apple's own button, so these are not in the iOS catalog. -->
+    <string name="continue_with_apple">Continue with Apple</string>
+    <string name="apple_sign_in_isn_t_set_up_yet">Apple sign-in isn’t set up yet.</string>
     <!-- Debug-only screens (design gallery) are not translated. -->
     <string name="debug_design_gallery" translatable="false">Design gallery</string>
 </resources>

@@ -44,6 +44,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Sign in with Apple (web flow): the backend's callback sends the Custom Tab here. -->
+        <activity
+            android:name=".features.auth.AppleSignInCallbackActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="syll-apple" android:host="callback" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name=".platform.ReminderReceiver" android:exported="false" />
         <receiver android:name=".platform.RescheduleReceiver" android:exported="false">
             <intent-filter>

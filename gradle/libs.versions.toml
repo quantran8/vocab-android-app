@@ -15,6 +15,7 @@ lottie = "6.6.2"
 rive = "11.16.3"
 credentials = "1.3.0"
 googleid = "1.1.1"
+browser = "1.8.0"
 junit = "4.13.2"
 
 [libraries]
@@ -40,6 +41,7 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 rive-android = { module = "app.rive:rive-android", version.ref = "rive" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
