@@ -1,5 +1,16 @@
 package com.syll.features.practice
 
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.Animatable
+import androidx.compose.ui.composed
+import kotlin.random.Random
+import androidx.compose.runtime.mutableStateMapOf
+import com.syll.designsystem.motion.MotionTokens
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.togetherWith
 import android.icu.text.ListFormatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -90,8 +101,17 @@ fun PracticeSessionView() {
     val scope = rememberCoroutineScope()
     val close = { store.close() }
 
+    val motion = LocalMotion.current
+    // Stages cross-fade with the `transition` curve (iOS `motion.perform(transition)` around stage changes).
+    AnimatedContent(
+        store.stage,
+        Modifier.fillMaxSize().background(SyllColors.canvas),
+        transitionSpec = { fadeIn(motion.animation(MotionTokens.transition)) togetherWith fadeOut(motion.animation(MotionTokens.transition)) },
+        contentKey = { it::class },
+        label = "sessionStage",
+    ) { stage ->
     Box(Modifier.fillMaxSize().background(SyllColors.canvas)) {
-        when (val stage = store.stage) {
+        when (stage) {
             PracticeSessionStore.Stage.Idle -> Unit
             PracticeSessionStore.Stage.Planning -> StatusScreen(
                 stringResource(R.string.preparing_your_session), Modifier.safeDrawingPadding(), isBusy = true, showsFlyingSyllie = true,
@@ -132,6 +152,7 @@ fun PracticeSessionView() {
                 }
             }
         }
+    }
     }
 
     // Back leaves through the same confirmation as ✕ while running; elsewhere it closes.
@@ -208,10 +229,13 @@ private fun ReviewPreviewView(words: List<ReviewWord>) {
     val motion = LocalMotion.current
     val intro = stringResource(R.string.let_s_review_these_words_you_already_learned_bef)
     var revealed by remember { mutableStateOf(if (motion.reduceMotion) intro.length else 0) }
-    var hasLanded by remember { mutableStateOf(motion.reduceMotion) }
+    var hasLanded by remember { mutableStateOf(false) }
     var reaction by remember { mutableStateOf(SyllieMood.IDLE) }
-    val stagger = 120L
-    val landing = 350L
+    val entrance = remember { ReviewEntrance.entries.random() }
+    val trainOrigin = remember { TRAIN_ORIGINS.random() }
+    val timing = remember(entrance, words.size) { entranceTiming(entrance, words.size) }
+    /** Bumped per word to replay its wiggle. */
+    val wiggles = remember { mutableStateMapOf<String, Int>() }
 
     LaunchedEffect(Unit) {
         while (revealed < intro.length) {
@@ -220,16 +244,24 @@ private fun ReviewPreviewView(words: List<ReviewWord>) {
         }
         hasLanded = true
     }
+    // Syllie scans the list from the moment the words start flying in and nods the moment the last one lands.
     LaunchedEffect(hasLanded) {
         if (!hasLanded) return@LaunchedEffect
         if (!motion.reduceMotion) {
             reaction = SyllieMood.REVIEW_WATCH
-            // The nod starts on a loop boundary, so the scan lasts whole loops past the last word's landing.
-            val entrance = (words.size - 1).coerceAtLeast(0) * stagger + landing
-            val loops = maxOf(1L, (entrance + SyllieMood.REVIEW_WATCH_LOOP_MILLIS - 1) / SyllieMood.REVIEW_WATCH_LOOP_MILLIS)
-            delay(loops * SyllieMood.REVIEW_WATCH_LOOP_MILLIS)
+            delay((timing.total * 1000).toLong())
         }
         reaction = SyllieMood.REVIEW_READY
+    }
+    // After the entrance, a random word stirs every so often until the screen goes away.
+    LaunchedEffect(hasLanded) {
+        if (!hasLanded || motion.reduceMotion) return@LaunchedEffect
+        delay((timing.total * 1000).toLong())
+        while (true) {
+            words.randomOrNull()?.let { wiggles[it.id] = (wiggles[it.id] ?: 0) + 1 }
+            val pause = MotionTokens.reviewWigglePause
+            delay((Random.nextDouble(pause.start, pause.endInclusive) * 1000).toLong())
+        }
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -256,7 +288,7 @@ private fun ReviewPreviewView(words: List<ReviewWord>) {
                 },
                 style = Typography.body,
                 color = SyllColors.bodyInk,
-                modifier = Modifier.padding(top = Spacing.xs),
+                modifier = Modifier.padding(top = Spacing.xs).semantics { contentDescription = intro },
             )
             Box(Modifier.fillMaxWidth().padding(top = Spacing.l), contentAlignment = Alignment.Center) {
                 SyllieReactionView(reaction, Modifier.size(150.dp, 118.dp))
@@ -268,12 +300,12 @@ private fun ReviewPreviewView(words: List<ReviewWord>) {
             ) {
                 words.forEachIndexed { index, word ->
                     key(word.id) {
-                        val visible by animateFloatAsState(
-                            if (hasLanded) 1f else 0f,
-                            if (motion.reduceMotion) snap() else tween(landing.toInt(), delayMillis = (index * stagger).toInt()),
-                            label = "reviewTile",
+                        ReviewTile(
+                            word,
+                            Modifier
+                                .reviewEntrance(entrance, index, timing.lead + index * timing.stagger, hasLanded, trainOrigin)
+                                .tileWiggle(wiggles[word.id] ?: 0),
                         )
-                        ReviewTile(word, Modifier.alpha(visible).graphicsLayer { translationY = (1 - visible) * 60f })
                     }
                 }
             }
@@ -285,7 +317,7 @@ private fun ReviewPreviewView(words: List<ReviewWord>) {
     }
 }
 
-private const val STREAM_CHARACTER_MILLIS = 18L
+private val STREAM_CHARACTER_MILLIS = (MotionTokens.streamCharacter * 1000).toLong()
 
 /** The word, with the topic it belongs to under it: old topics stay in review after the focus changes. */
 @Composable
@@ -502,5 +534,117 @@ private fun LearnCardStep(card: LearnCard, offersKnownCheck: Boolean = false) {
                 PrimaryButton(stringResource(R.string.s_continue), onClick = store::advance)
             }
         }
+    }
+}
+
+private enum class ReviewEntrance { SCATTERED, WORD_TRAIN }
+
+/** Top, right, bottom and left (dp), each past that screen edge on any phone. */
+private val TRAIN_ORIGINS = listOf(0f to -1000f, 460f to 0f, 0f to 1000f, -460f to 0f)
+
+/** Where scattered tiles start (dp), cycled so neighbours arrive from different sides. */
+private val FLY_IN_ORIGINS = listOf(
+    -420f to -120f, 420f to -260f, -260f to 520f, 360f to 420f, 40f to -560f, -440f to 260f,
+)
+
+private data class EntranceTiming(val lead: Double, val stagger: Double, val total: Double)
+
+/**
+ * iOS `entranceTiming`: when each word starts flying in, after `lead`, one every `stagger`. Picked so the last word
+ * comes to rest (its delay + its own landing) after a whole number of `REVIEW_WATCH` loops, at least one, so
+ * Syllie's nod starts on a loop boundary. The stagger stretches or shrinks a little from its token to get there.
+ */
+private fun entranceTiming(entrance: ReviewEntrance, count: Int): EntranceTiming {
+    val (base, settle) = when (entrance) {
+        ReviewEntrance.SCATTERED -> MotionTokens.reviewTileStagger to MotionTokens.reviewTileSettle
+        ReviewEntrance.WORD_TRAIN -> MotionTokens.reviewTrainStagger to MotionTokens.reviewTrainSettle
+    }
+    val loop = SyllieMood.REVIEW_WATCH_LOOP_MILLIS / 1000.0
+    val gaps = maxOf(count - 1, 0).toDouble()
+    var loops = maxOf(1.0, Math.rint((gaps * base + settle) / loop))
+    while (true) {
+        val total = loops * loop
+        val stagger = if (gaps > 0) ((total - settle) / gaps).coerceIn(base * 0.6, base * 2) else base
+        val lead = total - settle - gaps * stagger
+        if (lead >= 0) return EntranceTiming(lead, stagger, total)
+        loops += 1
+    }
+}
+
+/**
+ * iOS `ReviewPreviewView.tile`: scattered tiles fly in tilted from around the screen with a quick separate fade (so
+ * a tile is solid for most of its way in); a word train has every tile follow the one before from one side.
+ * Reduced motion: the tiles only fade in.
+ */
+private fun Modifier.reviewEntrance(
+    entrance: ReviewEntrance,
+    index: Int,
+    delaySeconds: Double,
+    hasLanded: Boolean,
+    trainOrigin: Pair<Float, Float>,
+): Modifier = composed {
+    val motion = LocalMotion.current
+    val flight = remember { Animatable(0f) }
+    val fade = remember { Animatable(0f) }
+    LaunchedEffect(hasLanded) {
+        if (!hasLanded) return@LaunchedEffect
+        if (motion.reduceMotion) {
+            flight.snapTo(1f)
+            fade.animateTo(1f, MotionTokens.reducedCrossfade.spec())
+            return@LaunchedEffect
+        }
+        delay((delaySeconds * 1000).toLong())
+        when (entrance) {
+            ReviewEntrance.SCATTERED -> {
+                launch { fade.animateTo(1f, MotionTokens.reviewTileFade.spec()) }
+                flight.animateTo(1f, MotionTokens.reviewTileLanding.spec())
+            }
+            ReviewEntrance.WORD_TRAIN -> {
+                // The train's opacity rides the same spring as its travel.
+                launch { fade.animateTo(1f, MotionTokens.reviewTrainLanding.spec()) }
+                flight.animateTo(1f, MotionTokens.reviewTrainLanding.spec())
+            }
+        }
+    }
+    val origin = when {
+        motion.reduceMotion -> 0f to 0f
+        entrance == ReviewEntrance.SCATTERED -> FLY_IN_ORIGINS[index % FLY_IN_ORIGINS.size]
+        else -> trainOrigin
+    }
+    val tilt = if (entrance == ReviewEntrance.SCATTERED && !motion.reduceMotion) (if (index % 2 == 0) -12f else 12f) else 0f
+    graphicsLayer {
+        val away = 1f - flight.value
+        translationX = origin.first.dp.toPx() * away
+        translationY = origin.second.dp.toPx() * away
+        rotationZ = tilt * away
+        alpha = fade.value.coerceIn(0f, 1f)
+    }
+}
+
+/** iOS `TileWiggle`: one quick shake with a small hop, replayed whenever [trigger] changes. */
+private fun Modifier.tileWiggle(trigger: Int): Modifier = composed {
+    val angle = remember { Animatable(0f) }
+    val lift = remember { Animatable(0f) }
+    LaunchedEffect(trigger) {
+        if (trigger == 0) return@LaunchedEffect
+        launch {
+            angle.animateTo(0f, keyframes {
+                durationMillis = 500
+                -6f at 90 using FastOutSlowInEasing
+                5f at 200 using FastOutSlowInEasing
+                -4f at 300 using FastOutSlowInEasing
+                2f at 390 using FastOutSlowInEasing
+                0f at 500 using FastOutSlowInEasing
+            })
+        }
+        lift.animateTo(0f, keyframes {
+            durationMillis = 340
+            -5f at 140 using FastOutSlowInEasing
+            0f at 340 using FastOutSlowInEasing
+        })
+    }
+    graphicsLayer {
+        rotationZ = angle.value
+        translationY = lift.value.dp.toPx()
     }
 }

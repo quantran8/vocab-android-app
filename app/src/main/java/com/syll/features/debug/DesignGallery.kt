@@ -2,6 +2,9 @@
 
 package com.syll.features.debug
 
+import com.syll.domain.practice.IntroductionTemplateID
+import com.syll.domain.practice.IntroductionPresentation
+import com.syll.features.practice.IntroMotionHost
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,6 +114,13 @@ fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {})
         }
 
         Section("Lottie: confetti") { Confetti() }
+
+        Section("Word intro recipes (tap to replay)") {
+            IntroductionTemplateID.entries.forEach { id ->
+                Text(id.name, style = Typography.micro, color = SyllColors.mutedInk)
+                IntroMotionHost("clarify", IntroductionPresentation(id, listOf("cla", "ri", "fy")))
+            }
+        }
 
         Section("Motion and language") {
             Row(verticalAlignment = Alignment.CenterVertically) {

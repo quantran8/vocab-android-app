@@ -1,5 +1,16 @@
 package com.syll.features.practice
 
+import com.syll.designsystem.motion.MotionTokens
+import com.syll.designsystem.motion.LocalMotion
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.key
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.offset
+import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -46,16 +57,30 @@ import com.syll.domain.practice.TaskBody
 import com.syll.domain.practice.TaskOption
 
 /**
- * iOS `ClozeTaskView` (`clozeSelect`): a word bank, and the picked word goes into the blank. Nothing is sent until
- * Check. (The iOS word flight between bank and blank is a later polish; here the word swaps places.)
+ * iOS `ClozeTaskView` (`clozeSelect`): a word bank, and the picked word flies into the blank. Nothing is sent until
+ * Check. Each word is one tile for the whole task, drawn above the sentence and the bank; flying only changes which
+ * frame (its bank slot or the blank) it is placed on, so no copy of a word is left behind to catch the next move.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ClozeTaskView(attempt: TaskAttempt) {
     val store = LocalPracticeSessionStore.current
+    val motion = LocalMotion.current
     val body = attempt.task.body as? TaskBody.Choice ?: return
     val sentence = body.sentence ?: return
     var selectedId by remember(attempt.task.id) { mutableStateOf<Int?>(null) }
+    /** Words ignore taps while any word is in the air, so a double-tap can't send one straight back. */
+    var lastFlight by remember { mutableLongStateOf(0L) }
+    /** "Try again" sends the wrong word home with `returnToOrigin`; every other move is a `wordFlight`. */
+    var isReturning by remember { mutableStateOf(false) }
+    var previousStatus by remember { mutableStateOf(attempt.status) }
+    LaunchedEffect(attempt.status) {
+        if (previousStatus == TaskAttempt.Status.WRONG && attempt.status == TaskAttempt.Status.ANSWERING) {
+            isReturning = true
+            lastFlight = SystemClock.uptimeMillis()
+        }
+        previousStatus = attempt.status
+    }
 
     val filledId = when (attempt.status) {
         TaskAttempt.Status.SOLVED, TaskAttempt.Status.REVEALED -> body.correctOptionId
@@ -68,27 +93,34 @@ fun ClozeTaskView(attempt: TaskAttempt) {
         else -> WordTileState.SELECTED
     }
     val filled = body.options.firstOrNull { it.id == filledId }
+    val frames = remember { TileFrames<ClozeTarget>() }
+
+    fun tap(option: TaskOption, isFilled: Boolean) {
+        if (attempt.status != TaskAttempt.Status.ANSWERING) return
+        val now = SystemClock.uptimeMillis()
+        if (now - lastFlight < (MotionTokens.wordFlightSettle * 1000).toLong()) return
+        lastFlight = now
+        isReturning = false
+        selectedId = if (isFilled) null else option.id
+        store.answerPicked()
+    }
 
     TaskScaffold(
         attempt,
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xl + Spacing.xs)) {
-                ClozeSentence(sentence.let(ClozeLine::of), sentence.before, sentence.after, filled, filledState) {
-                    if (attempt.status == TaskAttempt.Status.ANSWERING) {
-                        selectedId = null
-                        store.answerPicked()
-                    }
-                }
-                FlowRow(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(CLOZE_GAP, Alignment.CenterHorizontally),
-                    verticalArrangement = Arrangement.spacedBy(CLOZE_GAP),
-                ) {
-                    body.options.forEach { option ->
-                        if (option.id == filledId) {
-                            // Holds the word's place so the bank doesn't reflow.
-                            Box {
-                                ClozeTile(option.text, WordTileState.IDLE, Modifier.alpha(0f))
+            Box(Modifier.fillMaxWidth().onGloballyPositioned { frames.container = it }) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xl + Spacing.xs)) {
+                    ClozeSentence(sentence.let(ClozeLine::of), sentence.before, sentence.after, filled, frames)
+                    FlowRow(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(CLOZE_GAP, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(CLOZE_GAP),
+                    ) {
+                        body.options.forEach { option ->
+                            // Holds the word's place so the bank doesn't reflow. The gray stand-in shows whenever the
+                            // word is away (its tile flies above it).
+                            Box(Modifier.onGloballyPositioned { frames.place(ClozeTarget.Slot(option.id), it) }) {
+                                ClozeTile(option.text, WordTileState.IDLE, Modifier.alpha(0f).clearAndSetSemantics { })
                                 Box(
                                     Modifier
                                         .matchParentSize()
@@ -96,17 +128,27 @@ fun ClozeTaskView(attempt: TaskAttempt) {
                                         .background(SyllColors.neutralSurface, RoundedCornerShape(Radii.chip)),
                                 )
                             }
-                        } else {
+                        }
+                    }
+                }
+                // Above both the sentence and the bank, so a flying word is never drawn under either.
+                Box(Modifier.matchParentSize()) {
+                    body.options.forEach { option ->
+                        key(option.id) {
+                            val isFilled = option.id == filledId
+                            val target = frames[if (isFilled) ClozeTarget.Blank else ClozeTarget.Slot(option.id)]?.topLeft
+                            val spec = if (isReturning) MotionTokens.returnToOrigin else MotionTokens.wordFlight
+                            val position = rememberFlightPosition(target, motion.travel(spec))
                             val label = stringResource(R.string.x_option, option.text)
                             ClozeTile(
                                 option.text,
-                                if (attempt.isFinished) WordTileState.DISABLED else WordTileState.IDLE,
+                                if (isFilled) filledState else if (attempt.isFinished) WordTileState.DISABLED else WordTileState.IDLE,
                                 Modifier
-                                    .pressScaleClickable(enabled = attempt.status == TaskAttempt.Status.ANSWERING) {
-                                        selectedId = option.id
-                                        store.answerPicked()
-                                    }
-                                    .semantics { contentDescription = label },
+                                    .offset { position?.round() ?: IntOffset.Zero }
+                                    .alpha(if (position == null) 0f else 1f)
+                                    .pressScaleClickable(enabled = attempt.status == TaskAttempt.Status.ANSWERING) { tap(option, isFilled) }
+                                    // The sentence reads the filled word.
+                                    .then(if (isFilled) Modifier.clearAndSetSemantics { } else Modifier.semantics { contentDescription = label }),
                             )
                         }
                     }
@@ -126,6 +168,12 @@ fun ClozeTaskView(attempt: TaskAttempt) {
 
 private val CLOZE_GAP = Spacing.xs + 2.dp
 
+/** The frames a word can sit in. */
+private sealed interface ClozeTarget {
+    data object Blank : ClozeTarget
+    data class Slot(val id: Int) : ClozeTarget
+}
+
 /** The sentence as separate words, so the blank sits in the line where the word lands. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -134,8 +182,7 @@ private fun ClozeSentence(
     before: String,
     after: String,
     filled: TaskOption?,
-    filledState: WordTileState,
-    onRemove: () -> Unit,
+    frames: TileFrames<ClozeTarget>,
 ) {
     val blankWord = stringResource(R.string.blank)
     val label = before + (filled?.text ?: blankWord) + after
@@ -157,7 +204,12 @@ private fun ClozeSentence(
         Row(verticalAlignment = Alignment.Bottom) {
             word(line.attachedBefore)
             if (filled != null) {
-                ClozeTile(filled.text, filledState, Modifier.pressScaleClickable(onClick = onRemove))
+                // The blank takes the word's size; the word itself is the flying tile drawn above.
+                ClozeTile(
+                    filled.text,
+                    WordTileState.SELECTED,
+                    Modifier.alpha(0f).onGloballyPositioned { frames.place(ClozeTarget.Blank, it) },
+                )
             } else {
                 Box(
                     Modifier

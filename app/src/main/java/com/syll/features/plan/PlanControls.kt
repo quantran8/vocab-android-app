@@ -1,5 +1,10 @@
 package com.syll.features.plan
 
+import androidx.compose.runtime.getValue
+import com.syll.designsystem.motion.MotionTokens
+import com.syll.designsystem.motion.LocalMotion
+import androidx.compose.animation.core.animateFloatAsState
+import com.syll.designsystem.motion.RollingNumber
 import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
@@ -260,7 +265,7 @@ fun WordsPerDayStepper(
             horizontalArrangement = Arrangement.spacedBy(Spacing.xs - 2.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Bottom,
         ) {
-            Text("$value", style = Typography.stat.copy(letterSpacing = Typography.tightTracking.sp), color = SyllColors.ink)
+            RollingNumber(value, Typography.stat.copy(letterSpacing = Typography.tightTracking.sp), SyllColors.ink)
             Text(
                 stringResource(R.string.words),
                 style = Typography.body.copy(fontWeight = FontWeight.SemiBold),
@@ -440,6 +445,8 @@ fun DailySpeakingToggle(preferences: LearningPreferences, onChange: (LearningPre
 fun ReminderPicker(preferences: LearningPreferences, onChange: (LearningPreferences) -> Unit) {
     val context = LocalContext.current
     val isOn = preferences.reminderEnabled
+    // The time row dims with the switch (iOS animates the toggle's binding with `press`).
+    val timeAlpha by animateFloatAsState(if (isOn) 1f else 0.5f, LocalMotion.current.animation(MotionTokens.press), label = "reminderDim")
     val remindMe = stringResource(R.string.remind_me)
     val time = LocalTime.of(preferences.reminderHour, preferences.reminderMinute)
     val interaction = remember { MutableInteractionSource() }
@@ -455,7 +462,7 @@ fun ReminderPicker(preferences: LearningPreferences, onChange: (LearningPreferen
         Row(
             Modifier
                 .fillMaxWidth()
-                .alpha(if (isOn) 1f else 0.5f)
+                .alpha(timeAlpha)
                 .clickable(interaction, indication = null, enabled = isOn) {
                     TimePickerDialog(
                         context,

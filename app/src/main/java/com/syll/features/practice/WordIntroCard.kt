@@ -1,5 +1,6 @@
 package com.syll.features.practice
 
+import com.syll.domain.practice.IntroductionPresentation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -67,7 +68,6 @@ import kotlinx.coroutines.launch
 /**
  * iOS `WordIntroContent` (`.card` style): the word hero with its part of speech, IPA and audio, then one card holding
  * the meaning and the example; the English definition opens in place behind "See details".
- * The hero's six iOS motion recipes are a later polish; here the letters cascade in.
  */
 @Composable
 fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boolean = false) {
@@ -78,7 +78,7 @@ fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boo
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
-            LetterCascade(card.word)
+            IntroMotionHost(card.word, remember(card.word) { IntroductionPresentation.forTerm(card.word) })
             card.partOfSpeech?.let {
                 Text(it.replace('_', ' '), style = Typography.secondary.copy(fontStyle = FontStyle.Italic), color = SyllColors.mutedInk)
             }
@@ -149,33 +149,6 @@ fun WordIntroCard(card: LearnCard, playAudio: (() -> Unit)?, isPlayingAudio: Boo
                     )
                 }
             }
-        }
-    }
-}
-
-/** The word, its letters dropping in one after another (iOS `letterCascade`). Reduced motion shows it at once. */
-@Composable
-private fun LetterCascade(word: String) {
-    val motion = LocalMotion.current
-    val letters = remember(word) { word.map { it.toString() } }
-    val progress = remember(word) { letters.map { Animatable(if (motion.reduceMotion) 1f else 0f) } }
-    LaunchedEffect(word) {
-        if (motion.reduceMotion) return@LaunchedEffect
-        letters.indices.forEach { index ->
-            launch { progress[index].animateTo(1f, tween(260)) }
-            delay(45)
-        }
-    }
-    Row(Modifier.semantics(mergeDescendants = true) { contentDescription = word }) {
-        letters.forEachIndexed { index, letter ->
-            val value = progress[index].value
-            Text(
-                letter,
-                style = Typography.wordHero,
-                color = SyllColors.ink,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.alpha(value).graphicsLayer { translationY = (1 - value) * -24f },
-            )
         }
     }
 }

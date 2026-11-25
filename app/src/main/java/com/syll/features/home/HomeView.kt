@@ -1,5 +1,11 @@
 package com.syll.features.home
 
+import com.syll.designsystem.motion.MotionTokens
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedVisibility
 import android.icu.text.ListFormatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -530,10 +536,25 @@ private fun LearningSection(collection: VocabCollection, onChooseTopics: () -> U
                 }
             }
 
-            val visible = if (showsAllTopics) topics else topics.take(COLLAPSED_TOPIC_LIMIT)
-            visible.forEach { topic ->
+            topics.take(COLLAPSED_TOPIC_LIMIT).forEach { topic ->
                 CardDivider()
                 TopicRow(topic, collection, mark)
+            }
+            // The rest opens and closes in place with the `transition` curve (iOS `motion.perform(transition)`).
+            val motion = LocalMotion.current
+            AnimatedVisibility(
+                showsAllTopics,
+                enter = expandVertically(motion.animation(MotionTokens.transition), expandFrom = Alignment.Top) +
+                    fadeIn(motion.animation(MotionTokens.transition)),
+                exit = shrinkVertically(motion.animation(MotionTokens.transition), shrinkTowards = Alignment.Top) +
+                    fadeOut(motion.animation(MotionTokens.transition)),
+            ) {
+                Column {
+                    topics.drop(COLLAPSED_TOPIC_LIMIT).forEach { topic ->
+                        CardDivider()
+                        TopicRow(topic, collection, mark)
+                    }
+                }
             }
             if (topics.size > COLLAPSED_TOPIC_LIMIT) {
                 CardDivider()

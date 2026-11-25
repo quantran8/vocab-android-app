@@ -1,5 +1,6 @@
 package com.syll.designsystem.components
 
+import com.syll.designsystem.motion.SymbolReplace
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -240,12 +241,14 @@ fun PasswordInput(
                 ) { isVisible = !isVisible },
             contentAlignment = Alignment.CenterEnd,
         ) {
-            Icon(
-                if (isVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                contentDescription = label,
-                tint = SyllColors.mutedInk,
-                modifier = Modifier.size(22.dp),
-            )
+            SymbolReplace(isVisible) { visible ->
+                Icon(
+                    if (visible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                    contentDescription = label,
+                    tint = SyllColors.mutedInk,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
         }
     }
 }

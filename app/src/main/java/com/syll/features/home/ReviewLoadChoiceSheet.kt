@@ -1,5 +1,9 @@
 package com.syll.features.home
 
+import com.syll.designsystem.motion.MotionTokens
+import com.syll.designsystem.motion.LocalMotion
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -129,7 +133,13 @@ fun ReviewLoadChoiceSheet(
                 }
             }
 
-            AnimatedVisibility(isPickingLower, enter = fadeIn(), exit = fadeOut()) {
+            // Opens with the `snap` spring (iOS `motion.perform(snap)`).
+            val motion = LocalMotion.current
+            AnimatedVisibility(
+                isPickingLower,
+                enter = expandVertically(motion.animation(MotionTokens.snap), expandFrom = Alignment.Top) + fadeIn(motion.animation(MotionTokens.snap)),
+                exit = shrinkVertically(motion.animation(MotionTokens.snap), shrinkTowards = Alignment.Top) + fadeOut(motion.animation(MotionTokens.snap)),
+            ) {
                 Column(
                     Modifier.padding(top = Spacing.l).cardSurface(radius = Radii.card - 2.dp).padding(Spacing.m),
                     verticalArrangement = Arrangement.spacedBy(Spacing.m),

@@ -1,5 +1,7 @@
 package com.syll.designsystem.components
 
+import androidx.compose.animation.core.animateDpAsState
+import com.syll.designsystem.motion.SymbolReplace
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -106,11 +108,13 @@ fun PlanSectionTitle(text: String, modifier: Modifier = Modifier) {
 /** iOS `SelectionMark`: a filled Blue check when on, an Ink 300 ring when off. */
 @Composable
 fun SelectionMark(isOn: Boolean, modifier: Modifier = Modifier) {
-    Box(modifier.size(24.dp), contentAlignment = Alignment.Center) {
-        if (isOn) {
-            Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = SyllColors.interactive, modifier = Modifier.size(24.dp))
-        } else {
-            Box(Modifier.size(20.dp).border(Borders.card, SyllColors.ink300, CircleShape))
+    SymbolReplace(isOn, modifier.size(24.dp)) { on ->
+        Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+            if (on) {
+                Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = SyllColors.interactive, modifier = Modifier.size(24.dp))
+            } else {
+                Box(Modifier.size(20.dp).border(Borders.card, SyllColors.ink300, CircleShape))
+            }
         }
     }
 }
@@ -211,17 +215,20 @@ fun ChoiceRow(
     }
 }
 
-/** iOS `chipSurface`: off: 1.5 dp Ink 200 border; on: 2 dp Blue 500 border, Blue 50 fill, Blue 700 text. */
-fun Modifier.chipSurface(isSelected: Boolean, selectedFill: Color = SyllColors.selectedSurface): Modifier =
-    this
-        .defaultMinSize(minHeight = Spacing.buttonSmallHeight)
-        .background(if (isSelected) selectedFill else SyllColors.surface, CircleShape)
-        .border(
-            if (isSelected) Borders.card else Borders.hairline,
-            if (isSelected) SyllColors.interactive else SyllColors.stroke,
-            CircleShape,
-        )
+/**
+ * iOS `chipSurface`: off: 1.5 dp Ink 200 border; on: 2 dp Blue 500 border, Blue 50 fill, Blue 700 text.
+ * Selection changes animate with `press`, as the iOS chips do.
+ */
+fun Modifier.chipSurface(isSelected: Boolean, selectedFill: Color = SyllColors.selectedSurface): Modifier = composed {
+    val motion = LocalMotion.current
+    val fill by animateColorAsState(if (isSelected) selectedFill else SyllColors.surface, motion.animation(MotionTokens.press), label = "chipFill")
+    val stroke by animateColorAsState(if (isSelected) SyllColors.interactive else SyllColors.stroke, motion.animation(MotionTokens.press), label = "chipStroke")
+    val width by animateDpAsState(if (isSelected) Borders.card else Borders.hairline, motion.animation(MotionTokens.press), label = "chipBorder")
+    defaultMinSize(minHeight = Spacing.buttonSmallHeight)
+        .background(fill, CircleShape)
+        .border(width, stroke, CircleShape)
         .padding(horizontal = Spacing.s + 2.dp)
+}
 
 /** iOS `TopicChip`: pill toggle with a leading icon; selection is colour and border, never a checkmark. */
 @Composable
@@ -235,7 +242,9 @@ fun TopicChip(
     isFinished: Boolean = false,
     isLocked: Boolean = false,
 ) {
-    val foreground = if (isSelected) SyllColors.selectedInk else SyllColors.ink
+    val motion = LocalMotion.current
+    val foreground by animateColorAsState(if (isSelected) SyllColors.selectedInk else SyllColors.ink, motion.animation(MotionTokens.press), label = "chipInk")
+    val lockAlpha by animateFloatAsState(if (isLocked) 0.4f else 1f, motion.animation(MotionTokens.press), label = "chipLock")
     val progressLabel = progress?.let { stringResource(R.string.x_of_x_words_learned, it.first, it.second) }
     Box(
         Modifier
@@ -245,7 +254,7 @@ fun TopicChip(
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            Modifier.alpha(if (isLocked) 0.4f else 1f).chipSurface(isSelected),
+            Modifier.alpha(lockAlpha).chipSurface(isSelected),
             horizontalArrangement = Arrangement.spacedBy(Spacing.xs - 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -286,6 +295,10 @@ fun CollectionMarkDot(color: Color, size: Dp = 10.dp) {
 @Composable
 fun DayToggle(title: String, accessibilityName: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(Radii.chip)
+    val motion = LocalMotion.current
+    val fill by animateColorAsState(if (isSelected) SyllColors.selectedSurface else SyllColors.surface, motion.animation(MotionTokens.press), label = "dayFill")
+    val stroke by animateColorAsState(if (isSelected) SyllColors.interactive else SyllColors.stroke, motion.animation(MotionTokens.press), label = "dayStroke")
+    val ink by animateColorAsState(if (isSelected) SyllColors.selectedInk else SyllColors.ink600, motion.animation(MotionTokens.press), label = "dayInk")
     Box(
         modifier
             .defaultMinSize(minHeight = Spacing.fieldHeight)
@@ -294,14 +307,14 @@ fun DayToggle(title: String, accessibilityName: String, isSelected: Boolean, onC
                 contentDescription = accessibilityName
                 selected = isSelected
             }
-            .background(if (isSelected) SyllColors.selectedSurface else SyllColors.surface, shape)
-            .border(Borders.card, if (isSelected) SyllColors.interactive else SyllColors.stroke, shape),
+            .background(fill, shape)
+            .border(Borders.card, stroke, shape),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             title,
             style = Typography.secondary.copy(fontWeight = FontWeight.Bold),
-            color = if (isSelected) SyllColors.selectedInk else SyllColors.ink600,
+            color = ink,
             maxLines = 1,
             softWrap = false,
         )

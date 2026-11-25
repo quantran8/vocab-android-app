@@ -1,5 +1,9 @@
 package com.syll.features.practice
 
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.core.MutableTransitionState
+import com.syll.designsystem.motion.symbolBounceOnce
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -163,6 +167,14 @@ fun TaskScaffold(
         attempt.status == TaskAttempt.Status.ANSWERING -> thinkingMood
         else -> SyllieMood.IDLE
     }
+    // The mood Syllie shows follows `mascot`, except that a right/wrong reaction waits for the answer's own
+    // animation (`answerFeedbackSettle`), so he keeps thinking until it's over.
+    var shownMood by remember { mutableStateOf<SyllieMood?>(null) }
+    LaunchedEffect(mascot) {
+        val isReaction = mascot in SyllieMood.happyReactions || mascot in SyllieMood.oopsReactions
+        if (isReaction && shownMood != null) delay((MotionTokens.answerFeedbackSettle * 1000).toLong())
+        shownMood = mascot
+    }
 
     Column(
         Modifier
@@ -203,7 +215,7 @@ fun TaskScaffold(
     }
 
     StepActionBar {
-        FeedbackActionPanel(shownFeedback, mascot, showsHeading = feedbackShowsHeading, detail = feedbackDetail, action = action)
+        FeedbackActionPanel(shownFeedback, shownMood ?: mascot, showsHeading = feedbackShowsHeading, detail = feedbackDetail, action = action)
     }
 }
 
@@ -366,6 +378,8 @@ fun FeedbackActionPanel(
                     Box(
                         Modifier
                             .size(28.dp)
+                            // The check bounces once the panel has slid in.
+                            .symbolBounceOnce(MotionTokens.feedbackSymbolBounce, enabled = shown.kind == FeedbackKind.SUCCESS)
                             .background(
                                 when (shown.kind) {
                                     FeedbackKind.SUCCESS -> SyllColors.success
@@ -512,6 +526,18 @@ fun HintControl(attempt: TaskAttempt, onReveal: () -> Unit = {}) {
         }
         attempt.hints.forEach { hint ->
             val label = stringResource(R.string.hint_x, hint.replace("_", "blank"))
+            // Each new hint pops in (iOS `popTransition` under the `feedback` spring).
+            val appeared = remember { MutableTransitionState(false).apply { targetState = true } }
+            val motion = LocalMotion.current
+            AnimatedVisibility(
+                appeared,
+                enter = if (motion.reduceMotion) {
+                    fadeIn(motion.animation(MotionTokens.feedback))
+                } else {
+                    scaleIn(MotionTokens.feedback.spec(), initialScale = 0.88f, transformOrigin = TransformOrigin(0f, 0.5f)) +
+                        fadeIn(MotionTokens.feedback.spec())
+                },
+            ) {
             Text(
                 hint,
                 style = Typography.body.copy(fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, letterSpacing = 3.sp),
@@ -522,6 +548,7 @@ fun HintControl(attempt: TaskAttempt, onReveal: () -> Unit = {}) {
                     .padding(horizontal = Spacing.s, vertical = 6.dp)
                     .semantics { contentDescription = label },
             )
+            }
         }
     }
 }
@@ -534,7 +561,7 @@ fun Modifier.shake(trigger: Int): Modifier {
     LaunchedEffect(trigger) {
         if (trigger == 0 || motion.reduceMotion) return@LaunchedEffect
         progress.snapTo(0f)
-        progress.animateTo(1f, tween(400, easing = LinearEasing))
+        progress.animateTo(1f, MotionTokens.shake.spec())
     }
     val travel = with(LocalDensity.current) { 6.dp.toPx() }
     return graphicsLayer { translationX = travel * sin(progress.value * PI.toFloat() * 4) }
