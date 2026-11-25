@@ -1,0 +1,74 @@
+package com.syll.app
+
+import com.syll.domain.CefrLevel
+import com.syll.domain.TopicCatalog
+import com.syll.network.CatalogCollection
+import com.syll.network.CatalogTopic
+import com.syll.network.LearningScope
+import com.syll.network.PlacementAnswer
+import com.syll.network.PlacementQuestion
+import com.syll.network.PlacementResult
+import com.syll.network.SettingsUpdate
+import com.syll.network.SignupResult
+import com.syll.network.UserProfile
+import com.syll.network.UserSettings
+import com.syll.network.VocabApi
+import kotlinx.coroutines.delay
+
+/**
+ * iOS `OfflineVocabAPI`: answers every call without a backend, for previews and the debug gallery's offline flows.
+ * A new account with no plan; the bundled catalog; a three-question placement test that places at B1.
+ */
+class OfflineVocabApi : VocabApi {
+    override fun hasStoredSession() = true
+    override suspend fun signUp(email: String, password: String) = SignupResult(confirmationRequired = true)
+    override suspend fun logIn(email: String, password: String) {}
+    override suspend fun logInWithGoogle(idToken: String, nonce: String?) {}
+    override suspend fun logInWithApple(idToken: String, nonce: String?) {}
+    override suspend fun requestPasswordReset(email: String) {}
+    override suspend fun resetPassword(email: String, code: String, newPassword: String) {}
+    override suspend fun changePassword(current: String, new: String) {}
+    override suspend fun signOut() {}
+    override suspend fun deleteAccount() {}
+
+    override suspend fun profile() = UserProfile(
+        id = "offline",
+        settings = UserSettings("vi", "en-US", "UTC", dailyNewWordGoal = 5),
+    )
+
+    override suspend fun updateLevels(level: CefrLevel) {}
+
+    override suspend fun placementTest(): List<PlacementQuestion> {
+        delay(1_200) // long enough to see the flying Syllie
+        return listOf(
+            question("q1", "clarify", "make clear", "make dirty", "make heavy", "make late"),
+            question("q2", "reluctant", "unwilling", "eager", "noisy", "careful"),
+            question("q3", "ubiquitous", "found everywhere", "very rare", "very old", "hard to see"),
+        )
+    }
+
+    override suspend fun submitPlacementTest(answers: List<PlacementAnswer>): PlacementResult {
+        delay(1_200)
+        return PlacementResult(CefrLevel.B1, correctCount = answers.count { it.optionId?.endsWith("-0") == true }, totalCount = answers.size)
+    }
+
+    override suspend fun updateSettings(settings: SettingsUpdate) {}
+    override suspend fun updateScope(scope: LearningScope) {}
+
+    override suspend fun catalog(): List<CatalogCollection> = TopicCatalog.collections.map { collection ->
+        CatalogCollection(
+            id = collection.id,
+            slug = collection.id,
+            title = collection.name,
+            description = collection.summary,
+            topics = collection.topics.map { CatalogTopic(it.id, it.id, it.name) },
+        )
+    }
+
+    private fun question(id: String, prompt: String, vararg options: String) = PlacementQuestion(
+        id = id,
+        prompt = PlacementQuestion.Prompt(prompt),
+        question = "What does this word mean?",
+        options = options.mapIndexed { index, text -> PlacementQuestion.Option("$id-$index", text) },
+    )
+}

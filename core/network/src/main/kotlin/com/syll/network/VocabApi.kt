@@ -1,6 +1,8 @@
 package com.syll.network
 
+import com.syll.domain.CefrLevel
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.JsonObject
 
 /**
  * iOS `VocabAPI`: everything the app asks of the backend. Stores depend on this interface, so tests and previews
@@ -21,6 +23,15 @@ interface VocabApi {
     suspend fun signOut()
     /** Permanent. On failure nothing was deleted. */
     suspend fun deleteAccount()
+
+    suspend fun profile(): UserProfile
+    suspend fun updateLevels(level: CefrLevel)
+    /** Empty when there isn't enough content yet; the learner then picks a level by hand. */
+    suspend fun placementTest(): List<PlacementQuestion>
+    suspend fun submitPlacementTest(answers: List<PlacementAnswer>): PlacementResult
+    suspend fun updateSettings(settings: SettingsUpdate)
+    suspend fun updateScope(scope: LearningScope)
+    suspend fun catalog(): List<CatalogCollection>
 }
 
 /** iOS `LiveVocabAPI`. */
@@ -68,6 +79,35 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
     override suspend fun deleteAccount() {
         client.sendRaw(ApiRequest(ApiRequest.Method.DELETE, "me"))
     }
+
+    override suspend fun profile(): UserProfile = client.send(get("me"), UserProfile.serializer())
+
+    override suspend fun updateLevels(level: CefrLevel) {
+        client.sendRaw(post("me/levels", Levels(level), Levels.serializer()).copy(method = ApiRequest.Method.PUT))
+    }
+
+    override suspend fun placementTest(): List<PlacementQuestion> =
+        client.send(get("me/placement-test"), PlacementTestResponse.serializer()).questions
+
+    override suspend fun submitPlacementTest(answers: List<PlacementAnswer>): PlacementResult =
+        client.send(postJson("me/placement-test", answers.submissionJson()), PlacementResult.serializer())
+
+    override suspend fun updateSettings(settings: SettingsUpdate) {
+        client.sendRaw(postJson("me/settings", settings.toJson()).copy(method = ApiRequest.Method.PUT))
+    }
+
+    override suspend fun updateScope(scope: LearningScope) {
+        client.sendRaw(post("me/scope", scope, LearningScope.serializer()).copy(method = ApiRequest.Method.PUT))
+    }
+
+    override suspend fun catalog(): List<CatalogCollection> =
+        client.send(get("catalog/collections"), CatalogResponse.serializer()).collections
+
+    private fun postJson(path: String, body: JsonObject) = ApiRequest(
+        method = ApiRequest.Method.POST,
+        path = path,
+        body = body.toString().toByteArray(),
+    )
 
     private suspend fun storeSession(request: ApiRequest) {
         client.store(client.send(request, AuthSession.serializer()))

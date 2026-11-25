@@ -12,7 +12,18 @@ import com.syll.features.settings.AppSettingsStore
 import com.syll.network.ApiClient
 import com.syll.network.LiveVocabApi
 import com.syll.network.VocabApi
+import com.syll.features.main.LearnerStore
+import com.syll.features.onboarding.OnboardingStore
+import com.syll.features.placement.PlacementTestStore
+import com.syll.features.plan.CatalogState
+import com.syll.features.plan.KeyValuePreferencesStore
+import com.syll.features.plan.LearningPlanStore
+import com.syll.features.plan.NoReminders
+import com.syll.platform.FeedbackProviding
+import com.syll.platform.SettingsAwareFeedback
+import com.syll.platform.VibratorFeedback
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.withContext
 
 /**
@@ -24,28 +35,52 @@ import kotlinx.coroutines.withContext
  */
 class AppContainer(context: Context) {
     val apiClient = ApiClient(baseUrl = BuildConfig.API_URL, tokens = KeystoreTokenStore(context))
-    val settings = AppSettingsStore(SharedPreferencesKeyValueStore(context))
+    private val storage = SharedPreferencesKeyValueStore(context)
+    val settings = AppSettingsStore(storage, SettingsAwareFeedback(VibratorFeedback(context)))
+    private val haptics: FeedbackProviding = settings.feedback
+    /** The app's own scope for work that outlives a screen (iOS unstructured `Task`s). Main thread. */
+    private val appScope = MainScope()
     val api: VocabApi = LiveVocabApi(apiClient)
     val auth = AuthStore(api)
+    val plan = LearningPlanStore(KeyValuePreferencesStore(storage), NoReminders)
+    val learner = LearnerStore(api, plan, language = { settings.language })
+    val onboarding = OnboardingStore(plan, api, haptics)
+    val placement = PlacementTestStore(api, haptics, appScope)
 
     init {
         apiClient.setSessionEndedHandler {
             withContext(Dispatchers.Main) { auth.sessionEnded() }
         }
+        CatalogState.install()
+        placement.onPlaced = { learner.reloadProfile() }
         auth.onSignedOut = {
-            // Phase 1+: reset learner, practice, onboarding, custom words, placement, challenge, ranking.
+            // Later steps add practice, custom words, challenge and ranking.
+            placement.cancel()
+            learner.reset()
+            onboarding.reset()
+        }
+        auth.onAccountDeleted = {
+            plan.erase()
         }
     }
 }
 
 val LocalAuthStore = staticCompositionLocalOf<AuthStore> { error("AuthStore not provided") }
 val LocalAppSettingsStore = staticCompositionLocalOf<AppSettingsStore> { error("AppSettingsStore not provided") }
+val LocalLearningPlanStore = staticCompositionLocalOf<LearningPlanStore> { error("LearningPlanStore not provided") }
+val LocalLearnerStore = staticCompositionLocalOf<LearnerStore> { error("LearnerStore not provided") }
+val LocalOnboardingStore = staticCompositionLocalOf<OnboardingStore> { error("OnboardingStore not provided") }
+val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
 @Composable
 fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalAuthStore provides container.auth,
         LocalAppSettingsStore provides container.settings,
+        LocalLearningPlanStore provides container.plan,
+        LocalLearnerStore provides container.learner,
+        LocalOnboardingStore provides container.onboarding,
+        LocalPlacementTestStore provides container.placement,
         content = content,
     )
 }

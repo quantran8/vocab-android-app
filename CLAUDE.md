@@ -26,6 +26,8 @@ python3 tools/xcstrings2android/convert.py [--strict]        # regenerate string
 ## Architecture (mirrors iOS)
 
 - `app/AppContainer` = iOS `VocabFlowApp.init`: builds every store once (held by `VocabFlowApplication`, so stores survive activity recreation) and wires callbacks. Views read stores via `Local…Store` composition locals (= `@Environment(StoreType.self)`), provided by `ProvideStores`.
+- A coroutine started from `rememberCoroutineScope()` dies with its composable. When the work changes state that swaps that screen out (submitting the last answer, finishing a step), launch it from a scope that outlives the swap (the host's, or a store's app scope), or it is cancelled mid-request (iOS `Task {}` isn't).
+- `OfflineVocabApi` (= iOS `OfflineVocabAPI`) answers every call without a backend; the debug Design gallery's "Flows (offline API)" runs screens on it with in-memory stores.
 - Stores hold user-facing text as `UserMessage` (string resource or `ApiError`), resolved in the view with `.text()`; they have no Context.
 - Stores are plain classes with Compose snapshot state (`mutableStateOf`), mutated on the main thread only (= `@Observable @MainActor`). Keep iOS names (`AuthStore`, `LearnerStore`, `PracticeSessionStore`…) and method names so the two apps can be compared by name.
 - No navigation stack at the root: `app/AppRoot` derives a `RouteID` from store state and swaps whole screens with `AnimatedContent` (= `.id(route)` + transition). Changing a screen means changing store state.

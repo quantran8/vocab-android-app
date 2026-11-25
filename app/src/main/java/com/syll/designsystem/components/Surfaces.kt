@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -24,7 +25,9 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.syll.designsystem.motion.LocalMotion
 import com.syll.designsystem.tokens.Borders
 import com.syll.designsystem.tokens.Radii
 import com.syll.designsystem.tokens.Spacing
@@ -65,15 +68,24 @@ fun StatusScreen(
     modifier: Modifier = Modifier,
     message: String? = null,
     isBusy: Boolean = false,
+    /** Syllie flying in place instead of the spinner, when motion is allowed. */
+    showsFlyingSyllie: Boolean = false,
     actions: @Composable ColumnScope.() -> Unit = {},
 ) {
+    val motion = LocalMotion.current
     Column(
         modifier.fillMaxSize().padding(horizontal = Spacing.screenGutter).padding(bottom = Spacing.m),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         Spacer(Modifier.weight(1f))
-        if (isBusy) CircularProgressIndicator(color = SyllColors.mutedInk)
+        if (isBusy) {
+            if (showsFlyingSyllie && !motion.reduceMotion) {
+                SyllieLoadingView(Modifier.size(240.dp))
+            } else {
+                CircularProgressIndicator(color = SyllColors.mutedInk)
+            }
+        }
         Text(
             title,
             style = Typography.screenTitle.copy(letterSpacing = Typography.tightTracking.sp),
@@ -85,6 +97,15 @@ fun StatusScreen(
             Text(message, style = Typography.secondary, color = SyllColors.mutedInk, textAlign = TextAlign.Center)
         }
         Spacer(Modifier.weight(1f))
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.s), content = actions)
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.s), content = actions)
     }
+}
+
+/**
+ * iOS `SyllieLoadingView`: Syllie flying in place while something loads (the `Loading` artboard and state machine).
+ * Decorative only.
+ */
+@Composable
+fun SyllieLoadingView(modifier: Modifier = Modifier) {
+    RiveArtboard(artboard = "Loading", stateMachine = "Loading", modifier = modifier)
 }

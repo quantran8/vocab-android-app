@@ -25,7 +25,8 @@ The iOS app is the spec. It is a port, not a redesign: same screens, rules, copy
 
 ### Phase 1 — Core loop (in progress)
 - [x] 1. Auth: `VocabApi`/`LiveVocabApi` (auth endpoints), `AuthStore`, `PasswordPolicy` + `PasswordRuleList`, log in / sign up + check email / reset password (2 steps), Google via Credential Manager (`-PgoogleServerClientId=…`). Change password + account deletion UI land with Profile (step 7). Apple: Phase 3.
-- [ ] 2. `LearnerStore`, onboarding, placement test, routine
+- [x] 2. `LearnerStore` (load/profile/plan/Premium parts), `LearningPlanStore`, `TopicCatalog`, `OnboardingStore` + `OnboardingView` (welcome, level, collection, topics, routine incl. `DailySpeakingToggle`, ready), `PlacementTestStore` + `PlacementTestView`, haptics (`FeedbackProviding`). Open: reminders are saved but not scheduled yet (`NoReminders`, step 7); "Start my first lesson" opens the app until practice lands (step 4); past the free topic limit nothing offers Premium (Phase 4).
+- [ ] 3. Home
 
 Deviation from the table below: settings use SharedPreferences behind `KeyValueStore` (synchronous like `UserDefaults`, which the ported stores assume) instead of DataStore.
 

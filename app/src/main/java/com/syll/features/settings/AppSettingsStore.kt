@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.core.os.LocaleListCompat
 import com.syll.data.KeyValueStore
 import com.syll.domain.AppLanguage
+import com.syll.platform.NoOpFeedback
+import com.syll.platform.SettingsAwareFeedback
 
 /**
  * iOS `AppSettingsStore` (Phase 0 subset: language, reduce motion, haptics). Main-thread only, like the iOS
@@ -15,7 +17,11 @@ import com.syll.domain.AppLanguage
  * The display language is Android's per-app language: AppCompat stores it and recreates the activity, which
  * also flips the layout direction for Arabic. Until one is picked it follows the device (iOS `AppLanguage.device`).
  */
-class AppSettingsStore(private val storage: KeyValueStore) {
+class AppSettingsStore(
+    private val storage: KeyValueStore,
+    /** Every haptic goes through this, so the Settings switch silences them all (iOS `settings.feedback`). */
+    val feedback: SettingsAwareFeedback = SettingsAwareFeedback(NoOpFeedback),
+) {
     private var reduceMotionState by mutableStateOf(storage.getBoolean(KEY_REDUCE_MOTION))
     private var hapticsEnabledState by mutableStateOf(storage.getBoolean(KEY_HAPTICS, default = true))
 
@@ -32,7 +38,12 @@ class AppSettingsStore(private val storage: KeyValueStore) {
         set(value) {
             hapticsEnabledState = value
             storage.putBoolean(KEY_HAPTICS, value)
+            feedback.isEnabled = value
         }
+
+    init {
+        feedback.isEnabled = hapticsEnabledState
+    }
 
     val language: AppLanguage
         get() {

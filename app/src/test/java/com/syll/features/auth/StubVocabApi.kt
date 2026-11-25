@@ -1,10 +1,21 @@
 package com.syll.features.auth
 
+import com.syll.domain.CefrLevel
+import com.syll.domain.TopicCatalog
 import com.syll.network.ApiError
+import com.syll.network.CatalogCollection
+import com.syll.network.CatalogTopic
+import com.syll.network.LearningScope
+import com.syll.network.PlacementAnswer
+import com.syll.network.PlacementQuestion
+import com.syll.network.PlacementResult
+import com.syll.network.SettingsUpdate
 import com.syll.network.SignupResult
+import com.syll.network.UserProfile
+import com.syll.network.UserSettings
 import com.syll.network.VocabApi
 
-/** iOS `StubVocabAPI` (auth part): records calls and throws the configured errors. */
+/** iOS `StubVocabAPI`: records calls and answers with what the test configured. */
 class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     var logInError: ApiError? = null
     var deleteAccountError: ApiError? = null
@@ -12,6 +23,23 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     var deleteAccountCalls = 0
     var signOutCalls = 0
     var logInCalls = 0
+
+    var profileResult: Result<UserProfile> = Result.success(Companion.profile())
+    val levelUpdates = mutableListOf<CefrLevel>()
+    val settingsUpdates = mutableListOf<SettingsUpdate>()
+    val scopeUpdates = mutableListOf<LearningScope>()
+    /** Defaults to the bundled catalog, like iOS `OfflineVocabAPI`. */
+    var catalogCollections: List<CatalogCollection> = TopicCatalog.collections.map { collection ->
+        CatalogCollection(
+            id = collection.id, slug = collection.id, title = collection.name, description = collection.summary,
+            topics = collection.topics.map { CatalogTopic(it.id, it.id, it.name) },
+        )
+    }
+    var placementQuestions: Result<List<PlacementQuestion>> = Result.success(emptyList())
+    var placementResults = ArrayDeque<Result<PlacementResult>>()
+    val placementSubmissions = mutableListOf<List<PlacementAnswer>>()
+    /** Runs inside `placementTest()`, before it answers (to hold it open). */
+    var onPlacementTest: suspend () -> Unit = {}
 
     override fun hasStoredSession() = storedSession
     override suspend fun signUp(email: String, password: String) = signupResult
@@ -34,5 +62,33 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     override suspend fun deleteAccount() {
         deleteAccountCalls += 1
         deleteAccountError?.let { throw it }
+    }
+
+    override suspend fun profile(): UserProfile = profileResult.getOrThrow()
+    override suspend fun updateLevels(level: CefrLevel) {
+        levelUpdates += level
+    }
+    override suspend fun placementTest(): List<PlacementQuestion> {
+        onPlacementTest()
+        return placementQuestions.getOrThrow()
+    }
+    override suspend fun submitPlacementTest(answers: List<PlacementAnswer>): PlacementResult {
+        placementSubmissions += answers
+        return placementResults.removeFirst().getOrThrow()
+    }
+    override suspend fun updateSettings(settings: SettingsUpdate) {
+        settingsUpdates += settings
+    }
+    override suspend fun updateScope(scope: LearningScope) {
+        scopeUpdates += scope
+    }
+    override suspend fun catalog() = catalogCollections
+
+    companion object {
+        fun profile(
+            level: CefrLevel? = null,
+            scope: LearningScope? = null,
+            settings: UserSettings = UserSettings("vi", "en-US", "UTC", dailyNewWordGoal = 5),
+        ) = UserProfile(id = "u1", proficiencyLevel = level, settings = settings, scope = scope)
     }
 }

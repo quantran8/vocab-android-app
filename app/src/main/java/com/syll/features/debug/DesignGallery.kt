@@ -57,7 +57,7 @@ import com.syll.domain.AppLanguage
  * Text here is deliberately not localized.
  */
 @Composable
-fun DesignGallery(onClose: () -> Unit) {
+fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {}) {
     val settings = LocalAppSettingsStore.current
     Column(
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState())
@@ -65,6 +65,10 @@ fun DesignGallery(onClose: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(Spacing.l),
     ) {
         Text("Design gallery", style = Typography.display)
+
+        Section("Flows (offline API)") {
+            SecondaryButton("Onboarding + placement test", onClick = onOpenOfflineOnboarding)
+        }
 
         Section("Buttons (app context)") {
             PrimaryButton("Primary", onClick = {})

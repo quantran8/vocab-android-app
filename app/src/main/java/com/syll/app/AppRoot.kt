@@ -27,7 +27,11 @@ import com.syll.designsystem.motion.rememberSystemReducesMotion
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.features.auth.AuthStore
 import com.syll.features.auth.AuthView
+import com.syll.features.main.LearnerStore
+import com.syll.features.onboarding.OnboardingView
+import com.syll.designsystem.components.SecondaryButton
 import com.syll.features.debug.DesignGallery
+import com.syll.features.debug.OfflineOnboarding
 import com.syll.features.launch.SplashView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,15 +40,20 @@ import kotlinx.coroutines.launch
  * iOS `RouteID`: one identity per whole screen. There is no navigation stack at the root: the route is derived
  * from store state, and changing a screen means changing store state.
  *
- * Phase 1 adds onboarding, practice(token), challenge(token), lab(template) and the main shell.
+ * Later steps add practice(token), challenge(token), lab(template) and the main shell.
  */
 private sealed interface RouteID {
     data object Splash : RouteID
     data object Loading : RouteID
     data object Auth : RouteID
+    /** iOS shows the failure inside `.loading`'s identity; a separate id here keeps the swap animated the same. */
+    data object LoadFailed : RouteID
+    data object Onboarding : RouteID
     data object Shell : RouteID
     /** Debug builds only: tokens, buttons, Rive and Lottie on the device. */
     data object DesignGallery : RouteID
+    /** Debug builds only: onboarding on the offline API. */
+    data object OfflineOnboarding : RouteID
 }
 
 /** iOS `AppRootView`. */
@@ -52,6 +61,8 @@ private sealed interface RouteID {
 fun AppRoot() {
     val auth = LocalAuthStore.current
     val settings = LocalAppSettingsStore.current
+    val learner = LocalLearnerStore.current
+    val plan = LocalLearningPlanStore.current
     val motion = Motion(reduceMotion = rememberSystemReducesMotion() || settings.reduceMotion)
     val enterOffsetPx = rememberEnterOffsetPx()
 
@@ -61,6 +72,7 @@ fun AppRoot() {
     // the activity, so this survives it).
     var launched by rememberSaveable { mutableStateOf(false) }
     var showsGallery by rememberSaveable { mutableStateOf(false) }
+    var showsOfflineOnboarding by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (auth.phase == AuthStore.Phase.LAUNCHING) auth.restore()
@@ -69,16 +81,26 @@ fun AppRoot() {
         delay((MotionTokens.splashHold * 1000).toLong())
         splashHeld = true
     }
-    val isLaunchLoading = auth.phase == AuthStore.Phase.LAUNCHING
+    val canLoadLearner = auth.phase == AuthStore.Phase.SIGNED_IN
+    LaunchedEffect(canLoadLearner) {
+        if (canLoadLearner) learner.load()
+    }
+    // The account is still loading, which would otherwise show the loading screen.
+    val isLaunchLoading = auth.phase == AuthStore.Phase.LAUNCHING ||
+        (canLoadLearner && learner.phase == LearnerStore.Phase.Loading)
     LaunchedEffect(splashHeld, isLaunchLoading) {
         if (!launched && splashHeld && !isLaunchLoading) launched = true
     }
 
     val route: RouteID = when {
         !launched -> RouteID.Splash
+        showsOfflineOnboarding -> RouteID.OfflineOnboarding
         showsGallery -> RouteID.DesignGallery
         auth.phase == AuthStore.Phase.LAUNCHING -> RouteID.Loading
         auth.phase == AuthStore.Phase.SIGNED_OUT -> RouteID.Auth
+        learner.phase is LearnerStore.Phase.Failed -> RouteID.LoadFailed
+        learner.phase == LearnerStore.Phase.Loading -> RouteID.Loading
+        !plan.hasCompletedOnboarding -> RouteID.Onboarding
         else -> RouteID.Shell
     }
 
@@ -93,11 +115,34 @@ fun AppRoot() {
                     RouteID.Splash -> SplashView()
                     RouteID.Loading -> StatusScreen(title = stringResource(R.string.syll), isBusy = true, modifier = Modifier.safeDrawingPadding())
                     RouteID.Auth -> AuthView(onOpenGallery = { showsGallery = true })
+                    RouteID.LoadFailed -> LoadFailedScreen()
+                    RouteID.Onboarding -> OnboardingView()
                     RouteID.Shell -> ShellPlaceholder()
-                    RouteID.DesignGallery -> DesignGallery(onClose = { showsGallery = false })
+                    RouteID.DesignGallery -> DesignGallery(
+                        onClose = { showsGallery = false },
+                        onOpenOfflineOnboarding = { showsOfflineOnboarding = true },
+                    )
+                    RouteID.OfflineOnboarding -> OfflineOnboarding(onClose = { showsOfflineOnboarding = false })
                 }
             }
         }
+    }
+}
+
+/** "Couldn't load your account" with retry and log out (iOS `learner.phase == .failed`). */
+@Composable
+private fun LoadFailedScreen() {
+    val auth = LocalAuthStore.current
+    val learner = LocalLearnerStore.current
+    val scope = rememberCoroutineScope()
+    val message = (learner.phase as? LearnerStore.Phase.Failed)?.message
+    StatusScreen(
+        title = stringResource(R.string.couldn_t_load_your_account),
+        message = message?.text(),
+        modifier = Modifier.safeDrawingPadding(),
+    ) {
+        PrimaryButton(stringResource(R.string.try_again_2), onClick = { scope.launch { learner.load() } })
+        SecondaryButton(stringResource(R.string.log_out), onClick = { scope.launch { auth.signOut() } })
     }
 }
 
