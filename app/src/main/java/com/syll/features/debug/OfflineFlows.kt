@@ -3,15 +3,23 @@ package com.syll.features.debug
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import com.syll.app.LocalAuthStore
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalLearningPlanStore
 import com.syll.app.LocalOnboardingStore
 import com.syll.app.LocalPlacementTestStore
 import com.syll.app.OfflineVocabApi
 import com.syll.domain.AppLanguage
+import com.syll.features.auth.AuthStore
+import com.syll.features.home.HomeActions
 import com.syll.features.main.LearnerStore
+import com.syll.features.main.MainShellView
+import com.syll.features.main.MainTab
 import com.syll.features.onboarding.OnboardingStore
 import com.syll.features.onboarding.OnboardingView
 import com.syll.features.placement.PlacementTestStore
@@ -21,27 +29,35 @@ import com.syll.features.plan.NoReminders
 import com.syll.platform.NoOpFeedback
 
 /**
- * Debug only: onboarding with its own stores on [OfflineVocabApi] and in-memory storage, so the whole flow (and the
- * placement test) can be walked on a device without a backend or an account. Finishing closes it.
+ * Debug only: the signed-in app with its own stores on [OfflineVocabApi] and in-memory storage, so onboarding (with
+ * the placement test) and then Home can be walked on a device without a backend or an account. Log out closes it.
  */
 @Composable
 fun OfflineOnboarding(onClose: () -> Unit) {
     val scope = rememberCoroutineScope()
     val api = remember { OfflineVocabApi() }
+    val auth = remember { AuthStore(api).also { it.restore() } }
     val plan = remember { LearningPlanStore(InMemoryPreferencesStore(), NoReminders) }
     val learner = remember { LearnerStore(api, plan, language = { AppLanguage.ENGLISH }) }
     val onboarding = remember { OnboardingStore(plan, api, NoOpFeedback) }
     val placement = remember { PlacementTestStore(api, NoOpFeedback, scope) }
 
-    LaunchedEffect(plan.hasCompletedOnboarding) {
-        if (plan.hasCompletedOnboarding) onClose()
+    var tab by remember { mutableStateOf(MainTab.HOME) }
+
+    LaunchedEffect(auth.phase) {
+        if (auth.phase == AuthStore.Phase.SIGNED_OUT) onClose()
     }
     CompositionLocalProvider(
+        LocalAuthStore provides auth,
         LocalLearningPlanStore provides plan,
         LocalLearnerStore provides learner,
         LocalOnboardingStore provides onboarding,
         LocalPlacementTestStore provides placement,
     ) {
-        OnboardingView()
+        if (plan.hasCompletedOnboarding) {
+            MainShellView(tab, onTabChange = { tab = it }, homeActions = HomeActions())
+        } else {
+            OnboardingView()
+        }
     }
 }

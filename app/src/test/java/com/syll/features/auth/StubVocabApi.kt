@@ -5,7 +5,10 @@ import com.syll.domain.TopicCatalog
 import com.syll.network.ApiError
 import com.syll.network.CatalogCollection
 import com.syll.network.CatalogTopic
+import com.syll.network.LearnHome
 import com.syll.network.LearningScope
+import com.syll.network.NewWordOverride
+import com.syll.network.NewWordOverrideMode
 import com.syll.network.PlacementAnswer
 import com.syll.network.PlacementQuestion
 import com.syll.network.PlacementResult
@@ -14,6 +17,7 @@ import com.syll.network.SignupResult
 import com.syll.network.UserProfile
 import com.syll.network.UserSettings
 import com.syll.network.VocabApi
+import java.time.Instant
 
 /** iOS `StubVocabAPI`: records calls and answers with what the test configured. */
 class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
@@ -38,6 +42,11 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     var placementQuestions: Result<List<PlacementQuestion>> = Result.success(emptyList())
     var placementResults = ArrayDeque<Result<PlacementResult>>()
     val placementSubmissions = mutableListOf<List<PlacementAnswer>>()
+    var learnHomeResult: Result<LearnHome> = Result.success(LearnHome(0, 0, 0, 7, 0))
+    val acknowledgedBacklogs = mutableListOf<Int>()
+    val overrides = mutableListOf<Pair<Int, NewWordOverrideMode>>()
+    var overrideClears = 0
+    val reviewPauses = mutableListOf<Pair<String, Boolean>>()
     /** Runs inside `placementTest()`, before it answers (to hold it open). */
     var onPlacementTest: suspend () -> Unit = {}
 
@@ -83,6 +92,21 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
         scopeUpdates += scope
     }
     override suspend fun catalog() = catalogCollections
+
+    override suspend fun learnHome(): LearnHome = learnHomeResult.getOrThrow()
+    override suspend fun acknowledgeReviewLoad(backlog: Int) {
+        acknowledgedBacklogs += backlog
+    }
+    override suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant?): NewWordOverride {
+        overrides += value to mode
+        return NewWordOverride(value, mode, until)
+    }
+    override suspend fun clearNewWordOverride() {
+        overrideClears += 1
+    }
+    override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {
+        reviewPauses += collectionId to paused
+    }
 
     companion object {
         fun profile(

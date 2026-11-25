@@ -67,7 +67,7 @@ fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {})
         Text("Design gallery", style = Typography.display)
 
         Section("Flows (offline API)") {
-            SecondaryButton("Onboarding + placement test", onClick = onOpenOfflineOnboarding)
+            SecondaryButton("Onboarding → Home", onClick = onOpenOfflineOnboarding)
         }
 
         Section("Buttons (app context)") {

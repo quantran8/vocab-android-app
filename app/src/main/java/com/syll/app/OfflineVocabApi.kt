@@ -4,7 +4,14 @@ import com.syll.domain.CefrLevel
 import com.syll.domain.TopicCatalog
 import com.syll.network.CatalogCollection
 import com.syll.network.CatalogTopic
+import com.syll.network.LearnHome
 import com.syll.network.LearningScope
+import com.syll.network.NewWordOverride
+import com.syll.network.NewWordOverrideMode
+import com.syll.network.NewWordReason
+import com.syll.network.ReviewLoad
+import com.syll.network.ScopeState
+import com.syll.network.ScopeStatus
 import com.syll.network.PlacementAnswer
 import com.syll.network.PlacementQuestion
 import com.syll.network.PlacementResult
@@ -14,6 +21,7 @@ import com.syll.network.UserProfile
 import com.syll.network.UserSettings
 import com.syll.network.VocabApi
 import kotlinx.coroutines.delay
+import java.time.Instant
 
 /**
  * iOS `OfflineVocabAPI`: answers every call without a backend, for previews and the debug gallery's offline flows.
@@ -64,6 +72,21 @@ class OfflineVocabApi : VocabApi {
             topics = collection.topics.map { CatalogTopic(it.id, it.id, it.name) },
         )
     }
+
+    /** A learner with a backlog the server would ask about, so Home shows the review-load choice. */
+    override suspend fun learnHome() = LearnHome(
+        dueCount = 34, checkpointAvailable = 0, checkpointSessionsDone = 2, checkpointSessionsRequired = 5, learnedTotal = 80,
+        scope = ScopeState(ScopeStatus.LOW, remainingNewMeanings = 12, pendingCustomMeanings = 0, sessionsLeftEstimate = 3),
+        reviewLoad = ReviewLoad(
+            backlog = 34, dueCap = 10, effectiveNewPerSession = 5, newWordReason = NewWordReason.GOAL,
+            autoBalance = false, promptChoice = true,
+        ),
+    )
+
+    override suspend fun acknowledgeReviewLoad(backlog: Int) {}
+    override suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant?) = NewWordOverride(value, mode, until)
+    override suspend fun clearNewWordOverride() {}
+    override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {}
 
     private fun question(id: String, prompt: String, vararg options: String) = PlacementQuestion(
         id = id,

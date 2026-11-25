@@ -1,5 +1,13 @@
 package com.syll.designsystem.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -99,6 +107,8 @@ fun ActionButton(
     enabled: Boolean = true,
     size: ActionButtonSize = ActionButtonSize.REGULAR,
     foregroundOverride: Color? = null,
+    /** A band of light crossing the face every few seconds (iOS `shimmers`), for the screen's one main action. */
+    shimmers: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
     val motion = LocalMotion.current
@@ -138,6 +148,7 @@ fun ActionButton(
             .offset(y = sink)
             .clip(CircleShape)
             .background(face)
+            .then(if (shimmers && enabled && !motion.reduceMotion) Modifier.shimmerSweep() else Modifier)
             .then(if (kind.hasBorder && enabled) Modifier.border(Borders.card, SyllColors.stroke, CircleShape) else Modifier)
             .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
             .defaultMinSize(minHeight = size.height),
@@ -175,12 +186,13 @@ fun PrimaryButton(
     requirement: String? = null,
     enabled: Boolean = true,
     kind: ActionButtonKind? = null,
+    shimmers: Boolean = false,
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
         if (!enabled && requirement != null) {
             Text(requirement, style = Typography.micro, color = SyllColors.mutedInk, textAlign = TextAlign.Center)
         }
-        ActionButton(kind ?: ActionButtonKind.APP, onClick, Modifier.fillMaxWidth(), enabled) {
+        ActionButton(kind ?: ActionButtonKind.APP, onClick, Modifier.fillMaxWidth(), enabled, shimmers = shimmers) {
             // The Premium button's crown leads its label.
             ActionButtonLabel(title, icon, iconLeading = kind == ActionButtonKind.PREMIUM)
         }
@@ -222,5 +234,43 @@ fun SmallButton(
 ) {
     ActionButton(kind, onClick, modifier, size = ActionButtonSize.SMALL) {
         ActionButtonLabel(title, icon, iconLeading = true)
+    }
+}
+
+/**
+ * iOS `ShimmerSweep`: a slanted band of light crosses the face in [MotionTokens.shimmerSweep] seconds, then pauses
+ * until the [MotionTokens.shimmerCycle] ends. Decorative only.
+ */
+fun Modifier.shimmerSweep(): Modifier = composed {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val cycleMillis = (MotionTokens.shimmerCycle * 1000).toInt()
+    val sweepMillis = (MotionTokens.shimmerSweep * 1000).toInt()
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            keyframes {
+                durationMillis = cycleMillis
+                0f at 0 using LinearEasing
+                1f at sweepMillis
+                1f at cycleMillis
+            },
+        ),
+        label = "shimmerProgress",
+    )
+    drawWithContent {
+        drawContent()
+        // Unit range that starts and ends with the band fully off the face.
+        val x = -0.6f + progress * 1.9f
+        val band = 0.3f
+        drawRect(
+            Brush.linearGradient(
+                0f to Color.White.copy(alpha = 0f),
+                0.5f to Color.White.copy(alpha = 0.35f),
+                1f to Color.White.copy(alpha = 0f),
+                start = Offset(x * size.width, 0f),
+                end = Offset((x + band) * size.width, size.height),
+            ),
+        )
     }
 }

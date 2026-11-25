@@ -79,4 +79,31 @@ class LearnerStoreTest {
         store.load()
         assertTrue(store.phase is LearnerStore.Phase.Failed)
     }
+
+    private fun reviewHome(prompt: Boolean) = com.syll.network.LearnHome(
+        34, 0, 0, 7, 0,
+        reviewLoad = com.syll.network.ReviewLoad(34, 10, 5, com.syll.network.NewWordReason.GOAL, null, false, promptChoice = prompt),
+    )
+
+    @Test
+    fun theReviewChoiceIsOfferedOncePerLaunchAndAcknowledged() = runBlocking {
+        api.learnHomeResult = Result.success(reviewHome(prompt = true))
+        store.refresh()
+        assertTrue(store.shouldOfferReviewChoice)
+        store.acknowledgeReviewChoice()
+        assertEquals(listOf(34), api.acknowledgedBacklogs)
+        assertFalse("Shown once per launch, whatever the server says", store.shouldOfferReviewChoice)
+        store.reset()
+        store.refresh()
+        assertTrue("A new account starts over", store.shouldOfferReviewChoice)
+    }
+
+    @Test
+    fun aFailedHomeRefreshKeepsWhatWasShown() = runBlocking {
+        api.learnHomeResult = Result.success(reviewHome(prompt = false))
+        store.refresh()
+        api.learnHomeResult = Result.failure(ApiError.Transport)
+        store.refresh()
+        assertEquals(34, store.home?.dueCount)
+    }
 }

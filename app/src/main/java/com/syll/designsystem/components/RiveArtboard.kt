@@ -6,6 +6,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import app.rive.runtime.kotlin.RiveAnimationView
 import app.rive.runtime.kotlin.core.Fit
 import app.rive.runtime.kotlin.core.Loop
+import android.util.Log
+import com.syll.BuildConfig
 import com.syll.R
 
 /**
@@ -39,6 +41,12 @@ fun RiveArtboard(
                     fit = fit,
                     loop = loop,
                 )
+                if (BuildConfig.DEBUG) {
+                    runCatching {
+                        val board = controller.activeArtboard
+                        Log.d("RiveArtboard", "$artboard: timelines=${board?.animationNames} stateMachines=${board?.stateMachineNames}")
+                    }
+                }
                 onReady(this)
             }
         },

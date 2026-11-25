@@ -3,6 +3,8 @@ package com.syll.network
 import com.syll.domain.CefrLevel
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonObject
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 /**
  * iOS `VocabAPI`: everything the app asks of the backend. Stores depend on this interface, so tests and previews
@@ -32,6 +34,14 @@ interface VocabApi {
     suspend fun updateSettings(settings: SettingsUpdate)
     suspend fun updateScope(scope: LearningScope)
     suspend fun catalog(): List<CatalogCollection>
+
+    suspend fun learnHome(): LearnHome
+    /** Records that the review-load choice was shown, so other devices don't ask again. */
+    suspend fun acknowledgeReviewLoad(backlog: Int)
+    /** [until] null with [NewWordOverrideMode.UNTIL_DATE] lets the server pick the end of the learner's Sunday. */
+    suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant? = null): NewWordOverride
+    suspend fun clearNewWordOverride()
+    suspend fun setReviewPaused(collectionId: String, paused: Boolean)
 }
 
 /** iOS `LiveVocabAPI`. */
@@ -102,6 +112,27 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
 
     override suspend fun catalog(): List<CatalogCollection> =
         client.send(get("catalog/collections"), CatalogResponse.serializer()).collections
+
+    override suspend fun learnHome(): LearnHome = client.send(get("me/learn-home"), LearnHome.serializer())
+
+    override suspend fun acknowledgeReviewLoad(backlog: Int) {
+        client.sendRaw(post("me/review-load/ack", ReviewLoadAck(backlog), ReviewLoadAck.serializer()))
+    }
+
+    override suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant?): NewWordOverride {
+        val body = OverrideRequest(value, mode, until?.let(DateTimeFormatter.ISO_INSTANT::format))
+        val request = post("me/new-word-override", body, OverrideRequest.serializer()).copy(method = ApiRequest.Method.PUT)
+        return client.send(request, OverrideResponse.serializer()).override
+    }
+
+    override suspend fun clearNewWordOverride() {
+        client.sendRaw(ApiRequest(ApiRequest.Method.DELETE, "me/new-word-override"))
+    }
+
+    override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {
+        val method = if (paused) ApiRequest.Method.PUT else ApiRequest.Method.DELETE
+        client.sendRaw(ApiRequest(method, "me/review-pauses/$collectionId"))
+    }
 
     private fun postJson(path: String, body: JsonObject) = ApiRequest(
         method = ApiRequest.Method.POST,

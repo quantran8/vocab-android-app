@@ -28,6 +28,9 @@ import com.syll.designsystem.tokens.SyllColors
 import com.syll.features.auth.AuthStore
 import com.syll.features.auth.AuthView
 import com.syll.features.main.LearnerStore
+import com.syll.features.main.MainShellView
+import com.syll.features.main.MainTab
+import com.syll.features.home.HomeActions
 import com.syll.features.onboarding.OnboardingView
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.features.debug.DesignGallery
@@ -73,6 +76,12 @@ fun AppRoot() {
     var launched by rememberSaveable { mutableStateOf(false) }
     var showsGallery by rememberSaveable { mutableStateOf(false) }
     var showsOfflineOnboarding by rememberSaveable { mutableStateOf(false) }
+    // Owned here: the route swap unmounts the shell during a session, and closing one returns to this tab.
+    var shellTab by rememberSaveable { mutableStateOf(MainTab.HOME) }
+    // The next account starts on Home.
+    LaunchedEffect(auth.phase) {
+        if (auth.phase == AuthStore.Phase.SIGNED_OUT) shellTab = MainTab.HOME
+    }
 
     LaunchedEffect(Unit) {
         if (auth.phase == AuthStore.Phase.LAUNCHING) auth.restore()
@@ -117,7 +126,8 @@ fun AppRoot() {
                     RouteID.Auth -> AuthView(onOpenGallery = { showsGallery = true })
                     RouteID.LoadFailed -> LoadFailedScreen()
                     RouteID.Onboarding -> OnboardingView()
-                    RouteID.Shell -> ShellPlaceholder()
+                    // Practice, Random practice and Focus are wired as they land (steps 4 and 7).
+                    RouteID.Shell -> MainShellView(shellTab, onTabChange = { shellTab = it }, homeActions = HomeActions())
                     RouteID.DesignGallery -> DesignGallery(
                         onClose = { showsGallery = false },
                         onOpenOfflineOnboarding = { showsOfflineOnboarding = true },
@@ -146,12 +156,3 @@ private fun LoadFailedScreen() {
     }
 }
 
-/** Phase 0 stand-in for `MainShellView` (Phase 1). */
-@Composable
-private fun ShellPlaceholder() {
-    val auth = LocalAuthStore.current
-    val scope = rememberCoroutineScope()
-    StatusScreen(title = stringResource(R.string.syll), modifier = Modifier.safeDrawingPadding()) {
-        PrimaryButton(title = stringResource(R.string.log_out), onClick = { scope.launch { auth.signOut() } })
-    }
-}

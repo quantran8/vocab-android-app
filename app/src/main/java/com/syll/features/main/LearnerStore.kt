@@ -9,7 +9,9 @@ import com.syll.domain.CefrLevel
 import com.syll.domain.LearningPreferences
 import com.syll.domain.TopicCatalog
 import com.syll.features.plan.LearningPlanStore
+import com.syll.network.LearnHome
 import com.syll.network.LearningScope
+import com.syll.network.NewWordOverrideMode
 import com.syll.network.PremiumPlan
 import com.syll.network.SettingsUpdate
 import com.syll.network.UserProfile
@@ -17,11 +19,14 @@ import com.syll.network.UserSettings
 import com.syll.network.VocabApi
 import com.syll.network.asApiError
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.TimeZone
 
 /**
- * iOS `LearnerStore`: the signed-in learner's server state. Phase 1 step 2 ports the profile, plan and Premium
- * parts; Home figures, words and the Journey arrive with Home (step 3) and My Words (step 7).
+ * iOS `LearnerStore`: the signed-in learner's server state: profile, plan, Premium and Home figures. Words and the
+ * Journey arrive with My Words (step 7); checkpoint challenges with Challenge (Phase 2).
  */
 class LearnerStore(
     private val api: VocabApi,
@@ -39,6 +44,11 @@ class LearnerStore(
     var phase by mutableStateOf<Phase>(Phase.Loading)
         private set
     var profile by mutableStateOf<UserProfile?>(null)
+        private set
+    var home by mutableStateOf<LearnHome?>(null)
+        private set
+    /** The review-load choice shows at most once per launch, whatever the server says. */
+    var hasShownReviewChoice by mutableStateOf(false)
         private set
 
     /**
@@ -75,13 +85,17 @@ class LearnerStore(
     }
 
     /**
-     * Runs whenever the main shell appears. Non-fatal: Home keeps what it has if a refresh fails.
-     * Home, challenges, words and the Journey join it in later steps.
+     * Runs whenever the main shell appears, so also after onboarding and every session. Non-fatal: Home keeps what it
+     * has if a refresh fails. The profile is included because onboarding saves the level and scope after [load].
      */
-    suspend fun refresh() {
-        reloadProfile()
+    suspend fun refresh() = coroutineScope {
+        val profile = async { reloadProfile() }
+        val home = async { runCatchingApi { api.learnHome() } }
         // Topic progress ("45/120", "Finished") moves with every session.
-        runCatchingApi { api.catalog() }?.let { catalog -> TopicCatalog.update(catalog.map { it.toEntry() }) }
+        val catalog = async { runCatchingApi { api.catalog() } }
+        home.await()?.let { this@LearnerStore.home = it }
+        catalog.await()?.let { list -> TopicCatalog.update(list.map { it.toEntry() }) }
+        profile.await()
     }
 
     /** Scope and goal go to the server first, so a failed save leaves the local plan unchanged. */
@@ -101,7 +115,9 @@ class LearnerStore(
         }
         api.updateSettings(update)
         plan.save(preferences)
+        // Home's review count (`dueCap`) follows both numbers.
         reloadProfile()
+        refreshHome()
     }
 
     /** The level goes to the server first; the profile is re-read so Profile shows what the server kept. */
@@ -127,6 +143,48 @@ class LearnerStore(
         refresh()
     }
 
+    /** Whether Home should offer the review-load choice now. The caller also keeps it out of a session. */
+    val shouldOfferReviewChoice: Boolean
+        get() = !hasShownReviewChoice && home?.reviewLoad?.promptChoice == true
+
+    /** Any choice, including dismissing, counts as seen here and on the learner's other devices. */
+    suspend fun acknowledgeReviewChoice() {
+        hasShownReviewChoice = true
+        val backlog = home?.reviewLoad?.backlog ?: return
+        runCatchingApi { api.acknowledgeReviewLoad(backlog) }
+        refreshHome()
+    }
+
+    /** Lowers new words for now. [NewWordOverrideMode.UNTIL_DATE] ends with the learner's Sunday. */
+    suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode) {
+        api.setNewWordOverride(value, mode)
+        refreshHome()
+    }
+
+    suspend fun clearNewWordOverride() {
+        api.clearNewWordOverride()
+        refreshHome()
+    }
+
+    suspend fun setAutoBalance(enabled: Boolean) {
+        api.updateSettings(SettingsUpdate(autoBalanceNewWords = enabled))
+        coroutineScope {
+            launch { reloadProfile() }
+            launch { refreshHome() }
+        }
+    }
+
+    /** The active collection is always reviewed; the server rejects pausing it. */
+    suspend fun setReviewPaused(paused: Boolean, collectionId: String) {
+        api.setReviewPaused(collectionId, paused)
+        coroutineScope {
+            launch { reloadProfile() }
+            launch { refreshHome() }
+        }
+    }
+
+    fun isReviewPaused(collectionId: String): Boolean = profile?.reviewPauses?.any { it.collectionId == collectionId } ?: false
+
     // Premium (FRONTEND_FLOW §16)
 
     /** Null while nothing limits the learner: Premium, freemium off on the server, or an older backend. */
@@ -144,6 +202,10 @@ class LearnerStore(
     /** The collection a limited learner is kept on: the backend answers `FREE_COLLECTION_LOCKED` to any other. */
     fun lockedCollectionId(saved: String): String? = if (freeLimits == null) null else saved
 
+    private suspend fun refreshHome() {
+        runCatchingApi { api.learnHome() }?.let { home = it }
+    }
+
     suspend fun reloadProfile() {
         runCatchingApi { api.profile() }?.let { profile = it }
     }
@@ -151,6 +213,8 @@ class LearnerStore(
     fun reset() {
         phase = Phase.Loading
         profile = null
+        home = null
+        hasShownReviewChoice = false
     }
 
     /**
