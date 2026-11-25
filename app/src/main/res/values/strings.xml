@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android-only strings. Shared strings come from iOS via strings_ios.xml (tools/xcstrings2android).
+    Same rule as iOS: every string here needs every language in values-*/strings.xml.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Debug-only screens (design gallery) are not translated. -->
+    <string name="debug_design_gallery" translatable="false">Design gallery</string>
+</resources>

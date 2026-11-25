@@ -1,0 +1,275 @@
+{
+  "fixtures": [
+    {
+      "id": "daily-chain",
+      "title": "Daily: review and new words",
+      "subtitle": "Two commits merged, mixed groups, one word already known, speaking on.",
+      "result": {
+        "kind": "daily",
+        "summary": {
+          "review": {
+            "total": 9,
+            "groups": {
+              "solid": [
+                { "meaningId": "m-prevalence", "lemma": "prevalence", "gloss": "tỷ lệ phổ biến", "nextReviewAt": "2026-11-25T13:00:00Z", "learnedAt": "2026-11-09T12:10:00Z" },
+                { "meaningId": "m-endure", "lemma": "endure", "gloss": "chịu đựng", "nextReviewAt": "2026-11-25T13:00:00Z", "learnedAt": "2026-10-30T08:00:00Z" },
+                { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "nextReviewAt": "2026-11-26T13:00:00Z", "learnedAt": "2026-10-28T08:00:00Z" },
+                { "meaningId": "m-scarce", "lemma": "scarce", "gloss": "khan hiếm", "nextReviewAt": "2026-11-26T13:00:00Z", "learnedAt": "2026-10-21T08:00:00Z" },
+                { "meaningId": "m-thrive", "lemma": "thrive", "gloss": "phát triển mạnh", "nextReviewAt": "2026-11-27T13:00:00Z", "learnedAt": "2026-10-20T08:00:00Z" },
+                { "meaningId": "m-adapt", "lemma": "adapt", "gloss": "thích nghi", "nextReviewAt": "2026-11-27T13:00:00Z", "learnedAt": "2026-10-11T08:00:00Z" },
+                { "meaningId": "m-remedy", "lemma": "remedy", "gloss": "phương thuốc", "nextReviewAt": "2026-11-28T13:00:00Z", "learnedAt": "2026-10-02T08:00:00Z" }
+              ],
+              "shaky": [
+                { "meaningId": "m-diagnose", "lemma": "diagnose", "gloss": "chẩn đoán", "nextReviewAt": "2026-11-14T13:00:00Z", "learnedAt": "2026-11-10T09:00:00Z", "cause": "hinted", "struggledAt": "spelling" }
+              ],
+              "relearn": [
+                { "meaningId": "m-chronic", "lemma": "chronic", "gloss": "mãn tính", "nextReviewAt": "2026-11-14T01:00:00Z", "learnedAt": "2026-11-11T09:00:00Z", "cause": "wrong_choice", "struggledAt": "listening" }
+              ]
+            }
+          },
+          "newWords": {
+            "total": 4,
+            "groups": {
+              "smooth": [
+                { "meaningId": "m-symptom", "lemma": "symptom", "gloss": "triệu chứng", "nextReviewAt": "2026-11-15T13:00:00Z" },
+                { "meaningId": "m-recover", "lemma": "recover", "gloss": "hồi phục", "nextReviewAt": "2026-11-15T13:00:00Z" }
+              ],
+              "retried": [
+                { "meaningId": "m-fatigue", "lemma": "fatigue", "gloss": "mệt mỏi", "nextReviewAt": "2026-11-14T13:00:00Z", "cause": "not_passed", "struggledAt": "speaking" }
+              ],
+              "revealed": [
+                { "meaningId": "m-immune", "lemma": "immune", "gloss": "miễn dịch", "nextReviewAt": "2026-11-14T01:00:00Z", "cause": "revealed", "struggledAt": "spelling" }
+              ],
+              "known": [
+                { "meaningId": "m-doctor", "lemma": "doctor", "gloss": "bác sĩ", "nextReviewAt": "2026-11-20T13:00:00Z" }
+              ]
+            }
+          },
+          "speaking": {
+            "total": 3,
+            "passed": 2,
+            "groups": {
+              "passed": [
+                { "meaningId": "m-symptom", "lemma": "symptom", "gloss": "triệu chứng", "status": "practicing", "score": 93, "band": "excellent" },
+                { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "status": "fluent", "score": 85, "band": "good" }
+              ],
+              "notPassed": [
+                { "meaningId": "m-fatigue", "lemma": "fatigue", "gloss": "mệt mỏi", "status": "practicing", "score": 64, "band": "fair" }
+              ]
+            },
+            "becameFluent": [
+              { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "status": "fluent", "score": 85, "band": "good" }
+            ],
+            "slipped": []
+          }
+        }
+      }
+    },
+    {
+      "id": "daily-review-only",
+      "title": "Daily: review only",
+      "subtitle": "Everything remembered, no new words, no LP.",
+      "result": {
+        "kind": "daily",
+        "summary": {
+          "review": {
+            "total": 3,
+            "groups": {
+              "solid": [
+                { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "nextReviewAt": "2026-11-26T13:00:00Z", "learnedAt": "2026-10-28T08:00:00Z" },
+                { "meaningId": "m-scarce", "lemma": "scarce", "gloss": "khan hiếm", "nextReviewAt": "2026-11-26T13:00:00Z", "learnedAt": "2026-10-21T08:00:00Z" },
+                { "meaningId": "m-thrive", "lemma": "thrive", "gloss": "phát triển mạnh", "nextReviewAt": "2026-11-27T13:00:00Z", "learnedAt": "2026-10-20T08:00:00Z" }
+              ],
+              "shaky": [],
+              "relearn": []
+            }
+          },
+          "newWords": {
+            "total": 0,
+            "groups": {
+              "smooth": [],
+              "retried": [],
+              "revealed": [],
+              "known": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "random-skills",
+      "title": "Random: mixed practice",
+      "subtitle": "One block of answers, two not counted, one due word counted as review.",
+      "result": {
+        "kind": "randomPractice",
+        "summary": {
+          "practice": {
+            "total": 6,
+            "excluded": {
+              "count": 2,
+              "reasons": ["invalid_recording", "unavailable"]
+            },
+            "groups": {
+              "clean": [
+                { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "skill": "spelling" },
+                { "meaningId": "m-scarce", "lemma": "scarce", "gloss": "khan hiếm", "skill": "spelling" },
+                { "meaningId": "m-thrive", "lemma": "thrive", "gloss": "phát triển mạnh", "skill": "listening" },
+                { "meaningId": "m-adapt", "lemma": "adapt", "gloss": "thích nghi", "skill": "listening" }
+              ],
+              "helped": [
+                { "meaningId": "m-remedy", "lemma": "remedy", "gloss": "phương thuốc", "skill": "spelling" }
+              ],
+              "missed": [
+                { "meaningId": "m-chronic", "lemma": "chronic", "gloss": "mãn tính", "skill": "listening" }
+              ]
+            }
+          },
+          "needPractice": {
+            "before": 3,
+            "after": 4
+          },
+          "countedAsReview": [
+            { "meaningId": "m-scarce", "lemma": "scarce", "gloss": "khan hiếm", "nextReviewAt": "2026-11-22T13:00:00Z" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "random-mixed-speaking",
+      "title": "Random: mixed, with a recording",
+      "subtitle": "All answers right; one recording slipped a fluent word back.",
+      "result": {
+        "kind": "randomPractice",
+        "summary": {
+          "practice": {
+            "total": 3,
+            "groups": {
+              "clean": [
+                { "meaningId": "m-vivid", "lemma": "vivid", "gloss": "sống động", "skill": "spelling" },
+                { "meaningId": "m-scarce", "lemma": "scarce", "gloss": "khan hiếm", "skill": "spelling" },
+                { "meaningId": "m-thrive", "lemma": "thrive", "gloss": "phát triển mạnh", "skill": "spelling" }
+              ],
+              "helped": [],
+              "missed": []
+            }
+          },
+          "needPractice": {
+            "before": 0,
+            "after": 0
+          },
+          "countedAsReview": [],
+          "speaking": {
+            "total": 1,
+            "passed": 0,
+            "becameFluent": [],
+            "slipped": [
+              { "meaningId": "m-thrive", "lemma": "thrive", "gloss": "phát triển mạnh", "status": "practicing", "score": 72 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "weak-some-left",
+      "title": "Weak: some words left",
+      "subtitle": "Right answers clear a word at once; one miss keeps it.",
+      "result": {
+        "kind": "weakPractice",
+        "summary": {
+          "practice": {
+            "total": 4,
+            "groups": {
+              "clean": [
+                { "meaningId": "m-chronic", "lemma": "chronic", "gloss": "mãn tính", "skill": "listening" },
+                { "meaningId": "m-immune", "lemma": "immune", "gloss": "miễn dịch", "skill": "spelling" },
+                { "meaningId": "m-fatigue", "lemma": "fatigue", "gloss": "mệt mỏi", "skill": "speaking" }
+              ],
+              "helped": [],
+              "missed": [
+                { "meaningId": "m-remedy", "lemma": "remedy", "gloss": "phương thuốc", "skill": "spelling" }
+              ]
+            }
+          },
+          "needPractice": {
+            "before": 5,
+            "after": 4
+          },
+          "countedAsReview": []
+        }
+      }
+    },
+    {
+      "id": "weak-cleared",
+      "title": "Weak: no weak words left",
+      "subtitle": "The count reaches zero and Syllie is proud.",
+      "result": {
+        "kind": "weakPractice",
+        "summary": {
+          "practice": {
+            "total": 1,
+            "groups": {
+              "clean": [
+                { "meaningId": "m-chronic", "lemma": "chronic", "gloss": "mãn tính", "skill": "listening" }
+              ],
+              "helped": [],
+              "missed": []
+            }
+          },
+          "needPractice": {
+            "before": 1,
+            "after": 0
+          },
+          "countedAsReview": []
+        }
+      }
+    },
+    {
+      "id": "random-not-measured",
+      "title": "Random: no skill measured",
+      "subtitle": "Only recordings that could not be made: every tile empty but in place.",
+      "result": {
+        "kind": "randomPractice",
+        "summary": {
+          "practice": {
+            "total": 0,
+            "excluded": {
+              "count": 4,
+              "reasons": ["unavailable"]
+            },
+            "groups": {
+              "clean": [],
+              "helped": [],
+              "missed": []
+            }
+          },
+          "needPractice": {
+            "before": 0,
+            "after": 0
+          },
+          "countedAsReview": []
+        }
+      }
+    },
+    {
+      "id": "speaking-practice",
+      "title": "Speaking practice",
+      "subtitle": "Five recordings, two words now fluent, one to practise again.",
+      "result": {
+        "kind": "speakingPractice",
+        "summary": {
+          "speaking": {
+            "total": 5,
+            "passed": 3,
+            "becameFluent": [
+              { "meaningId": "m-symptom", "lemma": "symptom", "gloss": "triệu chứng", "status": "fluent", "score": 91 },
+              { "meaningId": "m-recover", "lemma": "recover", "gloss": "hồi phục", "status": "fluent", "score": null }
+            ],
+            "slipped": [
+              { "meaningId": "m-fatigue", "lemma": "fatigue", "gloss": "mệt mỏi", "status": "practicing", "score": 68 }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

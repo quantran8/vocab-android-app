@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Forced light, like iOS (`preferredColorScheme(.light)`); Compose draws everything else.
+        System bars are set by `enableEdgeToEdge` in MainActivity.
+    -->
+    <style name="Theme.VocabFlow" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
+    </style>
+</resources>
