@@ -1,5 +1,7 @@
 package com.syll.network
 
+import com.syll.domain.LenientEnumSerializer
+
 import com.syll.domain.CatalogEntry
 import com.syll.domain.CefrLevel
 import kotlinx.serialization.KSerializer
@@ -13,21 +15,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-
-/** iOS `LenientEnum`: an unknown raw value decodes to [fallback], so a new server value never fails a response. */
-open class LenientEnumSerializer<T : Enum<T>>(
-    name: String,
-    private val values: Array<T>,
-    private val raw: (T) -> String,
-    private val fallback: T,
-) : KSerializer<T> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(name, PrimitiveKind.STRING)
-    override fun deserialize(decoder: Decoder): T {
-        val value = decoder.decodeString()
-        return values.firstOrNull { raw(it) == value } ?: fallback
-    }
-    override fun serialize(encoder: Encoder, value: T) = encoder.encodeString(raw(value))
-}
 
 @Serializable
 data class UserSettings(

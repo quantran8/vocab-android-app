@@ -2,13 +2,20 @@ package com.syll.app
 
 import com.syll.domain.CefrLevel
 import com.syll.domain.TopicCatalog
+import com.syll.domain.practice.CommitResponse
+import com.syll.domain.practice.CommitStatus
+import com.syll.domain.practice.CommitSummary
+import com.syll.domain.practice.PlanRequest
+import com.syll.domain.practice.RecordedAudio
+import com.syll.domain.practice.RecordingAssessment
+import com.syll.domain.practice.SessionPlan
 import com.syll.network.CatalogCollection
 import com.syll.network.CatalogTopic
 import com.syll.network.LearnHome
 import com.syll.network.LearningScope
 import com.syll.network.NewWordOverride
 import com.syll.network.NewWordOverrideMode
-import com.syll.network.NewWordReason
+import com.syll.domain.NewWordReason
 import com.syll.network.ReviewLoad
 import com.syll.network.ScopeState
 import com.syll.network.ScopeStatus
@@ -87,6 +94,15 @@ class OfflineVocabApi : VocabApi {
     override suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant?) = NewWordOverride(value, mode, until)
     override suspend fun clearNewWordOverride() {}
     override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {}
+
+    override suspend fun planSession(request: PlanRequest): SessionPlan = OfflinePlans.plan(request)
+    override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio) =
+        RecordingAssessment(assessmentReceiptId = "offline", validity = "valid", passed = true, accuracyScore = 88.0)
+    override suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse {
+        delay(800)
+        return CommitResponse(sessionId, CommitSummary(newWordGoalSlots = 2, reviewedMeanings = 2, practiceTasks = 6))
+    }
+    override suspend fun commitStatus(sessionId: String) = CommitStatus("not_committed")
 
     private fun question(id: String, prompt: String, vararg options: String) = PlacementQuestion(
         id = id,

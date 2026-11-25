@@ -2,7 +2,7 @@ package com.syll.features.home
 
 import com.syll.network.LearnHome
 import com.syll.network.NewWordOverrideMode
-import com.syll.network.NewWordReason
+import com.syll.domain.NewWordReason
 import com.syll.network.ScopeStatus
 import java.time.Instant
 

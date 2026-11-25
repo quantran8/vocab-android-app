@@ -52,7 +52,7 @@ import com.syll.designsystem.tokens.SyllColors
 import com.syll.designsystem.tokens.Typography
 import com.syll.features.plan.WordsPerDayStepper
 import com.syll.network.NewWordOverrideMode
-import com.syll.network.NewWordReason
+import com.syll.domain.NewWordReason
 import com.syll.network.ReviewLoad
 import com.syll.network.asApiError
 import kotlinx.coroutines.CancellationException

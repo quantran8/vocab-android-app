@@ -4,7 +4,7 @@ import com.syll.network.FreeAllowance
 import com.syll.network.LearnHome
 import com.syll.network.NewWordOverride
 import com.syll.network.NewWordOverrideMode
-import com.syll.network.NewWordReason
+import com.syll.domain.NewWordReason
 import com.syll.network.ReviewLoad
 import com.syll.network.ScopeState
 import com.syll.network.ScopeStatus

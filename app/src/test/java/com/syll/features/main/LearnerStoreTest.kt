@@ -82,7 +82,7 @@ class LearnerStoreTest {
 
     private fun reviewHome(prompt: Boolean) = com.syll.network.LearnHome(
         34, 0, 0, 7, 0,
-        reviewLoad = com.syll.network.ReviewLoad(34, 10, 5, com.syll.network.NewWordReason.GOAL, null, false, promptChoice = prompt),
+        reviewLoad = com.syll.network.ReviewLoad(34, 10, 5, com.syll.domain.NewWordReason.GOAL, null, false, promptChoice = prompt),
     )
 
     @Test

@@ -1,5 +1,7 @@
 package com.syll.network
 
+import com.syll.domain.NewWordReason
+
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

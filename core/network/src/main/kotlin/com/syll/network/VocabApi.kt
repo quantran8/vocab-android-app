@@ -1,6 +1,12 @@
 package com.syll.network
 
 import com.syll.domain.CefrLevel
+import com.syll.domain.practice.CommitResponse
+import com.syll.domain.practice.CommitStatus
+import com.syll.domain.practice.PlanRequest
+import com.syll.domain.practice.RecordedAudio
+import com.syll.domain.practice.RecordingAssessment
+import com.syll.domain.practice.SessionPlan
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonObject
 import java.time.Instant
@@ -42,6 +48,12 @@ interface VocabApi {
     suspend fun setNewWordOverride(value: Int, mode: NewWordOverrideMode, until: Instant? = null): NewWordOverride
     suspend fun clearNewWordOverride()
     suspend fun setReviewPaused(collectionId: String, paused: Boolean)
+
+    suspend fun planSession(request: PlanRequest): SessionPlan
+    suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio): RecordingAssessment
+    /** [body] is sent as is: a retried commit must repeat the first attempt's bytes. */
+    suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse
+    suspend fun commitStatus(sessionId: String): CommitStatus
 }
 
 /** iOS `LiveVocabAPI`. */
@@ -133,6 +145,31 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
         val method = if (paused) ApiRequest.Method.PUT else ApiRequest.Method.DELETE
         client.sendRaw(ApiRequest(method, "me/review-pauses/$collectionId"))
     }
+
+    override suspend fun planSession(request: PlanRequest): SessionPlan =
+        client.send(postJson("sessions/plan", request.toJson()), SessionPlan.serializer())
+
+    override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio): RecordingAssessment {
+        val form = MultipartForm()
+        form.addField("taskId", taskId)
+        form.addFile("audio", "recording.wav", audio.contentType, audio.data)
+        val request = ApiRequest(
+            method = ApiRequest.Method.POST,
+            path = "sessions/$sessionId/recording-assess",
+            body = form.finished(),
+            contentType = form.contentType,
+        )
+        return client.send(request, RecordingAssessment.serializer())
+    }
+
+    override suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse {
+        // The commit is idempotent, so it may retry harder than other requests.
+        val request = ApiRequest(ApiRequest.Method.POST, "sessions/$sessionId/commit", body = body, retries = COMMIT_RETRIES)
+        return client.send(request, CommitResponse.serializer())
+    }
+
+    override suspend fun commitStatus(sessionId: String): CommitStatus =
+        client.send(get("sessions/$sessionId/commit-status"), CommitStatus.serializer())
 
     private fun postJson(path: String, body: JsonObject) = ApiRequest(
         method = ApiRequest.Method.POST,

@@ -2,6 +2,12 @@ package com.syll.features.auth
 
 import com.syll.domain.CefrLevel
 import com.syll.domain.TopicCatalog
+import com.syll.domain.practice.CommitResponse
+import com.syll.domain.practice.CommitStatus
+import com.syll.domain.practice.PlanRequest
+import com.syll.domain.practice.RecordedAudio
+import com.syll.domain.practice.RecordingAssessment
+import com.syll.domain.practice.SessionPlan
 import com.syll.network.ApiError
 import com.syll.network.CatalogCollection
 import com.syll.network.CatalogTopic
@@ -107,6 +113,24 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     override suspend fun setReviewPaused(collectionId: String, paused: Boolean) {
         reviewPauses += collectionId to paused
     }
+
+    var plan: Result<SessionPlan> = Result.failure(ApiError.Transport)
+    val planRequests = mutableListOf<PlanRequest>()
+    val commitResults = ArrayDeque<Result<CommitResponse>>()
+    val commitBodies = mutableListOf<ByteArray>()
+    var assessResult: Result<RecordingAssessment> = Result.failure(ApiError.Transport)
+    var status: CommitStatus? = null
+
+    override suspend fun planSession(request: PlanRequest): SessionPlan {
+        planRequests += request
+        return plan.getOrThrow()
+    }
+    override suspend fun assessRecording(sessionId: String, taskId: String, audio: RecordedAudio) = assessResult.getOrThrow()
+    override suspend fun commitSession(sessionId: String, body: ByteArray): CommitResponse {
+        commitBodies += body
+        return commitResults.removeFirst().getOrThrow()
+    }
+    override suspend fun commitStatus(sessionId: String): CommitStatus = status ?: throw ApiError.Transport
 
     companion object {
         fun profile(
