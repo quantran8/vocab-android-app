@@ -8,11 +8,11 @@ plugins {
 val apiUrlOverride: String? = providers.gradleProperty("vocabflowApiUrl").orNull
 
 android {
-    namespace = "com.vocabflow"
+    namespace = "com.syll"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.vocabflow"
+        applicationId = "com.syll"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

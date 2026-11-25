@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.vocabflow.data"
+    namespace = "com.syll.data"
     compileSdk = 35
 
     defaultConfig {
