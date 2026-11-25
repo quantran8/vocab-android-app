@@ -21,6 +21,12 @@ import com.syll.features.main.LearnerStore
 import com.syll.features.onboarding.OnboardingStore
 import com.syll.features.placement.PlacementTestStore
 import com.syll.features.practice.PracticeSessionStore
+import com.syll.features.challenge.ChallengeMapStore
+import com.syll.features.challenge.ChallengeRunStore
+import com.syll.features.ranking.RankingStore
+import com.syll.features.customwords.CustomWordStore
+import com.syll.features.lab.TemplateSandboxStore
+import com.syll.domain.practice.LabLibrary
 import com.syll.platform.AudioClipPlayer
 import com.syll.platform.MicrophonePermission
 import com.syll.platform.OnDeviceSpeechTranscriber
@@ -68,6 +74,18 @@ class AppContainer(context: Context) {
         sounds = sounds,
         transcriber = OnDeviceSpeechTranscriber(context, microphone),
     )
+    val challengeMap = ChallengeMapStore(api)
+    val challengeRun = ChallengeRunStore(api, haptics, appScope, storage = storage)
+    val ranking = RankingStore(api)
+    val customWords = CustomWordStore(api, AudioClipPlayer(context), appScope)
+    /** The Practice Lab plays bundled tasks on its own session store, on the offline API: nothing reaches the backend. */
+    val lab = TemplateSandboxStore(
+        loadTemplates = {
+            val text = context.assets.open("practice_lab.json").bufferedReader().use { it.readText() }
+            LabLibrary.decode(com.syll.network.ApiJson, text).also { it.validate() }.templates
+        },
+        session = PracticeSessionStore(OfflineVocabApi(), AudioClipPlayer(context), VoiceRecorder(microphone), haptics, appScope, sounds = sounds),
+    )
 
     init {
         apiClient.setSessionEndedHandler {
@@ -75,12 +93,19 @@ class AppContainer(context: Context) {
         }
         CatalogState.install()
         placement.onPlaced = { learner.reloadProfile() }
+        challengeRun.onSettled = { challengeMap.refresh() }
+        ranking.onProfileChanged = { learner.reloadProfile() }
+        customWords.onRoadmapChanged = { learner.refresh() }
         // Free learners are scored on the device; read per session, since the plan can change in between.
         practice.scoringForSession = { learner.recordingScoring }
         auth.onSignedOut = {
-            // Later steps add practice, custom words, challenge and ranking.
             placement.cancel()
             practice.close()
+            ranking.reset()
+            customWords.reset()
+            lab.closeLab()
+            challengeRun.reset()
+            challengeMap.reset()
             learner.reset()
             onboarding.reset()
         }
@@ -105,6 +130,11 @@ val LocalPracticeSessionStore = staticCompositionLocalOf<PracticeSessionStore> {
 /** iOS `@Environment(SpeechPlayer.self)`: speaks a word that has no recorded clip. Null in previews. */
 val LocalSpeechPlayer = staticCompositionLocalOf<SpeechPlayer?> { null }
 val LocalSoundEffects = staticCompositionLocalOf<SoundEffectsPlaying> { SilentSoundEffects }
+val LocalChallengeMapStore = staticCompositionLocalOf<ChallengeMapStore> { error("ChallengeMapStore not provided") }
+val LocalChallengeRunStore = staticCompositionLocalOf<ChallengeRunStore> { error("ChallengeRunStore not provided") }
+val LocalCustomWordStore = staticCompositionLocalOf<CustomWordStore> { error("CustomWordStore not provided") }
+val LocalTemplateSandboxStore = staticCompositionLocalOf<TemplateSandboxStore?> { null }
+val LocalRankingStore = staticCompositionLocalOf<RankingStore> { error("RankingStore not provided") }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
 @Composable
@@ -117,6 +147,11 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalOnboardingStore provides container.onboarding,
         LocalPlacementTestStore provides container.placement,
         LocalPracticeSessionStore provides container.practice,
+        LocalChallengeMapStore provides container.challengeMap,
+        LocalChallengeRunStore provides container.challengeRun,
+        LocalRankingStore provides container.ranking,
+        LocalCustomWordStore provides container.customWords,
+        LocalTemplateSandboxStore provides container.lab,
         LocalAppScope provides container.appScope,
         LocalSoundEffects provides container.sounds,
         LocalSpeechPlayer provides container.speech,

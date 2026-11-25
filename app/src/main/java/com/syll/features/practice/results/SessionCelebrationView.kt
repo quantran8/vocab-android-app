@@ -60,6 +60,7 @@ import com.syll.domain.practice.CelebrationKind
 import com.syll.domain.practice.CelebrationVariant
 import com.syll.domain.practice.PracticeResult
 import com.syll.domain.practice.ScopeEvents
+import com.syll.domain.ranking.SessionEffort
 import kotlinx.coroutines.delay
 
 /** iOS `SessionCelebration`: what the celebration says, decided from the commit. */
@@ -69,11 +70,11 @@ data class SessionCelebration(
     val counts: CelebrationCounts,
     /** The collection this session finished; null otherwise. */
     val finishedScopeName: String?,
-    /** LP arrives with Ranking (Phase 2). */
+    /** Null from a backend without ranking. */
     val earnedLP: Int? = null,
 ) {
     companion object {
-        fun of(result: PracticeResult, scopeEvents: ScopeEvents?, finishedScopeName: String?): SessionCelebration {
+        fun of(result: PracticeResult, effort: SessionEffort?, scopeEvents: ScopeEvents?, finishedScopeName: String?): SessionCelebration {
             val counts = CelebrationCounts.of(result.summary)
             val finishedCollection = scopeEvents?.collectionCompleted == true
             return SessionCelebration(
@@ -81,6 +82,7 @@ data class SessionCelebration(
                 perfect = counts.perfect,
                 counts = counts,
                 finishedScopeName = finishedScopeName?.takeIf { finishedCollection },
+                earnedLP = effort?.earned,
             )
         }
     }
@@ -274,7 +276,7 @@ private const val PROP_POP_MILLIS = 800L
 
 /** iOS `CelebrationBadge`: the reduced-motion stand-in for Syllie, a Sun check that settles in. */
 @Composable
-private fun CelebrationBadge() {
+internal fun CelebrationBadge() {
     val motion = LocalMotion.current
     val scale = remember { Animatable(if (motion.reduceMotion) 1f else 0.6f) }
     LaunchedEffect(Unit) { if (!motion.reduceMotion) scale.animateTo(1f, MotionTokens.entrance.spec()) }
@@ -286,7 +288,7 @@ private fun CelebrationBadge() {
     }
 }
 
-/** iOS `LPPill`: "+45 LP" on Sun 50. Shown once LP arrives with Ranking. */
+/** iOS `LPPill`: "+45 LP" on Sun 50. */
 @Composable
 private fun LPPill(lp: Int, modifier: Modifier) {
     Row(

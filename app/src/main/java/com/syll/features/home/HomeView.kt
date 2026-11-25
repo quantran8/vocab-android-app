@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,6 +69,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.os.ConfigurationCompat
 import com.syll.R
+import com.syll.features.ranking.LifetimeLPPill
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalLearningPlanStore
 import com.syll.designsystem.components.CardDivider
@@ -173,14 +175,19 @@ fun HomeView(actions: HomeActions, modifier: Modifier = Modifier) {
 }
 
 /**
- * One row, no wordmark and no greeting: Syllie on the left. The lifetime LP pill on the right arrives with Ranking
- * (Phase 2); until then the profile has no tier summary, as with an older backend on iOS.
+ * One row, no wordmark and no greeting (docs/app-redesign-v1.html, 1.1): Syllie on the left, the learner's lifetime LP
+ * on the right, centred on his body. LP is the only number at the top.
  */
 @Composable
 private fun Header() {
+    val learner = LocalLearnerStore.current
     // The artboard keeps room above Syllie for his props; that room may run under the status bar.
-    Row(Modifier.overflowTop(LessonMascot.TOP_MARGIN - Spacing.xs)) {
+    Row(Modifier.fillMaxWidth().overflowTop(LessonMascot.TOP_MARGIN - Spacing.xs), verticalAlignment = Alignment.Top) {
         LessonMascot()
+        Spacer(Modifier.weight(1f))
+        learner.profile?.tierSummary?.lifetimeLP?.let { lp ->
+            LifetimeLPPill(lp, Modifier.padding(top = LessonMascot.BODY_CENTER_Y - (Spacing.l + Spacing.xs) / 2))
+        }
     }
 }
 
@@ -206,6 +213,8 @@ private object LessonMascot {
     val height = 138.dp
     /** Empty room above his body (for the letter and the plane) and below it. */
     val TOP_MARGIN = 52.dp
+    /** Where his body's centre sits in the artboard (iOS `LessonMascot.bodyCenterY`). */
+    val BODY_CENTER_Y = 87.dp
     val BOTTOM_MARGIN = 13.dp
 }
 

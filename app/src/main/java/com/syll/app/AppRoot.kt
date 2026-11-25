@@ -30,6 +30,10 @@ import com.syll.features.auth.AuthView
 import com.syll.features.main.LearnerStore
 import com.syll.features.main.MainShellView
 import com.syll.features.main.MainTab
+import com.syll.features.main.ShellPage
+import com.syll.features.challenge.MatchMadnessGameView
+import com.syll.features.lab.LabTaskView
+import com.syll.features.lab.PracticeLabView
 import com.syll.features.home.HomeActions
 import com.syll.features.practice.PracticeSessionStore
 import com.syll.features.practice.PracticeSessionView
@@ -49,7 +53,6 @@ import kotlinx.coroutines.launch
  * iOS `RouteID`: one identity per whole screen. There is no navigation stack at the root: the route is derived
  * from store state, and changing a screen means changing store state.
  *
- * Later steps add practice(token), challenge(token), lab(template) and the main shell.
  */
 private sealed interface RouteID {
     data object Splash : RouteID
@@ -61,6 +64,10 @@ private sealed interface RouteID {
     data object Shell : RouteID
     /** One identity per session, so screens never carry over between sessions. */
     data class Practice(val token: java.util.UUID) : RouteID
+    /** One identity per run (iOS `.challenge(token:)`); the Practice Lab's Match Madness rounds run here too. */
+    data class Challenge(val token: String) : RouteID
+    /** The Practice Lab's list, or one of its templates. */
+    data class Lab(val template: com.syll.domain.practice.TaskTemplate?) : RouteID
     /** Debug builds only: tokens, buttons, Rive and Lottie on the device. */
     data object DesignGallery : RouteID
     /** Debug builds only: onboarding on the offline API. */
@@ -75,6 +82,8 @@ fun AppRoot() {
     val learner = LocalLearnerStore.current
     val plan = LocalLearningPlanStore.current
     val practice = LocalPracticeSessionStore.current
+    val challengeRun = LocalChallengeRunStore.current
+    val lab = LocalTemplateSandboxStore.current
     val appScope = LocalAppScope.current
     val motion = Motion(reduceMotion = rememberSystemReducesMotion() || settings.reduceMotion)
     val enterOffsetPx = rememberEnterOffsetPx()
@@ -86,11 +95,17 @@ fun AppRoot() {
     var launched by rememberSaveable { mutableStateOf(false) }
     var showsGallery by rememberSaveable { mutableStateOf(false) }
     var showsOfflineOnboarding by rememberSaveable { mutableStateOf(false) }
+    var offlineStartsOnChallenge by rememberSaveable { mutableStateOf(false) }
     // Owned here: the route swap unmounts the shell during a session, and closing one returns to this tab.
     var shellTab by rememberSaveable { mutableStateOf(MainTab.HOME) }
+    // Owned here too: a run started from the Challenge Map comes back to it.
+    var homePage by rememberSaveable { mutableStateOf<ShellPage?>(null) }
     // The next account starts on Home.
     LaunchedEffect(auth.phase) {
-        if (auth.phase == AuthStore.Phase.SIGNED_OUT) shellTab = MainTab.HOME
+        if (auth.phase == AuthStore.Phase.SIGNED_OUT) {
+            shellTab = MainTab.HOME
+            homePage = null
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -121,6 +136,9 @@ fun AppRoot() {
         learner.phase == LearnerStore.Phase.Loading -> RouteID.Loading
         !plan.hasCompletedOnboarding -> RouteID.Onboarding
         practice.isActive -> RouteID.Practice(practice.sessionToken)
+        // Before the Lab: the Lab's Match Madness rounds run here too, and closing one returns to the Lab.
+        challengeRun.isActive -> RouteID.Challenge(challengeRun.runToken)
+        lab?.isOpen == true -> RouteID.Lab(lab.activeTemplate)
         else -> RouteID.Shell
     }
 
@@ -139,15 +157,41 @@ fun AppRoot() {
                     RouteID.Onboarding -> OnboardingView()
                     // Practice, Random practice and Focus are wired as they land (steps 4 and 7).
                     // Random practice and Focus are wired as they land (step 7).
-                    RouteID.Shell -> MainShellView(shellTab, onTabChange = { shellTab = it }, homeActions = homeActions(practice, appScope))
+                    RouteID.Shell -> MainShellView(
+                        shellTab,
+                        onTabChange = { shellTab = it },
+                        homePage = homePage,
+                        onHomePageChange = { homePage = it },
+                        homeActions = homeActions(practice, appScope),
+                    )
                     is RouteID.Practice -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) {
                         PracticeSessionView()
                     }
+                    is RouteID.Challenge -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) {
+                        MatchMadnessGameView()
+                    }
+                    is RouteID.Lab -> if (lab != null) {
+                        if (current.template != null) {
+                            CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) { LabTaskView(lab) }
+                        } else {
+                            PracticeLabView(lab)
+                        }
+                    }
                     RouteID.DesignGallery -> DesignGallery(
                         onClose = { showsGallery = false },
-                        onOpenOfflineOnboarding = { showsOfflineOnboarding = true },
+                        onOpenOfflineOnboarding = {
+                            offlineStartsOnChallenge = false
+                            showsOfflineOnboarding = true
+                        },
+                        onOpenOfflineChallenge = {
+                            offlineStartsOnChallenge = true
+                            showsOfflineOnboarding = true
+                        },
                     )
-                    RouteID.OfflineOnboarding -> OfflineOnboarding(onClose = { showsOfflineOnboarding = false })
+                    RouteID.OfflineOnboarding -> OfflineOnboarding(
+                        onClose = { showsOfflineOnboarding = false },
+                        startOnChallengeMap = offlineStartsOnChallenge,
+                    )
                 }
             }
         }

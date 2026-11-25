@@ -1,6 +1,7 @@
 package com.syll.designsystem.components
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,7 +12,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -41,22 +41,22 @@ private fun appBarColors() = TopAppBarDefaults.topAppBarColors(
 )
 
 /**
- * A Material full-screen dialog: ✕ and the title in the top app bar, the confirming action at its end. Replaces iOS's
- * `.large` sheets (editors, the word page, session details). [content] gets the bar's padding.
+ * A Material full-screen dialog: the title in the top app bar and ✕ at its end (✕ always sits at the top right).
+ * Replaces iOS's `.large` sheets (editors, the word page, session details). A confirming action goes in
+ * [bottomBar]. [content] gets the bars' padding.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FullScreenDialog(
     title: String,
     onDismiss: () -> Unit,
-    actionTitle: String? = null,
-    actionEnabled: Boolean = true,
-    onAction: () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
+    /** A step inside the dialog: the back arrow leads the app bar (✕ still closes the whole dialog). */
+    onBack: (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onBack?.invoke() ?: onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
     ) {
         Scaffold(
@@ -65,14 +65,10 @@ fun FullScreenDialog(
             topBar = {
                 TopAppBar(
                     title = { Text(title, style = Typography.sectionTitle.copy(fontWeight = FontWeight.Bold), maxLines = 1) },
-                    navigationIcon = {
-                        IconButton(onClick = onDismiss) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.close)) }
-                    },
+                    navigationIcon = { if (onBack != null) BackButton(onBack) },
                     actions = {
-                        if (actionTitle != null) {
-                            TextButton(onClick = onAction, enabled = actionEnabled) {
-                                Text(actionTitle, style = Typography.body.copy(fontWeight = FontWeight.Bold))
-                            }
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.close), tint = SyllColors.ink)
                         }
                     },
                     colors = appBarColors(),
@@ -94,6 +90,7 @@ fun PageScaffold(
     title: String,
     onBack: () -> Unit,
     bottomBar: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -104,6 +101,7 @@ fun PageScaffold(
             LargeTopAppBar(
                 title = { Text(title, style = Typography.screenTitle.copy(letterSpacing = Typography.tightTracking.sp), maxLines = 1) },
                 navigationIcon = { BackButton(onBack) },
+                actions = actions,
                 colors = appBarColors(),
                 scrollBehavior = scrollBehavior,
             )

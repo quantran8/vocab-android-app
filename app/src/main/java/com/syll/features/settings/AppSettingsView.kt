@@ -1,5 +1,6 @@
 package com.syll.features.settings
 
+import com.syll.designsystem.components.PinnedActionBar
 import com.syll.designsystem.components.PageScaffold
 import com.syll.designsystem.components.FullScreenDialog
 import androidx.compose.foundation.background
@@ -59,6 +60,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.syll.R
+import androidx.compose.material.icons.outlined.EmojiEvents
+import com.syll.app.LocalRankingStore
+import com.syll.app.LocalTemplateSandboxStore
+import androidx.compose.material.icons.outlined.Science
+import com.syll.app.UserMessage
+import com.syll.network.asApiError
 import com.syll.app.LocalAppScope
 import com.syll.app.LocalAppSettingsStore
 import com.syll.app.LocalAuthStore
@@ -90,8 +97,8 @@ import com.syll.features.plan.SyllSwitch
 import kotlinx.coroutines.launch
 
 /**
- * iOS `AppSettingsView`: interaction, app and account settings, log out and account deletion. The leaderboard switch
- * arrives with Ranking (Phase 2), the Practice Lab with Phase 2; Syllie's animations are in the debug gallery.
+ * iOS `AppSettingsView`: interaction, leaderboard, app and account settings, log out and account deletion. Syllie's
+ * animations are in the debug gallery.
  */
 @Composable
 fun AppSettingsView(onBack: () -> Unit) {
@@ -103,6 +110,21 @@ fun AppSettingsView(onBack: () -> Unit) {
     var isChoosingLanguage by remember { mutableStateOf(false) }
     var isChangingPassword by remember { mutableStateOf(false) }
     var isConfirmingDeletion by remember { mutableStateOf(false) }
+    val ranking = LocalRankingStore.current
+    var leaderboardError by remember { mutableStateOf<UserMessage?>(null) }
+
+    fun setLeaderboardVisible(visible: Boolean) {
+        appScope.launch {
+            leaderboardError = try {
+                ranking.setVisible(visible)
+                null
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                UserMessage.Api(e.asApiError)
+            }
+        }
+    }
     val version = remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "1.0" }
 
     PageScaffold(stringResource(R.string.settings), onBack) { padding ->
@@ -121,9 +143,32 @@ fun AppSettingsView(onBack: () -> Unit) {
             ToggleRow(Icons.Outlined.Animation, stringResource(R.string.reduce_motion), settings.reduceMotion) { settings.reduceMotion = it }
         }
 
+        learner.profile?.settings?.leaderboardVisible?.let { visible ->
+            Group(stringResource(R.string.leaderboard)) {
+                SettingRow(Icons.Outlined.EmojiEvents, stringResource(R.string.show_me_on_the_leaderboard)) {
+                    SyllSwitch(visible, { setLeaderboardVisible(it) }, stringResource(R.string.show_me_on_the_leaderboard))
+                }
+                Text(
+                    stringResource(R.string.your_name_avatar_tier_and_lp_this_week_become_pu),
+                    style = Typography.micro,
+                    color = SyllColors.mutedInk,
+                    modifier = Modifier.padding(start = Spacing.m + Spacing.screenGutter + Spacing.xxs + Spacing.s, end = Spacing.m, bottom = Spacing.s),
+                )
+            }
+            leaderboardError?.let {
+                Text(it.text(), style = Typography.micro, color = SyllColors.errorInk, modifier = Modifier.padding(top = Spacing.xs))
+            }
+        }
+
         Group(stringResource(R.string.app)) {
             SettingRow(Icons.Outlined.Language, stringResource(R.string.language), Modifier.pressScaleClickable { isChoosingLanguage = true }) {
                 Chevron(settings.language.nativeName)
+            }
+            LocalTemplateSandboxStore.current?.let { lab ->
+                CardDivider()
+                SettingRow(Icons.Outlined.Science, stringResource(R.string.practice_lab), Modifier.pressScaleClickable { lab.openLab() }) {
+                    Chevron(null)
+                }
             }
             CardDivider()
             SettingRow(Icons.Outlined.Info, stringResource(R.string.about_syll), Modifier.semantics(mergeDescendants = true) {}) {
@@ -324,9 +369,18 @@ private fun ChangePasswordSheet(onDismiss: () -> Unit) {
     FullScreenDialog(
         title = stringResource(R.string.change_password),
         onDismiss = onDismiss,
-        actionTitle = if (didChange) null else stringResource(R.string.save),
-        actionEnabled = canSubmit,
-        onAction = ::submit,
+        bottomBar = {
+            if (!didChange) {
+                PinnedActionBar {
+                    if (auth.isChangingPassword) {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(Modifier.size(24.dp), color = SyllColors.mutedInk, strokeWidth = 2.5.dp)
+                        }
+                    }
+                    PrimaryButton(stringResource(R.string.change_password), onClick = ::submit, enabled = canSubmit)
+                }
+            }
+        },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).navigationBarsPadding()) {
             if (didChange) {
@@ -401,11 +455,7 @@ private fun ChangePasswordSheet(onDismiss: () -> Unit) {
                         modifier = Modifier.padding(top = Spacing.l),
                     )
                 }
-                if (auth.isChangingPassword) {
-                    Box(Modifier.fillMaxWidth().padding(bottom = Spacing.m), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(Modifier.size(24.dp), color = SyllColors.mutedInk, strokeWidth = 2.5.dp)
-                    }
-                }
+
             }
         }
     }

@@ -707,11 +707,12 @@ private fun SessionFinishView(summary: CommitSummary) {
                     // Planning swaps this screen out, so it runs in the app's scope.
                     onPracticeAgain = if (store.canPracticeAgain) ({ appScope.launch { store.practiceAgain() } }) else null,
                     onDone = { store.close() },
+                    effort = store.effort,
                 )
             }
         } else {
             SessionCelebrationView(
-                SessionCelebration.of(result, store.scopeEvents, finishedScopeName),
+                SessionCelebration.of(result, store.effort, store.scopeEvents, finishedScopeName),
                 onContinue = { showsSummary = true },
             )
         }

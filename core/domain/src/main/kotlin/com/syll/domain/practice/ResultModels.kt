@@ -182,9 +182,16 @@ data class ScopeEvents(val completedTopicIds: List<String>, val scopeExhausted: 
     val isEmpty: Boolean get() = completedTopicIds.isEmpty() && !scopeExhausted && !collectionCompleted
 }
 
-/** `POST /sessions/:id/commit`. LP, Tier and ranking blocks arrive with Ranking (Phase 2); unknown keys are ignored. */
+/** `POST /sessions/:id/commit`. LP, Tier and ranking blocks are null from a backend without ranking. */
 @Serializable
-data class CommitResponse(val sessionId: String, val summary: CommitSummary, val scopeEvents: ScopeEvents? = null)
+data class CommitResponse(
+    val sessionId: String,
+    val summary: CommitSummary,
+    val scopeEvents: ScopeEvents? = null,
+    val lp: com.syll.domain.ranking.CommitLP? = null,
+    val tier: com.syll.domain.ranking.CommitTier? = null,
+    val ranking: com.syll.domain.ranking.CommitRanking? = null,
+)
 
 @Serializable
 data class CommitStatus(val status: String, val response: CommitResponse? = null)

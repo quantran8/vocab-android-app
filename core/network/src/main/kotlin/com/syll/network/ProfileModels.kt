@@ -70,7 +70,7 @@ data class AppFeatures(
     val adEverySessions: Int? = null,
 )
 
-/** `GET /me`. Ranking's tier summary and name-change date arrive with Phase 2. */
+/** `GET /me`. */
 @Serializable
 data class UserProfile(
     val id: String,
@@ -80,9 +80,13 @@ data class UserProfile(
     val scope: LearningScope? = null,
     /** Collections whose words the learner stopped reviewing. */
     val reviewPauses: List<ReviewPause>? = null,
+    /** Public identity and lifetime Tier (FRONTEND_FLOW §14). Null from a backend without ranking. */
     val username: String? = null,
     val avatarKey: String? = null,
+    /** Null means the name can change now. */
+    @Serializable(with = com.syll.domain.Iso8601InstantSerializer::class) val usernameChangeAvailableAt: java.time.Instant? = null,
     val rankingIntroSeen: Boolean? = null,
+    val tierSummary: com.syll.domain.ranking.TierSummary? = null,
     val plan: PremiumPlan? = null,
     val features: AppFeatures? = null,
 ) {

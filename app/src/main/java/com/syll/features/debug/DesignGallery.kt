@@ -60,7 +60,7 @@ import com.syll.domain.AppLanguage
  * Text here is deliberately not localized.
  */
 @Composable
-fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {}) {
+fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {}, onOpenOfflineChallenge: () -> Unit = {}) {
     val settings = LocalAppSettingsStore.current
     // One artboard at a time: the gallery keeps every section composed, which is too much Rive for a slow device.
     var showsCelebrateLab by remember { mutableStateOf(false) }
@@ -80,6 +80,8 @@ fun DesignGallery(onClose: () -> Unit, onOpenOfflineOnboarding: () -> Unit = {})
 
         Section("Flows (offline API)") {
             SecondaryButton("Onboarding → Home", onClick = onOpenOfflineOnboarding)
+            // iOS Home has no Challenge entry since the redesign; the map is reachable here.
+            SecondaryButton("Challenge map", onClick = onOpenOfflineChallenge)
             SecondaryButton("CelebrateV2 timelines", onClick = { showsCelebrateLab = true })
         }
 

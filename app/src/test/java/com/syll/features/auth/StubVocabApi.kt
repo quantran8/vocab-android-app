@@ -4,6 +4,26 @@ import com.syll.network.WordDetail
 import com.syll.network.WordStats
 import com.syll.network.WordProgress
 import com.syll.domain.CefrLevel
+import com.syll.domain.challenge.ChallengeCommitResponse
+import com.syll.domain.challenge.ChallengeMap
+import com.syll.domain.challenge.ChallengeNodeRef
+import com.syll.domain.challenge.ChallengeRunPlan
+import com.syll.domain.challenge.ChallengeRunStatus
+import com.syll.domain.customwords.CustomWord
+import com.syll.domain.customwords.CustomWordAdded
+import com.syll.domain.customwords.CustomWordAddition
+import com.syll.domain.customwords.CustomWordEdits
+import com.syll.domain.customwords.CustomWordLookup
+import com.syll.domain.customwords.CustomWordQuery
+import com.syll.domain.ranking.Leaderboard
+import com.syll.domain.ranking.LeaderboardView
+import com.syll.domain.ranking.MyRanking
+import com.syll.domain.ranking.PublicProfile
+import com.syll.domain.ranking.PublicProfileUpdate
+import com.syll.domain.ranking.RankingHistory
+import com.syll.domain.ranking.RankingMeta
+import com.syll.domain.ranking.ReportReason
+import com.syll.domain.ranking.TierDetail
 import com.syll.domain.TopicCatalog
 import com.syll.domain.practice.CommitResponse
 import com.syll.domain.practice.CommitStatus
@@ -148,6 +168,111 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
         return commitResults.removeFirst().getOrThrow()
     }
     override suspend fun commitStatus(sessionId: String): CommitStatus = status ?: throw ApiError.Transport
+
+    // Challenge
+    var challengeMapResult: Result<ChallengeMap> = Result.failure(ApiError.Transport)
+    var challengeMapCalls = 0
+    val issueResults = ArrayDeque<Result<ChallengeRunPlan>>()
+    val issuedRuns = mutableListOf<ChallengeNodeRef>()
+    val startResults = ArrayDeque<Result<Unit>>()
+    val startedRuns = mutableListOf<String>()
+    val challengeCommitResults = ArrayDeque<Result<ChallengeCommitResponse>>()
+    val challengeCommitBodies = mutableListOf<ByteArray>()
+    var runStatus: Result<ChallengeRunStatus> = Result.failure(ApiError.Transport)
+    val statusRequests = mutableListOf<String>()
+    val quitRuns = mutableListOf<String>()
+
+    override suspend fun challengeMap(): ChallengeMap {
+        challengeMapCalls++
+        return challengeMapResult.getOrThrow()
+    }
+    override suspend fun issueChallengeRun(chapterNo: Int, levelNo: Int): ChallengeRunPlan {
+        issuedRuns += ChallengeNodeRef(chapterNo, levelNo)
+        return issueResults.removeFirst().getOrThrow()
+    }
+    override suspend fun startChallengeRun(runId: String) {
+        startedRuns += runId
+        if (startResults.isNotEmpty()) startResults.removeFirst().getOrThrow()
+    }
+    override suspend fun commitChallengeRun(runId: String, body: ByteArray): ChallengeCommitResponse {
+        challengeCommitBodies += body
+        return challengeCommitResults.removeFirst().getOrThrow()
+    }
+    override suspend fun challengeRunStatus(runId: String): ChallengeRunStatus {
+        statusRequests += runId
+        return runStatus.getOrThrow()
+    }
+    override suspend fun quitChallengeRun(runId: String) {
+        quitRuns += runId
+    }
+
+    // Ranking
+    var rankingMetaResult: Result<RankingMeta> = Result.failure(ApiError.Transport)
+    var myRankingResult: Result<MyRanking> = Result.failure(ApiError.Transport)
+    var tierDetailResult: Result<TierDetail> = Result.failure(ApiError.Transport)
+    val leaderboards = mutableMapOf<LeaderboardView, Result<Leaderboard>>()
+    val leaderboardRequests = mutableListOf<LeaderboardView>()
+    var introSeenCalls = 0
+    var publicProfileResult: Result<PublicProfile> = Result.failure(ApiError.Transport)
+    val publicProfileUpdates = mutableListOf<PublicProfileUpdate>()
+    val reports = mutableListOf<Pair<String, ReportReason>>()
+
+    override suspend fun rankingMeta() = rankingMetaResult.getOrThrow()
+    override suspend fun myRanking() = myRankingResult.getOrThrow()
+    override suspend fun tierDetail() = tierDetailResult.getOrThrow()
+    override suspend fun leaderboard(view: LeaderboardView): Leaderboard {
+        leaderboardRequests += view
+        return (leaderboards[view] ?: Result.failure(ApiError.Transport)).getOrThrow()
+    }
+    override suspend fun rankingHistory(weeks: Int): RankingHistory = throw ApiError.Transport
+    override suspend fun markRankingIntroSeen() {
+        introSeenCalls++
+    }
+    override suspend fun updatePublicProfile(update: PublicProfileUpdate): PublicProfile {
+        publicProfileUpdates += update
+        return publicProfileResult.getOrThrow()
+    }
+    override suspend fun reportLearner(username: String, reason: ReportReason) {
+        reports += username to reason
+    }
+
+    // Custom words
+    val lookupResults = ArrayDeque<Result<CustomWordLookup>>()
+    val lookups = mutableListOf<CustomWordQuery>()
+    /** Runs while a lookup is in flight, before it answers (a sheet closing meanwhile). */
+    var onLookup: (suspend () -> Unit)? = null
+    val addResults = ArrayDeque<Result<CustomWordAdded>>()
+    val additions = mutableListOf<CustomWordAddition>()
+    var customWordList: List<CustomWord> = emptyList()
+    var customWordsError: ApiError? = null
+    val removed = mutableListOf<String>()
+    var removeError: ApiError? = null
+    val customWordOverrides = mutableListOf<Pair<String, CustomWordEdits>>()
+    val clearedOverrides = mutableListOf<String>()
+
+    override suspend fun lookupCustomWord(query: CustomWordQuery): CustomWordLookup {
+        lookups += query
+        onLookup?.invoke()
+        return lookupResults.removeFirst().getOrThrow()
+    }
+    override suspend fun addCustomWord(addition: CustomWordAddition): CustomWordAdded {
+        additions += addition
+        return addResults.removeFirst().getOrThrow()
+    }
+    override suspend fun customWords(): List<CustomWord> {
+        customWordsError?.let { throw it }
+        return customWordList
+    }
+    override suspend fun removeCustomWord(meaningId: String) {
+        removed += meaningId
+        removeError?.let { throw it }
+    }
+    override suspend fun overrideCustomWord(meaningId: String, edits: CustomWordEdits) {
+        customWordOverrides += meaningId to edits
+    }
+    override suspend fun clearCustomWordOverride(meaningId: String) {
+        clearedOverrides += meaningId
+    }
 
     companion object {
         fun profile(

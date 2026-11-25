@@ -30,6 +30,11 @@ import com.syll.domain.practice.TaskPhase
 import com.syll.domain.practice.TaskPrompt
 import com.syll.domain.practice.TaskTemplate
 import com.syll.features.auth.StubVocabApi
+import com.syll.domain.ranking.CommitLP
+import com.syll.domain.ranking.CommitTier
+import com.syll.domain.ranking.LPBreakdown
+import com.syll.domain.ranking.TierKey
+import com.syll.domain.ranking.TierUp
 import com.syll.network.ApiError
 import com.syll.platform.NoOpFeedback
 import com.syll.platform.SilentAudioClips
@@ -586,6 +591,43 @@ class PracticeSessionStoreTest {
         assertEquals(reviewed, finished.review)
         assertEquals(learned, finished.newWords)
         assertNull(store.pendingReviewSummary)
+    }
+
+    /** iOS `RankingTests.testSessionAddsUpReviewAndNewWordCommitsAndCelebratesTheHighestTier`. */
+    @Test
+    fun sessionAddsUpReviewAndNewWordCommitsAndCelebratesTheHighestTier() = runBlocking {
+        val unlocked = java.time.Instant.ofEpochSecond(1_762_916_400)
+        val store = makeStore(review)
+        api.commitResults += Result.success(
+            CommitResponse(
+                "s1", summary,
+                lp = CommitLP(4, LPBreakdown(dueReviewLP = 4), weeklyLP = 39, lifetimeLP = 39),
+                tier = CommitTier(level = 0, key = null, lifetimeActiveDays = 1),
+            ),
+        )
+        api.commitResults += Result.success(
+            CommitResponse(
+                "s2", summary,
+                lp = CommitLP(5, LPBreakdown(newMeaningLP = 5), weeklyLP = 44, lifetimeLP = 44),
+                tier = CommitTier(1, TierKey.FIRST_STEPS, 1, tierUps = listOf(TierUp(1, TierKey.FIRST_STEPS, unlocked))),
+            ),
+        )
+        store.start(SessionMode.DAILY)
+        store.submitOption(3)
+        api.plan = Result.success(SessionPlan("s2", SessionMode.DAILY, learnAndChoice))
+        store.advance()
+        settled(store)
+        assertEquals(PracticeSessionStore.Stage.ReviewFinished, store.stage)
+        store.continueToPractice()
+        store.advance()
+        store.submitOption(3)
+        store.advance()
+        settled(store)
+
+        assertEquals(9, store.effort?.earned)
+        assertEquals(LPBreakdown(newMeaningLP = 5, dueReviewLP = 4, extraPracticeLP = 0), store.effort?.breakdown)
+        assertEquals(44, store.effort?.lifetimeLP)
+        assertEquals(TierKey.FIRST_STEPS, store.effort?.celebratedTierUp?.key)
     }
 
     @Test

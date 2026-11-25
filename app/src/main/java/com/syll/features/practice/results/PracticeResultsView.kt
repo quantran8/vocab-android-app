@@ -36,6 +36,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.syll.R
+import com.syll.domain.ranking.SessionEffort
+import com.syll.features.ranking.ResultEffortCard
 import com.syll.app.LocalLearningPlanStore
 import com.syll.designsystem.components.ActionButtonKind
 import com.syll.designsystem.components.IconBadge
@@ -62,7 +64,7 @@ import kotlinx.coroutines.launch
 
 /**
  * iOS `PracticeResultsView`: beat 2 of the end of a session, after the celebration. The "Summary" title, the result
- * tiles that have something to show, and the scope card. The LP card arrives with Ranking (Phase 2). Takes plain
+ * tiles that have something to show, the LP card and the scope card. Takes plain
  * data so a lab can show it from fixtures.
  */
 @Composable
@@ -75,6 +77,8 @@ fun PracticeResultsView(
     /** Random, Weak and Speaking: plan the same practice again. */
     onPracticeAgain: (() -> Unit)?,
     onDone: () -> Unit,
+    /** LP and Tier across the session; null from a backend without ranking. */
+    effort: SessionEffort? = null,
 ) {
     val motion = LocalMotion.current
     // Only a finished collection gets the card; a finished topic is not called out.
@@ -123,6 +127,7 @@ fun PracticeResultsView(
             } else {
                 LegacyResultGrid(result.summary, firstTryCount, hasAppeared, Modifier.padding(top = Spacing.l + Spacing.xxs))
             }
+            effort?.let { ResultEffortCard(it, Modifier.padding(top = Spacing.s).entrance(hasAppeared, MotionTokens.celebrationStatsDelay)) }
             if (hasCompletion) ScopeCompletionCard(Modifier.padding(top = Spacing.s))
         }
         PinnedActionBar {

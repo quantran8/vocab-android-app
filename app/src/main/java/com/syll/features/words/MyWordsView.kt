@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
@@ -66,6 +67,9 @@ import com.syll.designsystem.components.SearchField
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.SectionTitle
 import com.syll.designsystem.components.SmallButton
+import com.syll.designsystem.components.TextLink
+import com.syll.features.customwords.AddWordView
+import com.syll.features.customwords.CustomWordsView
 import com.syll.designsystem.components.cardSurface
 import com.syll.designsystem.components.pressScaleClickable
 import com.syll.designsystem.motion.RollingNumber
@@ -84,7 +88,7 @@ private const val LOAD_MORE_DISTANCE = 10
 
 /**
  * iOS `MyWordsView`: the learned library with its figures, the three practices and a searchable, paged word list.
- * Adding and managing your own words arrive with Custom words (Phase 2).
+ * "Add word" and "Manage added" open the Custom words dialogs.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +99,7 @@ fun MyWordsView(onOpenRandomPractice: () -> Unit) {
     val scope = rememberCoroutineScope()
     var query by rememberSaveable { mutableStateOf("") }
     var selected by remember { mutableStateOf<WordProgress?>(null) }
+    var customWordSheet by rememberSaveable { mutableStateOf<CustomWordSheet?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val trimmed = query.trim()
@@ -138,7 +143,12 @@ fun MyWordsView(onOpenRandomPractice: () -> Unit) {
             state = listState,
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Spacing.screenGutter, vertical = Spacing.l),
         ) {
-            item { ScreenTitle(stringResource(R.string.my_words)) }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), verticalAlignment = Alignment.CenterVertically) {
+                    ScreenTitle(stringResource(R.string.my_words), Modifier.weight(1f))
+                    SmallButton(stringResource(R.string.add_word), onClick = { customWordSheet = CustomWordSheet.ADD }, icon = Icons.Filled.Add)
+                }
+            }
             if ((stats?.learnedWords ?: words.size) == 0 && learner.wordsQuery.isEmpty()) {
                 item { EmptyState(Modifier.padding(top = Spacing.xl)) }
                 return@LazyColumn
@@ -149,7 +159,9 @@ fun MyWordsView(onOpenRandomPractice: () -> Unit) {
                 PracticeSection(needPractice, onWeak = { start(SessionMode.WEAK_WORDS_PRACTICE) }, onSpeaking = { start(SessionMode.SPEAKING_PRACTICE) }, onRandom = onOpenRandomPractice)
             }
             item {
-                SectionTitle(stringResource(R.string.all_words), Modifier.padding(top = Spacing.xl + Spacing.xxs))
+                SectionTitle(stringResource(R.string.all_words), Modifier.padding(top = Spacing.xl + Spacing.xxs)) {
+                    TextLink(stringResource(R.string.manage_added), onClick = { customWordSheet = CustomWordSheet.LIST })
+                }
                 SearchField(stringResource(R.string.search_your_words), query, { query = it })
             }
             if (words.isEmpty()) {
@@ -193,7 +205,15 @@ fun MyWordsView(onOpenRandomPractice: () -> Unit) {
             playAudio = word.meanings.firstNotNullOfOrNull { it.meaning.audio }?.let { clip -> { practice.playClip(clip) } },
         )
     }
+    when (customWordSheet) {
+        CustomWordSheet.ADD -> AddWordView(onDismiss = { customWordSheet = null })
+        CustomWordSheet.LIST -> CustomWordsView(onDismiss = { customWordSheet = null })
+        null -> Unit
+    }
 }
+
+/** iOS `CustomWordSheet`: the two Custom words dialogs My Words opens. */
+private enum class CustomWordSheet { ADD, LIST }
 
 @Composable
 private fun LoadingRow() {

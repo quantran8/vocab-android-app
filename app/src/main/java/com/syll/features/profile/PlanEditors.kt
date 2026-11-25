@@ -1,8 +1,9 @@
 package com.syll.features.profile
 
+import com.syll.designsystem.components.PrimaryButton
+import com.syll.designsystem.components.PinnedActionBar
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import androidx.compose.foundation.layout.navigationBarsPadding
 import com.syll.designsystem.components.FullScreenDialog
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
@@ -55,44 +56,39 @@ import com.syll.features.plan.WordsPerDayStepper
 import com.syll.features.plan.displayName
 
 /**
- * The plan editors as Material full-screen dialogs: ✕, the title and "Save" in the top app bar, the form scrolling,
- * and its notes (why Save is off, what a change keeps) under it. Dismissing discards the draft.
+ * The plan editors as Material full-screen dialogs: the title and ✕ in the top app bar, the form scrolling, and its
+ * notes and "Save changes" pinned at the bottom. Dismissing discards the draft.
  */
 @Composable
 private fun PlanEditorDialog(
     title: String,
     onDismiss: () -> Unit,
     canSave: Boolean,
+    requirement: String,
     onSave: () -> Unit,
-    notes: @Composable ColumnScope.() -> Unit,
+    notes: @Composable ColumnScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     FullScreenDialog(
         title = title,
         onDismiss = onDismiss,
-        actionTitle = stringResource(R.string.save),
-        actionEnabled = canSave,
-        onAction = onSave,
+        bottomBar = {
+            PinnedActionBar {
+                notes()
+                PrimaryButton(stringResource(R.string.save_changes), requirement = requirement, enabled = canSave, onClick = onSave)
+            }
+        },
     ) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .navigationBarsPadding()
                 .padding(horizontal = Spacing.screenGutter)
                 .padding(top = Spacing.s, bottom = Spacing.l),
-        ) {
-            content()
-            Column(Modifier.fillMaxWidth().padding(top = Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s), content = notes)
-        }
+            content = content,
+        )
     }
-}
-
-/** Why Save is off, under the form (iOS shows it on the disabled button). */
-@Composable
-private fun Requirement(text: String) {
-    Text(text, style = Typography.micro.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.mutedInk, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }
 
 /** iOS `EditLevelView`: take the placement test, or choose the level. */
@@ -115,7 +111,7 @@ fun EditLevelSheet(initial: CefrLevel?, onSave: (CefrLevel) -> Unit, onPlaced: (
                 onSave(it)
             }
         },
-        notes = { if (draft == null) Requirement(stringResource(R.string.choose_your_level)) },
+        requirement = stringResource(R.string.choose_your_level),
     ) {
         PlacementTestCard(onClick = {
             placement.start()
@@ -207,8 +203,8 @@ fun EditFocusSheet(initial: LearningPreferences, onSave: (LearningPreferences) -
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            if (draft.topicIds.isEmpty()) Requirement(stringResource(R.string.choose_at_least_one_topic))
         },
+        requirement = stringResource(R.string.choose_at_least_one_topic),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.l)) {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
@@ -267,7 +263,7 @@ fun EditRoutineSheet(initial: LearningPreferences, onSave: (LearningPreferences)
             settings.feedback.success()
             onSave(draft)
         },
-        notes = { if (draft.learningDays.isEmpty()) Requirement(stringResource(R.string.choose_at_least_one_learning_day)) },
+        requirement = stringResource(R.string.choose_at_least_one_learning_day),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.l)) {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s - 2.dp)) {

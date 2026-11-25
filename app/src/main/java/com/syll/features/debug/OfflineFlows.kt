@@ -1,5 +1,20 @@
 package com.syll.features.debug
 
+import com.syll.app.LocalChallengeMapStore
+import com.syll.app.LocalChallengeRunStore
+import com.syll.app.LocalRankingStore
+import com.syll.app.LocalTemplateSandboxStore
+import com.syll.features.lab.LabTaskView
+import com.syll.features.lab.PracticeLabView
+import com.syll.app.LocalCustomWordStore
+import com.syll.features.customwords.CustomWordStore
+import com.syll.platform.SilentAudioClips
+import com.syll.features.ranking.RankingStore
+import com.syll.features.challenge.ChallengeMapStore
+import com.syll.features.challenge.ChallengeRunStore
+import com.syll.features.challenge.MatchMadnessGameView
+import com.syll.features.main.ShellPage
+
 import com.syll.app.LocalSpeechPlayer
 import com.syll.app.LocalSoundEffects
 import androidx.compose.runtime.Composable
@@ -45,11 +60,11 @@ import com.syll.platform.NoOpFeedback
  * the placement test) and then Home can be walked on a device without a backend or an account. Log out closes it.
  */
 @Composable
-fun OfflineOnboarding(onClose: () -> Unit) {
+fun OfflineOnboarding(onClose: () -> Unit, startOnChallengeMap: Boolean = false) {
     val scope = rememberCoroutineScope()
     val api = remember { OfflineVocabApi() }
     val auth = remember { AuthStore(api).also { it.restore() } }
-    val plan = remember { LearningPlanStore(InMemoryPreferencesStore(), NoReminders) }
+    val plan = remember { LearningPlanStore(InMemoryPreferencesStore(hasCompletedOnboarding = startOnChallengeMap), NoReminders) }
     val learner = remember { LearnerStore(api, plan, language = { AppLanguage.ENGLISH }) }
     val onboarding = remember { OnboardingStore(plan, api, NoOpFeedback) }
     val placement = remember { PlacementTestStore(api, NoOpFeedback, scope) }
@@ -62,7 +77,15 @@ fun OfflineOnboarding(onClose: () -> Unit) {
         )
     }
 
+    val challengeMap = remember { ChallengeMapStore(api) }
+    val customWords = remember { CustomWordStore(api, SilentAudioClips, scope).also { it.onRoadmapChanged = { learner.refresh() } } }
+    val ranking = remember { RankingStore(api).also { it.onProfileChanged = { learner.reloadProfile() } } }
+    val challengeRun = remember { ChallengeRunStore(api, NoOpFeedback, scope).also { it.onSettled = { challengeMap.refresh() } } }
+
+    // The app's Lab: it never touches the backend, so it works the same here.
+    val lab = LocalTemplateSandboxStore.current
     var tab by remember { mutableStateOf(MainTab.HOME) }
+    var homePage by remember { mutableStateOf(if (startOnChallengeMap) ShellPage.CHALLENGE_MAP else null) }
 
     LaunchedEffect(auth.phase) {
         if (auth.phase == AuthStore.Phase.SIGNED_OUT) onClose()
@@ -74,6 +97,10 @@ fun OfflineOnboarding(onClose: () -> Unit) {
         LocalOnboardingStore provides onboarding,
         LocalPlacementTestStore provides placement,
         LocalPracticeSessionStore provides practice,
+        LocalChallengeMapStore provides challengeMap,
+        LocalChallengeRunStore provides challengeRun,
+        LocalRankingStore provides ranking,
+        LocalCustomWordStore provides customWords,
         LocalAppScope provides scope,
         LocalSoundEffects provides container.sounds,
         LocalSpeechPlayer provides container.speech,
@@ -81,7 +108,19 @@ fun OfflineOnboarding(onClose: () -> Unit) {
         when {
             !plan.hasCompletedOnboarding -> OnboardingView()
             practice.isActive -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) { PracticeSessionView() }
-            else -> MainShellView(tab, onTabChange = { tab = it }, homeActions = homeActions(practice, scope))
+            challengeRun.isActive -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) { MatchMadnessGameView() }
+            lab?.isOpen == true -> if (lab.activeTemplate != null) {
+                CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) { LabTaskView(lab) }
+            } else {
+                PracticeLabView(lab)
+            }
+            else -> MainShellView(
+                tab,
+                onTabChange = { tab = it },
+                homePage = homePage,
+                onHomePageChange = { homePage = it },
+                homeActions = homeActions(practice, scope),
+            )
         }
     }
 }

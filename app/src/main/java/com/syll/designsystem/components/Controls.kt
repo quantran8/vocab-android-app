@@ -374,7 +374,14 @@ fun FlowHeader(
     modifier: Modifier = Modifier,
 ) {
     val value = stringResource(R.string.question_x_of_x, stageCurrent, stageTotal)
+    // ✕ always sits at the top right; an equal empty slot on the left keeps the progress bar centred.
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.m), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.width(SIDE_SLOT))
+        ProgressTrack(
+            fraction = if (totalSteps > 0) step.toFloat() / totalSteps else 0f,
+            height = 10.dp,
+            modifier = Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = "$stage, $value" },
+        )
         Box(
             Modifier
                 .width(SIDE_SLOT)
@@ -385,12 +392,6 @@ fun FlowHeader(
         ) {
             Icon(Icons.Outlined.Close, contentDescription = null, tint = SyllColors.ink400, modifier = Modifier.size(22.dp))
         }
-        ProgressTrack(
-            fraction = if (totalSteps > 0) step.toFloat() / totalSteps else 0f,
-            height = 10.dp,
-            modifier = Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = "$stage, $value" },
-        )
-        Box(Modifier.width(SIDE_SLOT))
     }
 }
 

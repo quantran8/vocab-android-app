@@ -1,6 +1,7 @@
 package com.syll.features.practice
 
 import com.syll.domain.practice.PracticeResult
+import com.syll.domain.ranking.SessionEffort
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import com.syll.domain.practice.LearnCard
 import com.syll.domain.practice.NewWordsIssue
 import com.syll.domain.practice.PlanRequest
 import com.syll.domain.practice.PlanStep
+import com.syll.domain.practice.PracticeTask
 import com.syll.domain.practice.PracticeFilter
 import com.syll.domain.practice.RecordedAudio
 import com.syll.domain.practice.RecordingAssessment
@@ -168,6 +170,9 @@ class PracticeSessionStore(
     /** From the last commit; set only by the commit that used up a topic, the scope or the collection. */
     var scopeEvents by mutableStateOf<ScopeEvents?>(null)
         private set
+    /** LP and Tier across this session screen (both commits of a daily chain). Null from a backend without ranking. */
+    var effort by mutableStateOf<SessionEffort?>(null)
+        private set
     /** Read and cleared by the shell once the session screen is gone. */
     var followUp: FollowUp? = null
         private set
@@ -313,6 +318,20 @@ class PracticeSessionStore(
 
     fun continueToPractice() {
         if (stage is Stage.ReviewPreview || stage == Stage.ReviewFinished) stage = Stage.Running
+    }
+
+    /**
+     * Practice Lab (iOS `startSandbox`): plays bundled tasks with the same views and rules as a session. Nothing is
+     * planned, assessed or committed; the last step calls [onSandboxEnd].
+     */
+    fun startSandbox(tasks: List<PracticeTask>) {
+        if (stage != Stage.Idle || tasks.isEmpty()) return
+        isSandbox = true
+        val plan = SessionPlan("sandbox", SessionMode.RANDOM_PRACTICE, tasks.map { PlanStep.Practice(TaskPhase.RANDOM_PRACTICE, it) })
+        load(plan, "sandbox")
+        stage = Stage.Running
+        val steps = steps
+        scope.launch { preloadAudio(steps) }
     }
 
     /** Nothing is written: words stay unlearned until a session commits. [followUp] is where the learner asked to go next. */
@@ -605,6 +624,7 @@ class PracticeSessionStore(
     private suspend fun plan(request: Request) {
         stage = Stage.Planning
         scopeEvents = null
+        effort = null
         try {
             val plan = api.planSession(planRequest(request))
             if (stage != Stage.Planning) return
@@ -727,9 +747,10 @@ class PracticeSessionStore(
         )
     }
 
-    /** LP and Tier blocks arrive with Ranking (Phase 2). */
     private fun record(response: CommitResponse) {
         scopeEvents = response.scopeEvents
+        val lp = response.lp ?: return
+        effort = (effort ?: SessionEffort()).adding(lp, response.tier)
     }
 
     private suspend fun finish(summary: CommitSummary) {

@@ -20,6 +20,28 @@ import com.syll.network.WordDetail
 import com.syll.network.WordStats
 import com.syll.network.WordProgress
 import com.syll.domain.CefrLevel
+import com.syll.domain.challenge.ChallengeCommitResponse
+import com.syll.domain.challenge.ChallengeMap
+import com.syll.domain.challenge.ChallengeRunPlan
+import com.syll.domain.challenge.ChallengeRunStatus
+import com.syll.domain.customwords.CustomWord
+import com.syll.domain.customwords.CustomWordAdded
+import com.syll.domain.customwords.CustomWordAddition
+import com.syll.domain.customwords.CustomWordEdits
+import com.syll.domain.customwords.CustomWordLookup
+import com.syll.domain.customwords.CustomWordQuery
+import com.syll.domain.ranking.Leaderboard
+import com.syll.domain.ranking.LeaderboardView
+import com.syll.domain.ranking.MyRanking
+import com.syll.domain.ranking.PublicProfile
+import com.syll.domain.ranking.PublicProfileUpdate
+import com.syll.domain.ranking.RankingHistory
+import com.syll.domain.ranking.RankingMeta
+import com.syll.domain.ranking.ReportReason
+import com.syll.domain.ranking.TierDetail
+import com.syll.domain.challenge.ChallengeRunResult
+import com.syll.domain.challenge.ChallengeUnlock
+import com.syll.domain.challenge.preview
 import com.syll.domain.TopicCatalog
 import com.syll.domain.practice.CommitResponse
 import com.syll.domain.practice.CommitStatus
@@ -211,6 +233,44 @@ class OfflineVocabApi : VocabApi {
         )
     }
     override suspend fun commitStatus(sessionId: String) = CommitStatus("not_committed")
+
+    override suspend fun challengeMap(): ChallengeMap = ChallengeMap.preview
+    override suspend fun issueChallengeRun(chapterNo: Int, levelNo: Int): ChallengeRunPlan = ChallengeRunPlan.sandbox()
+    override suspend fun startChallengeRun(runId: String) {}
+    /** iOS throws here; answering lets the results screen be checked on a device. Two stars, level 3 opens. */
+    override suspend fun commitChallengeRun(runId: String, body: ByteArray): ChallengeCommitResponse {
+        delay(600)
+        val reason = Regex("\"endedReason\":\"([a-z_]+)\"").find(body.decodeToString())?.groupValues?.get(1)
+        val cleared = reason == "goal_reached"
+        return ChallengeCommitResponse(
+            runId = runId,
+            result = ChallengeRunResult(
+                outcome = if (cleared) ChallengeRunResult.Outcome.CLEARED else ChallengeRunResult.Outcome.FAILED,
+                starsThisRun = if (cleared) 2 else 0, bestStars = 2, correctMatches = if (cleared) 12 else 7, mistakes = 2,
+                longestCombo = 6, elapsedMs = 64_300, score = 1_520, bestScore = 1_520,
+            ),
+            unlock = if (cleared) ChallengeUnlock(ChallengeUnlock.Kind.LEVEL, chapterNo = 2, levelNo = 3) else null,
+        )
+    }
+    override suspend fun challengeRunStatus(runId: String): ChallengeRunStatus = throw ApiError.Transport
+    override suspend fun quitChallengeRun(runId: String) {}
+
+    // Like iOS's offline API, ranking isn't available without a backend.
+    override suspend fun rankingMeta(): RankingMeta = throw ApiError.Transport
+    override suspend fun myRanking(): MyRanking = throw ApiError.Transport
+    override suspend fun tierDetail(): TierDetail = throw ApiError.Transport
+    override suspend fun leaderboard(view: LeaderboardView): Leaderboard = throw ApiError.Transport
+    override suspend fun rankingHistory(weeks: Int): RankingHistory = throw ApiError.Transport
+    override suspend fun markRankingIntroSeen() {}
+    override suspend fun updatePublicProfile(update: PublicProfileUpdate): PublicProfile = throw ApiError.Transport
+    override suspend fun reportLearner(username: String, reason: ReportReason) {}
+
+    override suspend fun lookupCustomWord(query: CustomWordQuery): CustomWordLookup = CustomWordLookup.Invalid
+    override suspend fun addCustomWord(addition: CustomWordAddition): CustomWordAdded = throw ApiError.Transport
+    override suspend fun customWords(): List<CustomWord> = emptyList()
+    override suspend fun removeCustomWord(meaningId: String) {}
+    override suspend fun overrideCustomWord(meaningId: String, edits: CustomWordEdits) {}
+    override suspend fun clearCustomWordOverride(meaningId: String) {}
 
     private fun question(id: String, prompt: String, vararg options: String) = PlacementQuestion(
         id = id,

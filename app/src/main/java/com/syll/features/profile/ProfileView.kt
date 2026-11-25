@@ -42,6 +42,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.syll.R
+import androidx.compose.runtime.LaunchedEffect
+import com.syll.app.LocalRankingStore
+import com.syll.domain.ranking.NextTier
+import com.syll.domain.ranking.TierDetail
+import com.syll.domain.ranking.TierSummary
+import com.syll.features.ranking.AvatarView
+import com.syll.features.ranking.EditPublicProfileSheet
+import com.syll.features.ranking.ProfileTierCard
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalLearningPlanStore
 import com.syll.app.UserMessage
@@ -86,15 +94,23 @@ private const val VISIBLE_TOPIC_LIMIT = 3
 
 /**
  * iOS `ProfileView`: identity, then the plan in four sections (level, focus, routine, review). The plan editors
- * open as sheets from the shell. Name and avatar, Tier and LP arrive with Ranking (Phase 2); Premium with Phase 4.
+ * open as sheets from the shell. Premium arrives with Phase 4.
  */
 @Composable
 fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine: () -> Unit, onOpenSettings: () -> Unit) {
     val plan = LocalLearningPlanStore.current
     val learner = LocalLearnerStore.current
+    val ranking = LocalRankingStore.current
     val scope = rememberCoroutineScope()
     var saveError by remember { mutableStateOf<UserMessage?>(null) }
+    var isEditingPublicProfile by remember { mutableStateOf(false) }
     val preferences = plan.current
+    val profileSummary = learner.profile?.tierSummary
+
+    // `GET /me` reloads after every session; the next Tier comes from `GET /me/tier`, so it reloads with it.
+    LaunchedEffect(profileSummary) {
+        if (profileSummary != null) ranking.refreshTier()
+    }
 
     fun save(change: suspend () -> Unit) {
         scope.launch {
@@ -125,7 +141,16 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
             }
         }
 
-        Identity(learner.profile?.username, Modifier.padding(top = Spacing.l))
+        Identity(
+            learner.profile?.username,
+            learner.profile?.avatarKey,
+            onEdit = { isEditingPublicProfile = true },
+            modifier = Modifier.padding(top = Spacing.l),
+        )
+
+        tierCard(profileSummary, ranking.tier)?.let { (summary, next) ->
+            ProfileTierCard(summary, next, Modifier.padding(top = Spacing.screenGutter))
+        }
 
         LevelSection(learner.profile?.proficiencyLevel?.name, onEditLevel, Modifier.padding(top = Spacing.xl + Spacing.xxs))
         FocusSection(preferences, onEditFocus, Modifier.padding(top = Spacing.xl))
@@ -149,24 +174,35 @@ fun ProfileView(onEditLevel: () -> Unit, onEditFocus: () -> Unit, onEditRoutine:
             Text(it.text(), style = Typography.micro, color = SyllColors.errorInk, modifier = Modifier.padding(top = Spacing.s))
         }
     }
+    if (isEditingPublicProfile) EditPublicProfileSheet(onDismiss = { isEditingPublicProfile = false })
 }
 
-/** 64 dp avatar with the name; the public name and avatar arrive with Ranking. */
+/**
+ * LP and the next Tier from one answer. LP never goes down, so whichever answer has more is the newer one. Until
+ * `refreshTier` catches up, the older answer's next Tier is kept only if it is still ahead.
+ */
+private fun tierCard(profileSummary: TierSummary?, detail: TierDetail?): Pair<TierSummary, NextTier?>? {
+    if (detail != null && detail.lifetimeLP >= (profileSummary?.lifetimeLP ?: 0)) return detail.summary to detail.nextTier
+    profileSummary ?: return null
+    val next = detail?.nextTier?.takeIf { it.level > profileSummary.level }
+    return profileSummary to next
+}
+
+/** 64 dp avatar with the public name, and "Edit name and avatar"; "Learner" before the account has a name. */
 @Composable
-private fun Identity(username: String?, modifier: Modifier) {
+private fun Identity(username: String?, avatarKey: String?, onEdit: () -> Unit, modifier: Modifier) {
     val name = username ?: stringResource(R.string.learner)
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.m), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(Spacing.xl * 2).background(SyllColors.blue100, RoundedCornerShape(Radii.card)), contentAlignment = Alignment.Center) {
-            Text(name.take(1).uppercase(), style = Typography.screenTitle, color = SyllColors.blue700)
-        }
+        AvatarView(avatarKey.orEmpty(), size = Spacing.xl * 2, cornerRadius = Radii.card, initial = name)
         Text(
             name,
             style = Typography.sectionTitle.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = Typography.tightTracking.sp),
             color = SyllColors.ink,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier.weight(1f).semantics { heading() },
         )
+        if (username != null) TextLink(stringResource(R.string.edit_name_and_avatar), onClick = onEdit)
     }
 }
 

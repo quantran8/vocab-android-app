@@ -37,6 +37,11 @@ import com.syll.app.LocalAppScope
 import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalLearningPlanStore
 import com.syll.app.LocalPracticeSessionStore
+import com.syll.app.LocalChallengeMapStore
+import com.syll.app.LocalChallengeRunStore
+import com.syll.features.challenge.ChallengeMapView
+import com.syll.features.ranking.RankingView
+import kotlinx.coroutines.coroutineScope
 import com.syll.app.UserMessage
 import com.syll.app.text
 import com.syll.designsystem.components.StatusScreen
@@ -67,8 +72,8 @@ enum class MainTab(val title: Int, val icon: ImageVector) {
     PROFILE(R.string.profile, Icons.Outlined.AccountCircle),
 }
 
-/** iOS `ShellPage`: pages the tabs push. Settings belongs to Profile, Random Practice to My Words. */
-enum class ShellPage { SETTINGS, RANDOM_PRACTICE }
+/** iOS `ShellPage`: pages the tabs push. Settings belongs to Profile, Random Practice to My Words, the Challenge Map to Home. */
+enum class ShellPage { SETTINGS, RANDOM_PRACTICE, CHALLENGE_MAP }
 
 /** iOS `PlanSheet`: plan editors Profile presents as bottom sheets. */
 enum class PlanSheet { LEVEL, FOCUS, ROUTINE }
@@ -77,13 +82,22 @@ enum class PlanSheet { LEVEL, FOCUS, ROUTINE }
  * iOS `MainShellView`: Home · My Words · Ranking · Profile on the platform tab bar (Material 3 `NavigationBar`).
  * Session screens live outside this shell. [tab] is owned by the root: the route swap unmounts this view during a
  * session, and closing one returns to the same tab. Each tab's pushed page is saved state, so Settings stays open when
- * changing the language recreates the activity. Ranking arrives with Phase 2.
+ * changing the language recreates the activity.
  */
 @Composable
-fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: HomeActions) {
+fun MainShellView(
+    tab: MainTab,
+    onTabChange: (MainTab) -> Unit,
+    /** Owned by the root: a run started from the Challenge Map comes back to it. */
+    homePage: ShellPage?,
+    onHomePageChange: (ShellPage?) -> Unit,
+    homeActions: HomeActions,
+) {
     val learner = LocalLearnerStore.current
     val plan = LocalLearningPlanStore.current
     val practice = LocalPracticeSessionStore.current
+    val challengeMap = LocalChallengeMapStore.current
+    val challengeRun = LocalChallengeRunStore.current
     val appScope = LocalAppScope.current
     val motion = LocalMotion.current
     var wordsPage by rememberSaveable { mutableStateOf<ShellPage?>(null) }
@@ -123,16 +137,23 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
             PracticeSessionStore.FollowUp.RANDOM_PRACTICE -> openRandomPractice()
             PracticeSessionStore.FollowUp.UPGRADE, null -> Unit
         }
-        learner.refresh()
+        coroutineScope {
+            launch { learner.refresh() }
+            launch { challengeMap.refresh() }
+            // Settles a run the app was killed in; it refreshes the map again once done.
+            launch { challengeRun.recoverPendingRun() }
+        }
     }
     // Back closes the pushed page first, then returns to Home before leaving the app.
     val page = when (tab) {
+        MainTab.HOME -> homePage
         MainTab.WORDS -> wordsPage
         MainTab.PROFILE -> profilePage
         else -> null
     }
     BackHandler(enabled = page != null || tab != MainTab.HOME) {
         when {
+            tab == MainTab.HOME && homePage != null -> onHomePageChange(null)
             tab == MainTab.WORDS && wordsPage != null -> wordsPage = null
             tab == MainTab.PROFILE && profilePage != null -> profilePage = null
             else -> onTabChange(MainTab.HOME)
@@ -177,14 +198,19 @@ fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: Hom
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding())) {
             when (tab) {
-                MainTab.HOME -> HomeView(shellHomeActions)
+                MainTab.HOME -> PushedPage(homePage) { shown ->
+                    when (shown) {
+                        ShellPage.CHALLENGE_MAP -> ChallengeMapView(onBack = { onHomePageChange(null) })
+                        else -> HomeView(shellHomeActions)
+                    }
+                }
                 MainTab.WORDS -> PushedPage(wordsPage) { shown ->
                     when (shown) {
                         ShellPage.RANDOM_PRACTICE -> RandomPracticeView(onBack = { wordsPage = null })
                         else -> MyWordsView(onOpenRandomPractice = ::openRandomPractice)
                     }
                 }
-                MainTab.RANKING -> StatusScreen(title = stringResource(R.string.ranking), modifier = Modifier.statusBarsPadding())
+                MainTab.RANKING -> RankingView()
                 MainTab.PROFILE -> PushedPage(profilePage) { shown ->
                     when (shown) {
                         ShellPage.SETTINGS -> AppSettingsView(onBack = { profilePage = null })
