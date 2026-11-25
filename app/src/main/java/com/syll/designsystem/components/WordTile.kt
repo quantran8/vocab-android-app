@@ -132,6 +132,7 @@ fun ChoiceTileButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     minHeight: Dp = Spacing.tileMinHeight,
+    style: TextStyle = Typography.choice,
 ) {
     val motion = LocalMotion.current
     val interaction = remember { MutableInteractionSource() }
@@ -149,7 +150,7 @@ fun ChoiceTileButton(
         state = if (pressed && canPress) WordTileState.PRESSED else state,
         minHeight = minHeight,
         bounceTrigger = bounce,
-        style = Typography.choice,
+        style = style,
         modifier = modifier
             .clickable(interaction, indication = null, enabled = enabled, role = Role.Button) {
                 if (!motion.reduceMotion) bounce += 1

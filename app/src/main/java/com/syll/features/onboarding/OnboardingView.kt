@@ -35,7 +35,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.syll.R
+import com.syll.app.LocalAppScope
 import com.syll.app.LocalLearnerStore
+import com.syll.app.LocalPracticeSessionStore
+import com.syll.domain.practice.SessionMode
 import com.syll.app.LocalOnboardingStore
 import com.syll.app.LocalPlacementTestStore
 import com.syll.app.UserMessage
@@ -365,6 +368,8 @@ private fun RoutineStep() {
 @Composable
 private fun ReadyScreen() {
     val store = LocalOnboardingStore.current
+    val practice = LocalPracticeSessionStore.current
+    val appScope = LocalAppScope.current
     val draft = store.draft
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         Column(
@@ -423,8 +428,15 @@ private fun ReadyScreen() {
             )
         }
         PinnedActionBar {
-            // The first lesson starts here once practice is ported (Phase 1 step 4); for now it opens the app.
-            PrimaryButton(stringResource(R.string.start_my_first_lesson), onClick = store::finish, kind = ActionButtonKind.PRACTICE)
+            // Both in one turn: the route leaves onboarding straight for the session, never showing Home.
+            PrimaryButton(
+                stringResource(R.string.start_my_first_lesson),
+                onClick = {
+                    store.finish()
+                    appScope.launch { practice.start(SessionMode.DAILY) }
+                },
+                kind = ActionButtonKind.PRACTICE,
+            )
         }
     }
 }

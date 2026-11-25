@@ -31,6 +31,12 @@ import com.syll.features.main.LearnerStore
 import com.syll.features.main.MainShellView
 import com.syll.features.main.MainTab
 import com.syll.features.home.HomeActions
+import com.syll.features.practice.PracticeSessionStore
+import com.syll.features.practice.PracticeSessionView
+import com.syll.domain.practice.SessionMode
+import com.syll.designsystem.components.ActionContext
+import com.syll.designsystem.components.LocalActionContext
+import kotlinx.coroutines.CoroutineScope
 import com.syll.features.onboarding.OnboardingView
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.features.debug.DesignGallery
@@ -53,6 +59,8 @@ private sealed interface RouteID {
     data object LoadFailed : RouteID
     data object Onboarding : RouteID
     data object Shell : RouteID
+    /** One identity per session, so screens never carry over between sessions. */
+    data class Practice(val token: java.util.UUID) : RouteID
     /** Debug builds only: tokens, buttons, Rive and Lottie on the device. */
     data object DesignGallery : RouteID
     /** Debug builds only: onboarding on the offline API. */
@@ -66,6 +74,8 @@ fun AppRoot() {
     val settings = LocalAppSettingsStore.current
     val learner = LocalLearnerStore.current
     val plan = LocalLearningPlanStore.current
+    val practice = LocalPracticeSessionStore.current
+    val appScope = LocalAppScope.current
     val motion = Motion(reduceMotion = rememberSystemReducesMotion() || settings.reduceMotion)
     val enterOffsetPx = rememberEnterOffsetPx()
 
@@ -110,6 +120,7 @@ fun AppRoot() {
         learner.phase is LearnerStore.Phase.Failed -> RouteID.LoadFailed
         learner.phase == LearnerStore.Phase.Loading -> RouteID.Loading
         !plan.hasCompletedOnboarding -> RouteID.Onboarding
+        practice.isActive -> RouteID.Practice(practice.sessionToken)
         else -> RouteID.Shell
     }
 
@@ -127,7 +138,11 @@ fun AppRoot() {
                     RouteID.LoadFailed -> LoadFailedScreen()
                     RouteID.Onboarding -> OnboardingView()
                     // Practice, Random practice and Focus are wired as they land (steps 4 and 7).
-                    RouteID.Shell -> MainShellView(shellTab, onTabChange = { shellTab = it }, homeActions = HomeActions())
+                    // Random practice and Focus are wired as they land (step 7).
+                    RouteID.Shell -> MainShellView(shellTab, onTabChange = { shellTab = it }, homeActions = homeActions(practice, appScope))
+                    is RouteID.Practice -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) {
+                        PracticeSessionView()
+                    }
                     RouteID.DesignGallery -> DesignGallery(
                         onClose = { showsGallery = false },
                         onOpenOfflineOnboarding = { showsOfflineOnboarding = true },
@@ -138,6 +153,13 @@ fun AppRoot() {
         }
     }
 }
+
+/** Home's session buttons, started on the app scope: the session replaces Home as soon as it starts planning. */
+fun homeActions(practice: PracticeSessionStore, scope: CoroutineScope) = HomeActions(
+    onStartDaily = { scope.launch { practice.start(SessionMode.DAILY) } },
+    onStartReviewOnly = { scope.launch { practice.startReviewOnly() } },
+    isPracticeActive = { practice.isActive },
+)
 
 /** "Couldn't load your account" with retry and log out (iOS `learner.phase == .failed`). */
 @Composable

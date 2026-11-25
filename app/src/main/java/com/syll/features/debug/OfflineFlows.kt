@@ -16,7 +16,15 @@ import com.syll.app.LocalPlacementTestStore
 import com.syll.app.OfflineVocabApi
 import com.syll.domain.AppLanguage
 import com.syll.features.auth.AuthStore
-import com.syll.features.home.HomeActions
+import com.syll.app.LocalAppScope
+import com.syll.app.LocalPracticeSessionStore
+import com.syll.app.homeActions
+import com.syll.designsystem.components.ActionContext
+import com.syll.designsystem.components.LocalActionContext
+import com.syll.features.practice.PracticeSessionStore
+import com.syll.features.practice.PracticeSessionView
+import com.syll.platform.NoVoiceRecorder
+import com.syll.platform.SilentAudioClips
 import com.syll.features.main.LearnerStore
 import com.syll.features.main.MainShellView
 import com.syll.features.main.MainTab
@@ -41,6 +49,7 @@ fun OfflineOnboarding(onClose: () -> Unit) {
     val learner = remember { LearnerStore(api, plan, language = { AppLanguage.ENGLISH }) }
     val onboarding = remember { OnboardingStore(plan, api, NoOpFeedback) }
     val placement = remember { PlacementTestStore(api, NoOpFeedback, scope) }
+    val practice = remember { PracticeSessionStore(api, SilentAudioClips, NoVoiceRecorder, NoOpFeedback, scope) }
 
     var tab by remember { mutableStateOf(MainTab.HOME) }
 
@@ -53,11 +62,13 @@ fun OfflineOnboarding(onClose: () -> Unit) {
         LocalLearnerStore provides learner,
         LocalOnboardingStore provides onboarding,
         LocalPlacementTestStore provides placement,
+        LocalPracticeSessionStore provides practice,
+        LocalAppScope provides scope,
     ) {
-        if (plan.hasCompletedOnboarding) {
-            MainShellView(tab, onTabChange = { tab = it }, homeActions = HomeActions())
-        } else {
-            OnboardingView()
+        when {
+            !plan.hasCompletedOnboarding -> OnboardingView()
+            practice.isActive -> CompositionLocalProvider(LocalActionContext provides ActionContext.PRACTICE) { PracticeSessionView() }
+            else -> MainShellView(tab, onTabChange = { tab = it }, homeActions = homeActions(practice, scope))
         }
     }
 }

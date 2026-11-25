@@ -25,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import com.syll.R
 import com.syll.app.LocalAuthStore
 import com.syll.app.LocalLearnerStore
+import com.syll.app.LocalPracticeSessionStore
+import com.syll.features.practice.PracticeSessionStore
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.StatusScreen
 import com.syll.designsystem.tokens.SyllColors
@@ -52,10 +54,16 @@ enum class MainTab(val title: Int, val icon: ImageVector) {
 @Composable
 fun MainShellView(tab: MainTab, onTabChange: (MainTab) -> Unit, homeActions: HomeActions) {
     val learner = LocalLearnerStore.current
+    val practice = LocalPracticeSessionStore.current
 
     LaunchedEffect(Unit) {
-        // Later steps add: the session's follow-up (choose topics, practise, upgrade), ads, the challenge map and
-        // settling a killed challenge run.
+        // A session screen may have asked for the next step as it closed. Focus and Random practice open with
+        // step 7 (Profile and My Words); Premium with Phase 4. Later steps add ads and the challenge map.
+        when (practice.consumeFollowUp()) {
+            PracticeSessionStore.FollowUp.CHOOSE_TOPICS -> onTabChange(MainTab.PROFILE)
+            PracticeSessionStore.FollowUp.RANDOM_PRACTICE -> onTabChange(MainTab.WORDS)
+            PracticeSessionStore.FollowUp.UPGRADE, null -> Unit
+        }
         learner.refresh()
     }
     // Back from another tab returns to Home before leaving the app.

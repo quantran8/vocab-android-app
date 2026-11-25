@@ -26,6 +26,7 @@ import com.syll.platform.FeedbackProviding
 import com.syll.platform.SettingsAwareFeedback
 import com.syll.platform.VibratorFeedback
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.withContext
 
@@ -42,7 +43,7 @@ class AppContainer(context: Context) {
     val settings = AppSettingsStore(storage, SettingsAwareFeedback(VibratorFeedback(context)))
     private val haptics: FeedbackProviding = settings.feedback
     /** The app's own scope for work that outlives a screen (iOS unstructured `Task`s). Main thread. */
-    private val appScope = MainScope()
+    val appScope = MainScope()
     val api: VocabApi = LiveVocabApi(apiClient)
     val auth = AuthStore(api)
     val plan = LearningPlanStore(KeyValuePreferencesStore(storage), NoReminders)
@@ -78,6 +79,11 @@ val LocalAppSettingsStore = staticCompositionLocalOf<AppSettingsStore> { error("
 val LocalLearningPlanStore = staticCompositionLocalOf<LearningPlanStore> { error("LearningPlanStore not provided") }
 val LocalLearnerStore = staticCompositionLocalOf<LearnerStore> { error("LearnerStore not provided") }
 val LocalOnboardingStore = staticCompositionLocalOf<OnboardingStore> { error("OnboardingStore not provided") }
+/**
+ * Work that changes the route must outlive the screen that started it (starting a session swaps Home out), so it
+ * runs here rather than in a screen's `rememberCoroutineScope()`.
+ */
+val LocalAppScope = staticCompositionLocalOf<CoroutineScope> { error("App scope not provided") }
 val LocalPracticeSessionStore = staticCompositionLocalOf<PracticeSessionStore> { error("PracticeSessionStore not provided") }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
 
@@ -91,6 +97,7 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalOnboardingStore provides container.onboarding,
         LocalPlacementTestStore provides container.placement,
         LocalPracticeSessionStore provides container.practice,
+        LocalAppScope provides container.appScope,
         content = content,
     )
 }
