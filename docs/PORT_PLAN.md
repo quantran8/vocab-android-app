@@ -10,7 +10,7 @@ The iOS app is the spec. It is a port, not a redesign: same screens, rules, copy
 
 ## Status
 
-### Phase 0 — Foundation (in progress)
+### Phase 0 — Foundation (done)
 - [x] Repo, Gradle modules (`app`, `core/domain`, `core/network`, `core/data`), version catalog, CI workflow
 - [x] Design tokens (colors, spacing, radii, borders, typography, motion), `Motion` (= `MotionCoordinator`), theme
 - [x] Core components: `ActionButton` kinds, `PrimaryButton`, `SecondaryButton` (+ `LocalActionContext`), `DestructiveButton`, `SmallButton`, `cardSurface`, `CardDivider`, `StatusScreen`
@@ -18,9 +18,14 @@ The iOS app is the spec. It is a port, not a redesign: same screens, rules, copy
 - [x] `AppContainer`, `AppRoot` routing skeleton (splash → loading → auth / shell placeholders), `SplashView` on Rive
 - [x] Localization converter + generated `strings_ios.xml` for 11 languages, per-app language via AppCompat
 - [x] Debug design gallery: buttons, card, Rive timelines/state machines, Lottie confetti, reduce motion, languages
-- [ ] First build in Android Studio + `gradle wrapper` committed
-- [ ] Spike on device: Rive view-model data binding (`CelebrateV2`, `HomeSyllie`), on-device speech recognition
-- [ ] Remaining shared services: `FeedbackProviding` (haptics), `SoundEffects`, `SpeechProviding` (TTS)
+- [x] First build + `gradle wrapper` committed (AGP 8.10.1, compileSdk 36, Rive 11 for 16 KB page alignment)
+- [x] Rive: no view models (deprecated in Rive); Syllie moods play timelines by name (`SyllieView`)
+- [ ] Spike on device: on-device speech recognition (moved to Phase 1 step 5)
+- [ ] Remaining shared services: `FeedbackProviding` (haptics), `SoundEffects`, `SpeechProviding` (TTS) (moved to Phase 1 step 4)
+
+### Phase 1 — Core loop (in progress)
+- [x] 1. Auth: `VocabApi`/`LiveVocabApi` (auth endpoints), `AuthStore`, `PasswordPolicy` + `PasswordRuleList`, log in / sign up + check email / reset password (2 steps), Google via Credential Manager (`-PgoogleServerClientId=…`). Change password + account deletion UI land with Profile (step 7). Apple: Phase 3.
+- [ ] 2. `LearnerStore`, onboarding, placement test, routine
 
 Deviation from the table below: settings use SharedPreferences behind `KeyValueStore` (synchronous like `UserDefaults`, which the ported stores assume) instead of DataStore.
 
@@ -34,7 +39,7 @@ Deviation from the table below: settings use SharedPreferences behind `KeyValueS
 | Keychain | Android Keystore-backed AES key + DataStore (`TokenStore`) |
 | `UserDefaults` | DataStore (Preferences) behind the same interfaces (`PreferencesStoring`, settings, `PendingRun`, ad counter) with in-memory fakes |
 | `MotionCoordinator` | `Motion` object in a CompositionLocal: respects system "remove animations" (`Settings.Global.ANIMATOR_DURATION_SCALE` / `AccessibilityManager`) + in-app setting; `motion.perform/travel/stepTransition` equivalents |
-| RiveRuntime (`syllie.riv`) | `app.rive:rive-android` — same `.riv`, same artboard / state machine / view model names (Syllie, Loading, CelebrateV2, HomeSyllie) |
+| RiveRuntime (`syllie.riv`) | `app.rive:rive-android` — same `.riv`, same artboard / state machine / timeline names (Syllie, Loading, CelebrateV2, HomeSyllie). No view models: moods/variants are timelines or state machine inputs |
 | Lottie | `lottie-compose` (same `Confetti.lottie`) |
 | AVAudioRecorder 16 kHz mono PCM | `AudioRecord` → WAV 16 kHz/16-bit mono (same upload, multipart) + level metering |
 | SFSpeechRecognizer on-device (free plan) | `SpeechRecognizer.createOnDeviceSpeechRecognizer` (API 31+) fed the recorded file via `EXTRA_AUDIO_SOURCE` (API 33+); otherwise result `unavailable` (same path as `onDeviceRecognitionUnavailable`) |
@@ -103,7 +108,7 @@ Web flow: Apple "Services ID" + redirect via Custom Tab, returning an ID token s
 
 ## Risks / open items
 - On-device speech recognition on Android varies by device; without API 33 file input or an offline en-US model, free takes show `unavailable`. Acceptable per the iOS design, but measure on target devices early (Phase 0 spike).
-- Rive Android runtime parity for view models/enum inputs (data binding) — spike in Phase 0 on `CelebrateV2` and `HomeSyllie`.
+- Rive without view models: `CelebrateV2` variants and `HomeSyllie` scenes must be reachable by timeline or state machine input; check when porting those screens.
 - Play Store policy: subscriptions must be bought via Play Billing; redeem codes are allowed only if not sold outside Play — check before phase 4.
 - Keeping two clients in sync: add a "parity checklist" to both CLAUDE.md files; any contract change in `FRONTEND_FLOW.md` lists iOS + Android tasks.
 

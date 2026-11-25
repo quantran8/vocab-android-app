@@ -16,10 +16,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.syll.BuildConfig
 import com.syll.R
 import com.syll.designsystem.components.PrimaryButton
-import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.StatusScreen
 import com.syll.designsystem.motion.LocalMotion
 import com.syll.designsystem.motion.Motion
@@ -28,6 +26,7 @@ import com.syll.designsystem.motion.rememberEnterOffsetPx
 import com.syll.designsystem.motion.rememberSystemReducesMotion
 import com.syll.designsystem.tokens.SyllColors
 import com.syll.features.auth.AuthStore
+import com.syll.features.auth.AuthView
 import com.syll.features.debug.DesignGallery
 import com.syll.features.launch.SplashView
 import kotlinx.coroutines.delay
@@ -93,21 +92,11 @@ fun AppRoot() {
                 when (current) {
                     RouteID.Splash -> SplashView()
                     RouteID.Loading -> StatusScreen(title = stringResource(R.string.syll), isBusy = true, modifier = Modifier.safeDrawingPadding())
-                    RouteID.Auth -> AuthPlaceholder(onOpenGallery = { showsGallery = true })
+                    RouteID.Auth -> AuthView(onOpenGallery = { showsGallery = true })
                     RouteID.Shell -> ShellPlaceholder()
                     RouteID.DesignGallery -> DesignGallery(onClose = { showsGallery = false })
                 }
             }
-        }
-    }
-}
-
-/** Phase 0 stand-in for `AuthView` (Phase 1). */
-@Composable
-private fun AuthPlaceholder(onOpenGallery: () -> Unit) {
-    StatusScreen(title = stringResource(R.string.syll), modifier = Modifier.safeDrawingPadding()) {
-        if (BuildConfig.DEBUG) {
-            SecondaryButton(title = stringResource(R.string.debug_design_gallery), onClick = onOpenGallery)
         }
     }
 }

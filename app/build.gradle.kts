@@ -7,9 +7,15 @@ plugins {
 /** Backend override, the Android counterpart of iOS `VOCABFLOW_API_URL`: `-PvocabflowApiUrl=…` or gradle.properties. */
 val apiUrlOverride: String? = providers.gradleProperty("vocabflowApiUrl").orNull
 
+/**
+ * Google sign-in: the backend's *Web* OAuth client ID (`….apps.googleusercontent.com`), the audience of the ID token.
+ * `-PgoogleServerClientId=…` or gradle.properties; empty shows "Google sign-in isn't set up yet." (iOS `GoogleClientID`).
+ */
+val googleServerClientId: String = providers.gradleProperty("googleServerClientId").orNull.orEmpty()
+
 android {
     namespace = "com.syll"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.syll"
@@ -17,6 +23,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"$googleServerClientId\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -71,8 +78,13 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.googleid)
 
     implementation(libs.rive.android)
     implementation(libs.lottie.compose)

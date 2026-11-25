@@ -10,6 +10,8 @@ import com.syll.data.SharedPreferencesKeyValueStore
 import com.syll.features.auth.AuthStore
 import com.syll.features.settings.AppSettingsStore
 import com.syll.network.ApiClient
+import com.syll.network.LiveVocabApi
+import com.syll.network.VocabApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,7 +25,8 @@ import kotlinx.coroutines.withContext
 class AppContainer(context: Context) {
     val apiClient = ApiClient(baseUrl = BuildConfig.API_URL, tokens = KeystoreTokenStore(context))
     val settings = AppSettingsStore(SharedPreferencesKeyValueStore(context))
-    val auth = AuthStore(apiClient)
+    val api: VocabApi = LiveVocabApi(apiClient)
+    val auth = AuthStore(api)
 
     init {
         apiClient.setSessionEndedHandler {

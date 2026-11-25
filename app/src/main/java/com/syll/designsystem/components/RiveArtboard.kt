@@ -10,11 +10,10 @@ import com.syll.R
 
 /**
  * One artboard of `res/raw/syllie.riv` (the same file as iOS `Resources/Animations/syllie.riv`; keep artboard,
- * timeline, state machine and view model names identical to iOS).
+ * timeline and state machine names identical to iOS). No view models (deprecated in Rive).
  *
  * Plays either a timeline ([animation]) or a state machine ([stateMachine]). [onReady] hands back the view for
- * imperative control (play another timeline, fire a trigger), like iOS `RiveViewModel`.
- * Phase 1 adds view-model data binding (`Syllie.mood`, `CelebrateV2.variant`, `HomeSyllie.scene`).
+ * imperative control (play another timeline, set a state machine input).
  */
 @Composable
 fun RiveArtboard(
