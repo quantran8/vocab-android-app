@@ -1,6 +1,10 @@
 package com.syll.designsystem.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.TextButton
+import com.syll.designsystem.tokens.Spacing
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -23,8 +27,8 @@ sealed interface ConfirmSheetStyle {
 }
 
 /**
- * A destructive / leave confirmation as a Material `AlertDialog` (iOS shows a short sheet). Leaving practice offers
- * "keep going" as the confirming button and leaving as the other; a destructive one confirms in red.
+ * A destructive / leave confirmation as a Material `AlertDialog` (iOS shows a short sheet). Leaving practice stacks
+ * Ink "keep going" over a red outline "leave", like iOS; a destructive one confirms in red.
  * [onDismiss] runs for Cancel, Back or a tap outside.
  */
 @Composable
@@ -56,20 +60,21 @@ fun ConfirmSheet(
                 is ConfirmSheetStyle.Destructive -> TextButton(onClick = onConfirm) {
                     Text(confirmTitle, style = buttonText, color = SyllColors.destructiveInk)
                 }
-                ConfirmSheetStyle.LeavePractice -> TextButton(onClick = onDismiss) {
-                    Text(cancelTitle, style = buttonText, color = SyllColors.interactive)
+                ConfirmSheetStyle.LeavePractice -> Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    PrimaryButton(cancelTitle, onDismiss, Modifier.fillMaxWidth())
+                    SecondaryButton(confirmTitle, onConfirm, kind = ActionButtonKind.OUTLINE, foregroundOverride = SyllColors.destructiveInk)
                 }
             }
         },
-        dismissButton = {
-            when (style) {
-                is ConfirmSheetStyle.Destructive -> TextButton(onClick = onDismiss) {
-                    Text(cancelTitle, style = buttonText, color = SyllColors.ink)
-                }
-                ConfirmSheetStyle.LeavePractice -> TextButton(onClick = onConfirm) {
-                    Text(confirmTitle, style = buttonText, color = SyllColors.destructiveInk)
+        dismissButton = when (style) {
+            is ConfirmSheetStyle.Destructive -> {
+                {
+                    TextButton(onClick = onDismiss) {
+                        Text(cancelTitle, style = buttonText, color = SyllColors.ink)
+                    }
                 }
             }
+            ConfirmSheetStyle.LeavePractice -> null
         },
     )
 }

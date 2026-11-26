@@ -108,16 +108,14 @@ fun ReorderTaskView(attempt: TaskAttempt) {
     val flyingIds = remember { mutableStateListOf<Int>() }
 
     // The row as it would look if dropped now: the dragged tile's slot is held open at the insert index.
-    val panelTiles = run {
+    fun previewRow(attempt: TaskAttempt): List<TaskOption> {
         val id = dragId
         val index = insertIndex
         val dragged = tiles.firstOrNull { it.id == id }
-        if (id == null || index == null || dragged == null) {
-            attempt.placedTiles
-        } else {
-            attempt.placedTiles.filter { it.id != id }.toMutableList().apply { add(minOf(index, size), dragged) }
-        }
+        if (id == null || index == null || dragged == null) return attempt.placedTiles
+        return attempt.placedTiles.filter { it.id != id }.toMutableList().apply { add(minOf(index, size), dragged) }
     }
+    val panelTiles = previewRow(attempt)
     val panelIds = panelTiles.map { it.id }.toSet()
 
     fun fly(id: Int, body: () -> Unit) {
@@ -131,11 +129,17 @@ fun ReorderTaskView(attempt: TaskAttempt) {
         }
     }
 
-    /** Where the row would insert a tile dropped at [point], or null when the point is outside the answer panel. */
+    /**
+     * Where the row would insert a tile centred at [point] (the dragged tile, not the finger), or null outside the
+     * answer panel. Over another tile it takes that tile's place; between tiles it goes after those whose centre it passed.
+     */
     fun slotIndex(point: Offset): Int? {
         val panel = frames[ReorderSlot.Panel] ?: return null
         val margin = with(density) { Spacing.s.toPx() }
         if (!panel.inflate(margin).contains(point)) return null
+        val row = previewRow(latest)
+        val hovered = row.indexOfFirst { it.id != dragId && frames[ReorderSlot.Row(it.id)]?.contains(point) == true }
+        if (hovered >= 0) return hovered
         val rowHeight = with(density) { RULED_ROW_HEIGHT.toPx() }
         return latest.placedTiles.filter { it.id != dragId }.count { tile ->
             val frame = frames[ReorderSlot.Row(tile.id)] ?: return@count false
@@ -179,8 +183,9 @@ fun ReorderTaskView(attempt: TaskAttempt) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 val (id, fromBank) = tileAt(down.position) ?: return@awaitEachGesture
-                                val start = frames[if (fromBank) ReorderSlot.Bank(id) else ReorderSlot.Row(id)]?.topLeft ?: return@awaitEachGesture
-                                val grab = start - down.position
+                                val start = frames[if (fromBank) ReorderSlot.Bank(id) else ReorderSlot.Row(id)] ?: return@awaitEachGesture
+                                val grab = start.topLeft - down.position
+                                val grabToCenter = start.center - down.position
                                 val dragSlop = 6.dp.toPx()
                                 val tapSlop = 10.dp.toPx()
                                 var dragging = false
@@ -208,7 +213,7 @@ fun ReorderTaskView(attempt: TaskAttempt) {
                                     if (dragging) {
                                         change.consume()
                                         dragTopLeft = change.position + grab
-                                        val index = slotIndex(change.position)
+                                        val index = slotIndex(change.position + grabToCenter)
                                         if (index != insertIndex) {
                                             insertIndex = index
                                             if (index != null) store.haptics.selectionChanged()
@@ -224,8 +229,9 @@ fun ReorderTaskView(attempt: TaskAttempt) {
                         },
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xl)) {
-                        // The answer row on notebook lines: places only, the tiles are drawn above.
-                        FlowRow(
+                        // The answer row on notebook lines: places only, the tiles are drawn above. The lines live on
+                        // a wrapper: an empty FlowRow measures 0×0, so lines drawn on it vanish until a tile is placed.
+                        Box(
                             Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = RULED_ROW_HEIGHT * minimumLines)
@@ -238,21 +244,25 @@ fun ReorderTaskView(attempt: TaskAttempt) {
                                         drawRect(SyllColors.stroke, topLeft = Offset(0f, y - Borders.card.toPx()), size = size.copy(height = Borders.card.toPx()))
                                     }
                                 },
-                            horizontalArrangement = Arrangement.spacedBy(TILE_SPACING),
                         ) {
-                            panelTiles.forEach { tile ->
-                                key(tile.id) {
-                                    Box(Modifier.height(RULED_ROW_HEIGHT).padding(bottom = RULED_LINE_GAP), contentAlignment = Alignment.BottomCenter) {
-                                        // The drop preview: a gray stand-in where the dragged tile would land.
-                                        Box {
-                                            LetterTile(
-                                                tile, tileWidth, attempt, isPlaced = true,
-                                                Modifier
-                                                    .alpha(0f)
-                                                    .clearAndSetSemantics { }
-                                                    .onGloballyPositioned { frames.place(ReorderSlot.Row(tile.id), it) },
-                                            )
-                                            if (tile.id == dragId) SlotPlaceholder(Modifier.matchParentSize())
+                            FlowRow(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(TILE_SPACING),
+                            ) {
+                                panelTiles.forEach { tile ->
+                                    key(tile.id) {
+                                        Box(Modifier.height(RULED_ROW_HEIGHT).padding(bottom = RULED_LINE_GAP), contentAlignment = Alignment.BottomCenter) {
+                                            // The drop preview: a gray stand-in where the dragged tile would land.
+                                            Box {
+                                                LetterTile(
+                                                    tile, tileWidth, attempt, isPlaced = true,
+                                                    Modifier
+                                                        .alpha(0f)
+                                                        .clearAndSetSemantics { }
+                                                        .onGloballyPositioned { frames.place(ReorderSlot.Row(tile.id), it) },
+                                                )
+                                                if (tile.id == dragId) SlotPlaceholder(Modifier.matchParentSize())
+                                            }
                                         }
                                     }
                                 }

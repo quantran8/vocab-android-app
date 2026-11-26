@@ -234,7 +234,8 @@ fun LabTaskView(sandbox: TemplateSandboxStore) {
             CompositionLocalProvider(LocalStepActionBarHost provides host) {
                 AnimatedContent(
                     targetState = session.stepIndex,
-                    transitionSpec = { motion.stepTransition(isMovingBack = false) },
+                    // No SizeTransform: the pinned bar changes height on step change, and an animated size would shift the step.
+                    transitionSpec = { motion.stepTransition(isMovingBack = false) using null },
                     label = "labStep",
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 ) { index ->

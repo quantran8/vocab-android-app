@@ -207,10 +207,11 @@ fun SecondaryButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     kind: ActionButtonKind? = null,
+    foregroundOverride: Color? = null,
 ) {
     val context = LocalActionContext.current
     val resolved = kind ?: if (context == ActionContext.PRACTICE) ActionButtonKind.OUTLINE_3D else ActionButtonKind.OUTLINE
-    ActionButton(resolved, onClick, modifier.fillMaxWidth()) {
+    ActionButton(resolved, onClick, modifier.fillMaxWidth(), foregroundOverride = foregroundOverride) {
         ActionButtonLabel(title, icon, iconLeading = true)
     }
 }
