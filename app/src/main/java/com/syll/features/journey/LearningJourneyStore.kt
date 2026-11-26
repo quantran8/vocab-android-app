@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.syll.app.UserMessage
 import com.syll.domain.journey.JourneyPeriod
+import com.syll.domain.journey.JourneyWord
 import com.syll.domain.journey.LearningJourney
 import com.syll.network.VocabApi
 import com.syll.network.asApiError
@@ -34,6 +35,13 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
     var periods by mutableStateOf<Map<JourneyPeriod, LearningJourney>>(emptyMap())
         private set
     var periodLoads by mutableStateOf<Map<JourneyPeriod, Load>>(emptyMap())
+        private set
+    /** The period's new words, as many pages as were loaded, newest first. */
+    var words by mutableStateOf<Map<JourneyPeriod, List<JourneyWord>>>(emptyMap())
+        private set
+    var wordTotals by mutableStateOf<Map<JourneyPeriod, Int>>(emptyMap())
+        private set
+    var wordLoads by mutableStateOf<Map<JourneyPeriod, Load>>(emptyMap())
         private set
 
     /** Bumped by [reset] and [invalidate], so an answer for the previous account or an older state is dropped. */
@@ -84,6 +92,27 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         }
     }
 
+    /** The first page of the period's new words, or the next one with [more]. A failure keeps what was loaded. */
+    suspend fun loadWords(period: JourneyPeriod, more: Boolean = false, force: Boolean = false) {
+        val loaded = words[period].orEmpty()
+        if (!more && !force && words[period] != null) return
+        if (more && loaded.size >= (wordTotals[period] ?: Int.MAX_VALUE)) return
+        if (wordLoads[period] == Load.Loading) return
+        val started = generation
+        wordLoads = wordLoads + (period to Load.Loading)
+        try {
+            val page = api.learningJourneyWords(period, if (more) WORD_PAGE else FIRST_WORD_PAGE, if (more) loaded.size else 0)
+            if (started != generation) return
+            words = words + (period to if (more) loaded + page.items else page.items)
+            wordTotals = wordTotals + (period to page.total)
+            wordLoads = wordLoads + (period to Load.Loaded)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (started == generation) wordLoads = wordLoads + (period to Load.Failed(UserMessage.Api(e.asApiError)))
+        }
+    }
+
     /** After a committed session: everything is stale, but stays on screen until it reloads. */
     fun invalidate() {
         generation += 1
@@ -91,6 +120,9 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         periodLoadedAt = emptyMap()
         if (summaryLoad == Load.Loading) summaryLoad = Load.Idle
         periodLoads = periodLoads.mapValues { (_, load) -> if (load == Load.Loading) Load.Idle else load }
+        words = emptyMap()
+        wordTotals = emptyMap()
+        wordLoads = emptyMap()
     }
 
     /** Sign-out and account deletion: nothing carries over to the next account. */
@@ -102,6 +134,9 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         periods = emptyMap()
         periodLoads = emptyMap()
         periodLoadedAt = emptyMap()
+        words = emptyMap()
+        wordTotals = emptyMap()
+        wordLoads = emptyMap()
     }
 
     private fun isStale(loadedAt: Instant?): Boolean {
@@ -114,5 +149,8 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
     private companion object {
         /** Reloaded after this long, or once the day changes. */
         val FRESH_FOR: Duration = Duration.ofMinutes(5)
+        /** The first page shows this many; "Show more" adds a page. */
+        const val FIRST_WORD_PAGE = 10
+        const val WORD_PAGE = 20
     }
 }

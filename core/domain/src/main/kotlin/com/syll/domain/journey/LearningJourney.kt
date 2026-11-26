@@ -42,18 +42,24 @@ data class LearningJourney(
         val newWords: Int,
         val completedSessions: Int,
         val activeDays: Int,
-        /** Sessions the learner aims for each week; null when the server has none. */
+        /** Study days the learner aims for each week (the app sets it to the days they chose); null when unset. */
         val weeklySessionGoal: Int? = null,
+        /** The week's newest words, at most three. Null from an older backend. */
+        val recentWords: List<RecentWord>? = null,
         val days: List<Day>,
     ) {
         /** The last day that isn't ahead: today in the learner's time zone. */
         val today: Day? get() = days.lastOrNull { !it.isFuture }
-        val goalReached: Boolean get() = weeklySessionGoal?.let { completedSessions >= it } ?: false
-
-        /** New words learned so far this week, one running total per elapsed day. */
-        val cumulativeNewWords: List<Int>
-            get() = days.filter { !it.isFuture }.runningFold(0) { total, day -> total + (day.newWords ?: 0) }.drop(1)
+        /** The goal counts study days, never sessions: a Daily split in two still makes one day. */
+        val goalReached: Boolean get() = weeklySessionGoal?.let { activeDays >= it } ?: false
+        /** The days that earned a stamp, in order. */
+        val studiedDays: List<Day> get() = days.filter { it.completed == true }
+        /** New words beyond the ones named on Home. */
+        val otherNewWords: Int get() = maxOf(0, newWords - (recentWords?.size ?: 0))
     }
+
+    @Serializable
+    data class RecentWord(val wordId: String, val lemma: String)
 
     @Serializable
     data class Point(
@@ -77,4 +83,39 @@ data class LearningJourney(
         val reviewedMeanings: Int? = null,
         val points: List<Point> = emptyList(),
     )
+}
+
+/** iOS `JourneyWordsPage`: `GET /me/learning-journey/words`, the period's new words, newest first. */
+@Serializable
+data class JourneyWordsPage(val total: Int, val items: List<JourneyWord>)
+
+@Serializable
+data class JourneyWord(
+    val wordId: String,
+    val lemma: String,
+    /** The meanings of the word learned in the period, in learned order. */
+    val meaningTexts: List<String> = emptyList(),
+    /** The local day the word was first learned. */
+    val learnedOn: String,
+) {
+    val meaningText: String get() = meaningTexts.joinToString("; ")
+}
+
+/** iOS `JourneyWordDay`: one day of the new-words timeline. */
+data class JourneyWordDay(val date: String, val words: List<JourneyWord>) {
+    companion object {
+        /** Pages arrive newest first, so a day can span two pages; it stays one group. */
+        fun grouped(words: List<JourneyWord>): List<JourneyWordDay> {
+            val days = mutableListOf<JourneyWordDay>()
+            for (word in words) {
+                val last = days.lastOrNull()
+                if (last != null && last.date == word.learnedOn) {
+                    days[days.lastIndex] = last.copy(words = last.words + word)
+                } else {
+                    days += JourneyWordDay(word.learnedOn, listOf(word))
+                }
+            }
+            return days
+        }
+    }
 }

@@ -86,20 +86,56 @@ import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.semantics.heading
+import kotlinx.coroutines.coroutineScope
+import com.syll.features.words.WordDetailSheet
+import com.syll.domain.journey.JourneyWord
+import com.syll.domain.journey.JourneyWordDay
+import com.syll.designsystem.motion.LocalMotion
+import com.syll.designsystem.tokens.Radii
 
 // iOS `LearningJourneyCard` / `LearningJourneyView` (backend FRONTEND_FLOW §17). History only: these start nothing.
 
-/** Home's journey block, after "Learning". A failed load shows a retry line and never zeros. */
+/**
+ * iOS `LearningJourneyCard`: Home's journey block, after "Learning" (docs/app-redesign-v1.html, 1.1). This week's new
+ * words and study days, the days drawn as a stamp card. "See details" (and the whole card) opens the journey page. A
+ * failed load shows a retry line and never zeros.
+ */
 @Composable
 fun LearningJourneyCard(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val journey = LocalLearningJourneyStore.current
     val scope = rememberCoroutineScope()
     Column(modifier) {
-        SectionTitle(stringResource(R.string.your_journey))
         val summary = journey.summary
+        SectionTitle(stringResource(R.string.your_journey)) {
+            if (summary != null) TextLink(stringResource(R.string.see_details), onClick = onOpen)
+        }
         when {
             summary != null -> Column(Modifier.fillMaxWidth().cardSurface().pressScaleClickable(onClick = onOpen)) {
-                if (summary.hasHistory) FilledWeek(summary.week) else EmptyJourneyRow()
+                if (summary.hasHistory) {
+                    NewWordsBlock(summary.week)
+                    CardDivider()
+                    StudyDaysBlock(summary.week)
+                } else {
+                    EmptyJourneyRow()
+                }
                 if (journey.summaryLoad is LearningJourneyStore.Load.Failed) {
                     Text(
                         stringResource(R.string.not_up_to_date),
@@ -114,33 +150,172 @@ fun LearningJourneyCard(onOpen: () -> Unit, modifier: Modifier = Modifier) {
                 Spacer(Modifier.width(Spacing.xs))
                 TextLink(stringResource(R.string.try_again_2), onClick = { scope.launch { journey.refreshSummary(force = true) } })
             }
-            else -> Box(Modifier.fillMaxWidth().height(148.dp).cardSurface().clearAndSetSemantics {}) {
+            else -> Box(Modifier.fillMaxWidth().height(160.dp).cardSurface().clearAndSetSemantics {}) {
                 Column(Modifier.padding(Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                     Box(Modifier.size(64.dp, 28.dp).background(SyllColors.ink100, RoundedCornerShape(6.dp)))
                     Box(Modifier.size(160.dp, 16.dp).background(SyllColors.ink100, RoundedCornerShape(6.dp)))
-                    Box(Modifier.fillMaxWidth().height(16.dp).background(SyllColors.ink100, RoundedCornerShape(6.dp)))
+                    Box(Modifier.size(180.dp, 56.dp).background(SyllColors.ink100, RoundedCornerShape(6.dp)))
                 }
             }
         }
     }
 }
 
+/** The count and caption shared by both blocks, so they read as peers. */
 @Composable
-private fun FilledWeek(week: LearningJourney.Week) {
-    val label = stringResource(R.string.x_new_words_this_week, week.newWords)
-    Row(
-        Modifier.fillMaxWidth().padding(Spacing.m).clearAndSetSemantics { contentDescription = label },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
-    ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-            Text("+${formatNumber(week.newWords)}", style = Typography.screenTitle.copy(fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum"), color = SyllColors.ink)
-            Text(stringResource(R.string.new_words_this_week), style = Typography.secondary, color = SyllColors.mutedInk)
-        }
-        WeekSparkline(week.cumulativeNewWords, Modifier.size(96.dp, 40.dp))
+private fun JourneyFigure(value: String, caption: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs - 2.dp)) {
+        Text(value, style = Typography.screenTitle.copy(fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum"), color = SyllColors.ink)
+        Text(caption, style = Typography.micro.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.mutedInk)
     }
-    CardDivider()
-    WeekRhythm(week, Modifier.padding(Spacing.m))
+}
+
+/** "+24 · New words this week", then the newest words by name so the number says what it is made of. */
+@Composable
+private fun NewWordsBlock(week: LearningJourney.Week) {
+    val words = week.recentWords.orEmpty()
+    val names = if (words.isEmpty()) {
+        null
+    } else {
+        val list = words.joinToString(", ") { it.lemma }
+        buildAnnotatedString {
+            val emphasised = SpanStyle(fontWeight = FontWeight.SemiBold, color = SyllColors.ink800)
+            if (week.otherNewWords > 0) {
+                val sentence = stringResource(R.string.x_and_x_more, list, week.otherNewWords)
+                val at = sentence.indexOf(list)
+                append(sentence)
+                if (at >= 0) addStyle(emphasised, at, at + list.length)
+            } else {
+                withStyle(emphasised) { append(list) }
+            }
+        }
+    }
+    Column(Modifier.fillMaxWidth().padding(Spacing.m).semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+        JourneyFigure("+${formatNumber(week.newWords)}", stringResource(R.string.new_words_this_week))
+        names?.let { Text(it, style = Typography.secondary, color = SyllColors.mutedInk, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+    }
+}
+
+/** "2/3 · Study days this week" with its stamps right under it: the stamps are that count. */
+@Composable
+private fun StudyDaysBlock(week: LearningJourney.Week) {
+    val goal = week.weeklySessionGoal
+    val locale = appLocale()
+    val summary = if (goal != null) {
+        stringResource(R.string.x_of_x_study_days_this_week, week.activeDays, goal)
+    } else {
+        stringResource(R.string.x_study_days_this_week, week.activeDays)
+    }
+    val days = week.studiedDays.mapNotNull { it.localDate?.dayOfWeek?.getDisplayName(TextStyle.FULL, locale) }
+    val label = if (days.isEmpty()) summary else stringResource(R.string.x_studied_on_x, summary, days.joinToString(", "))
+    Column(
+        Modifier.fillMaxWidth().padding(Spacing.m).clearAndSetSemantics { contentDescription = label },
+        verticalArrangement = Arrangement.spacedBy(Spacing.s),
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
+            Box(Modifier.weight(1f)) {
+                JourneyFigure(if (goal != null) "${week.activeDays}/$goal" else "${week.activeDays}", stringResource(R.string.study_days_this_week))
+            }
+            Text(weekRange(week), style = Typography.micro.copy(fontWeight = FontWeight.Bold), color = SyllColors.ink400)
+        }
+        StampCard(week)
+    }
+}
+
+/**
+ * One stamp per day learned in as many slots as the goal: never the seven weekdays, so a planned day off is never a
+ * miss. Stamps past the goal are green; a postmark is struck once the goal is met.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun StampCard(week: LearningJourney.Week, stampWidth: Dp = 56.dp) {
+    val studied = week.studiedDays
+    val goal = week.weeklySessionGoal ?: studied.size
+    val slots = maxOf(goal, studied.size)
+    val locale = appLocale()
+    Row(verticalAlignment = Alignment.Top) {
+        FlowRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(Spacing.s), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            repeat(slots) { index ->
+                if (index < studied.size) {
+                    val label = studied[index].localDate?.dayOfWeek?.getDisplayName(TextStyle.SHORT, locale).orEmpty()
+                    Stamp(label, isBonus = index >= goal, index = index, width = stampWidth)
+                } else {
+                    EmptyStampSlot(stampWidth)
+                }
+            }
+        }
+        if (week.goalReached) Postmark(Modifier.offset(y = -Spacing.l))
+    }
+}
+
+@Composable
+private fun Stamp(label: String, isBonus: Boolean, index: Int, width: Dp) {
+    val motion = LocalMotion.current
+    val fill = if (isBonus) SyllColors.green500 else SyllColors.blue500
+    val tilts = listOf(-4f, 3f, -2f, 4f, -3f, 2f, -1f)
+    Box(
+        Modifier
+            .size(width, width * 1.18f)
+            // Pressed by hand: a slight alternating tilt. Upright with reduced motion.
+            .rotate(if (motion.reduceMotion) 0f else tilts[index % tilts.size]),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.matchParentSize()) {
+            val hole = size.width / 18f
+            val step = size.width / 7f
+            drawRect(fill)
+            // The perforations: half circles cut into every edge in the card's colour.
+            var x = step / 2
+            while (x < size.width) {
+                drawCircle(Color.White, hole, Offset(x, 0f))
+                drawCircle(Color.White, hole, Offset(x, size.height))
+                x += step
+            }
+            var y = step / 2
+            while (y < size.height) {
+                drawCircle(Color.White, hole, Offset(0f, y))
+                drawCircle(Color.White, hole, Offset(size.width, y))
+                y += step
+            }
+            val inset = size.width / 9f
+            drawRect(Color.White.copy(alpha = 0.55f), Offset(inset, inset), Size(size.width - 2 * inset, size.height - 2 * inset), style = Stroke(1.2.dp.toPx()))
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(label, color = Color.White, fontSize = (width.value * 0.25f).sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+            Icon(Icons.Filled.Check, null, tint = Color.White, modifier = Modifier.size(width * 0.24f))
+        }
+    }
+}
+
+@Composable
+private fun EmptyStampSlot(width: Dp) {
+    val color = SyllColors.ink200
+    Canvas(Modifier.size(width, width * 1.18f)) {
+        drawRoundRect(
+            color,
+            cornerRadius = CornerRadius(4.dp.toPx()),
+            style = Stroke(2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx()))),
+        )
+    }
+}
+
+/** The round "reached" postmark struck over the stamps. */
+@Composable
+private fun Postmark(modifier: Modifier = Modifier) {
+    val label = stringResource(R.string.weekly_goal_reached)
+    Box(
+        modifier
+            .size(72.dp)
+            .rotate(-12f)
+            .border(2.5.dp, SyllColors.green600, CircleShape)
+            .clearAndSetSemantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("SYLL", color = SyllColors.green700, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.5.sp)
+            Text(stringResource(R.string.reached).uppercase(appLocale()), color = SyllColors.green700, fontSize = 12.sp, fontWeight = FontWeight.Black, maxLines = 1)
+        }
+    }
 }
 
 @Composable
@@ -155,91 +330,6 @@ private fun EmptyJourneyRow() {
             Text(stringResource(R.string.your_journey_starts_with_one_word), style = Typography.secondary.copy(fontWeight = FontWeight.Bold), color = SyllColors.ink)
             Text(stringResource(R.string.finish_your_first_session_to_begin), style = Typography.micro, color = SyllColors.mutedInk)
         }
-        Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = SyllColors.ink400)
-    }
-}
-
-/** This week's running total of new words: no future points, a dot when only one day has passed. */
-@Composable
-fun WeekSparkline(values: List<Int>, modifier: Modifier = Modifier) {
-    // At the largest text sizes the number and label need the room.
-    if (values.isEmpty() || LocalDensity.current.fontScale >= 1.5f) return
-    val color = SyllColors.blue500
-    Canvas(modifier.clearAndSetSemantics {}) {
-        val top = (values.last()).coerceAtLeast(1).toFloat()
-        val inset = 4.dp.toPx()
-        fun point(index: Int, value: Int) = Offset(
-            inset + (size.width - 2 * inset) * index / 6f,
-            size.height - inset - (size.height - 2 * inset) * value / top,
-        )
-        if (values.size == 1) {
-            drawCircle(color, radius = 3.dp.toPx(), center = point(0, values[0]))
-            return@Canvas
-        }
-        val path = Path().apply {
-            values.forEachIndexed { index, value -> point(index, value).let { if (index == 0) moveTo(it.x, it.y) else lineTo(it.x, it.y) } }
-        }
-        drawPath(path, color, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
-
-/** Sessions done against the weekly goal, over Monday–Sunday marks. Each mark has a shape, not only a colour. */
-@Composable
-fun WeekRhythm(week: LearningJourney.Week, modifier: Modifier = Modifier) {
-    val goal = week.weeklySessionGoal
-    val summary = if (goal != null) {
-        stringResource(R.string.x_of_x_sessions_this_week, week.completedSessions, goal)
-    } else {
-        stringResource(R.string.x_sessions_this_week, week.completedSessions)
-    }
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-        Row(Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = summary }, verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.sessions_this_week), style = Typography.secondary.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.ink, modifier = Modifier.weight(1f))
-            if (week.goalReached) {
-                StatusPill(stringResource(R.string.weekly_goal_reached), StatusPillTone.SUCCESS, Icons.Filled.Check, Modifier.padding(end = Spacing.xs))
-            }
-            Text(
-                if (goal != null) "${week.completedSessions}/$goal" else "${week.completedSessions}",
-                style = Typography.secondary.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
-                color = SyllColors.ink,
-            )
-        }
-        Row(Modifier.fillMaxWidth()) {
-            val todayId = week.today?.date
-            week.days.forEach { day -> DayMark(day, isToday = day.date == todayId, Modifier.weight(1f)) }
-        }
-    }
-}
-
-@Composable
-private fun DayMark(day: LearningJourney.Day, isToday: Boolean, modifier: Modifier) {
-    val locale = appLocale()
-    val weekday = day.localDate?.dayOfWeek
-    val name = weekday?.getDisplayName(TextStyle.FULL, locale) ?: day.date
-    val label = when {
-        day.completed == true -> stringResource(R.string.x_studied, name)
-        day.completed == false && isToday -> stringResource(R.string.x_today_not_studied_yet, name)
-        day.completed == false -> stringResource(R.string.x_not_studied, name)
-        else -> stringResource(R.string.x_upcoming, name)
-    }
-    Column(
-        modifier.clearAndSetSemantics { contentDescription = label },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-    ) {
-        Text(
-            weekday?.getDisplayName(TextStyle.NARROW, locale).orEmpty(),
-            style = Typography.micro.copy(fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal),
-            color = if (isToday) SyllColors.ink else SyllColors.mutedInk,
-        )
-        Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
-            when {
-                day.completed == true -> Icon(Icons.Filled.CheckCircle, null, tint = SyllColors.blue500, modifier = Modifier.size(22.dp))
-                day.completed == false && isToday -> Box(Modifier.size(20.dp).border(2.dp, SyllColors.ink400, CircleShape))
-                day.completed == false -> Icon(Icons.Outlined.Remove, null, tint = SyllColors.ink300, modifier = Modifier.size(16.dp))
-                else -> Box(Modifier.size(8.dp).background(SyllColors.ink100, CircleShape))
-            }
-        }
     }
 }
 
@@ -253,7 +343,14 @@ fun LearningJourneyView(onBack: () -> Unit) {
     var period by rememberSaveable { mutableStateOf(JourneyPeriod.MONTH) }
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    LaunchedEffect(period) { journey.load(period) }
+    var openWord by remember { mutableStateOf<JourneyWord?>(null) }
+    LaunchedEffect(period) {
+        // Words are reloaded on every visit: a session committed since may have added some.
+        coroutineScope {
+            launch { journey.load(period) }
+            launch { journey.loadWords(period, force = true) }
+        }
+    }
 
     PageScaffold(title = stringResource(R.string.learning_journey), onBack = onBack) { padding ->
         PullToRefreshBox(
@@ -261,7 +358,10 @@ fun LearningJourneyView(onBack: () -> Unit) {
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
-                    journey.load(period, force = true)
+                    coroutineScope {
+                        launch { journey.load(period, force = true) }
+                        launch { journey.loadWords(period, force = true) }
+                    }
                     isRefreshing = false
                 }
             },
@@ -283,9 +383,12 @@ fun LearningJourneyView(onBack: () -> Unit) {
                 GrowthCard(period, data, journey.periodLoads[period], onPeriodChange = { period = it }, onRetry = { scope.launch { journey.load(period, force = true) } })
 
                 if (data != null) {
-                    val week = (journey.periods[JourneyPeriod.WEEK] ?: data).week
-                    SectionTitle(stringResource(R.string.this_week_s_rhythm), Modifier.padding(top = Spacing.xl))
-                    WeekRhythm(week, Modifier.fillMaxWidth().cardSurface().padding(Spacing.m))
+                    SectionTitle(stringResource(newWordsCaption(period)), Modifier.padding(top = Spacing.xl)) {
+                        journey.wordTotals[period]?.let {
+                            Text(formatNumber(it), style = Typography.secondary.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"), color = SyllColors.mutedInk)
+                        }
+                    }
+                    NewWordsTimeline(period, onOpen = { openWord = it })
 
                     SectionTitle(stringResource(activityTitle(period)), Modifier.padding(top = Spacing.xl))
                     Activity(data.period)
@@ -300,6 +403,9 @@ fun LearningJourneyView(onBack: () -> Unit) {
                 }
             }
         }
+    }
+    openWord?.let { word ->
+        WordDetailSheet(wordId = word.wordId, lemma = word.lemma, ipa = null, onDismiss = { openWord = null })
     }
 }
 
@@ -441,15 +547,107 @@ internal fun samples(period: LearningJourney.Period): List<Pair<LocalDate, Int>>
 @Composable
 private fun Activity(data: LearningJourney.Period) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            StatTile(stringResource(R.string.days_learned), data.activeDays, Icons.Outlined.CalendarMonth, Modifier.weight(1f))
-            StatTile(stringResource(R.string.sessions_completed), data.completedSessions, Icons.Outlined.CheckCircleOutline, Modifier.weight(1f))
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            StatTile(stringResource(R.string.new_words), data.newWords, Icons.Outlined.AddCircleOutline, Modifier.weight(1f))
-            StatTile(stringResource(R.string.meaning_reviews), data.reviewedMeanings, Icons.Filled.Refresh, Modifier.weight(1f))
+        // No new-word tile: the chart and the list above already carry that number.
+        Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            StatTile(stringResource(R.string.days_learned), data.activeDays, Icons.Outlined.CalendarMonth, Modifier.weight(1f).fillMaxHeight())
+            StatTile(stringResource(R.string.sessions_completed), data.completedSessions, Icons.Outlined.CheckCircleOutline, Modifier.weight(1f).fillMaxHeight())
+            StatTile(stringResource(R.string.meaning_reviews), data.reviewedMeanings, Icons.Filled.Refresh, Modifier.weight(1f).fillMaxHeight())
         }
         Text(stringResource(R.string.each_finished_learning_or_review_part_counts_as), style = Typography.micro, color = SyllColors.mutedInk)
+    }
+}
+
+/**
+ * The period's new words, a day at a time: a dot on a line per study day, its words as tiles (word over its
+ * meanings). A busy day reads as one at a glance; tapping a tile opens the word.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun NewWordsTimeline(period: JourneyPeriod, onOpen: (JourneyWord) -> Unit) {
+    val journey = LocalLearningJourneyStore.current
+    val scope = rememberCoroutineScope()
+    val words = journey.words[period].orEmpty()
+    val total = journey.wordTotals[period] ?: 0
+    val load = journey.wordLoads[period]
+    if (words.isEmpty()) {
+        when (load) {
+            is LearningJourneyStore.Load.Failed -> Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                Text(load.message.text(), style = Typography.secondary, color = SyllColors.errorInk)
+                SecondaryButton(stringResource(R.string.try_again_2), onClick = { scope.launch { journey.loadWords(period, force = true) } }, icon = Icons.Filled.Refresh)
+            }
+            LearningJourneyStore.Load.Loaded ->
+                Text(stringResource(R.string.no_new_words_in_this_period), style = Typography.secondary, color = SyllColors.mutedInk)
+            else -> Box(Modifier.fillMaxWidth().heightIn(min = 80.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(Modifier.size(24.dp), color = SyllColors.mutedInk, strokeWidth = 2.5.dp)
+            }
+        }
+        return
+    }
+    val days = JourneyWordDay.grouped(words)
+    val allLoaded = words.size >= total
+    Column {
+        days.forEachIndexed { index, day ->
+            val isLast = index == days.lastIndex && allLoaded
+            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                // The line runs past the dot down to the next day.
+                Column(Modifier.width(12.dp).fillMaxHeight().clearAndSetSemantics {}, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(Modifier.padding(top = 4.dp).size(12.dp).background(SyllColors.blue500, CircleShape))
+                    if (!isLast) Box(Modifier.width(2.dp).weight(1f).background(SyllColors.ink100))
+                }
+                Column(Modifier.weight(1f).padding(bottom = Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    Row(Modifier.semantics(mergeDescendants = true) { heading() }, verticalAlignment = Alignment.CenterVertically) {
+                        Text(dayTitle(day.date), style = Typography.secondary.copy(fontWeight = FontWeight.Bold), color = SyllColors.ink, modifier = Modifier.weight(1f))
+                        Text(
+                            stringResource(R.string.x_words, day.words.size),
+                            style = Typography.micro.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
+                            color = SyllColors.mutedInk,
+                        )
+                    }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                        day.words.forEach { word -> WordTile(word, onClick = { onOpen(word) }) }
+                    }
+                }
+            }
+        }
+        if (!allLoaded) {
+            val isLoading = load == LearningJourneyStore.Load.Loading
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = Spacing.minTouchTarget)
+                    .pressScaleClickable(enabled = !isLoading) { scope.launch { journey.loadWords(period, more = true) } },
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(Modifier.size(20.dp), color = SyllColors.mutedInk, strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.show_x_more_words, total - words.size), style = Typography.secondary.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.link)
+                }
+            }
+        }
+    }
+}
+
+/** A word tile as in lessons (white, 2 dp Ink 200 border, depth edge): the word over its meanings. */
+@Composable
+private fun WordTile(word: JourneyWord, onClick: () -> Unit) {
+    val description = if (word.meaningTexts.isEmpty()) word.lemma else "${word.lemma}, ${word.meaningText}"
+    val shape = RoundedCornerShape(Radii.tile)
+    Column(
+        Modifier
+            .padding(bottom = 3.dp)
+            .drawBehind {
+                drawRoundRect(SyllColors.ink200, topLeft = Offset(0f, 3.dp.toPx()), size = size, cornerRadius = CornerRadius(Radii.tile.toPx()))
+            }
+            .background(SyllColors.surface, shape)
+            .border(2.dp, SyllColors.ink200, shape)
+            .pressScaleClickable(onClick = onClick)
+            .clearAndSetSemantics { contentDescription = description }
+            .padding(horizontal = Spacing.s, vertical = Spacing.xs - 2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(word.lemma, style = Typography.secondary.copy(fontWeight = FontWeight.SemiBold), color = SyllColors.ink)
+        if (word.meaningTexts.isNotEmpty()) Text(word.meaningText, style = Typography.micro, color = SyllColors.mutedInk)
     }
 }
 
@@ -504,4 +702,19 @@ private fun axisLabel(date: LocalDate, granularity: String): String {
         else -> "MMM yy"
     }
     return DateTimeFormatter.ofPattern(pattern, locale).format(date)
+}
+
+@Composable
+private fun dayTitle(day: String): String {
+    val date = runCatching { LocalDate.parse(day) }.getOrNull() ?: return day
+    return DateTimeFormatter.ofPattern("EEEE, d MMM", appLocale()).format(date)
+}
+
+@Composable
+private fun weekRange(week: LearningJourney.Week): String {
+    val start = runCatching { LocalDate.parse(week.startDate) }.getOrNull() ?: return week.startDate
+    val end = runCatching { LocalDate.parse(week.endDateExclusive) }.getOrNull()?.minusDays(1) ?: return week.startDate
+    val day = DateTimeFormatter.ofPattern("d", appLocale())
+    val dayMonth = DateTimeFormatter.ofPattern("d/M", appLocale())
+    return if (start.month == end.month) "${day.format(start)}–${dayMonth.format(end)}" else "${dayMonth.format(start)}–${dayMonth.format(end)}"
 }

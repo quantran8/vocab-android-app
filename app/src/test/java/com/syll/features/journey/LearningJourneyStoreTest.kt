@@ -19,7 +19,7 @@ class LearningJourneyStoreTest {
         asOf = Instant.parse("2026-11-25T04:00:00Z"),
         timezone = "Asia/Ho_Chi_Minh",
         historyAvailableFrom = "2026-08-01",
-        week = LearningJourney.Week("2026-11-23", "2026-11-30", 7, 3, 2, 3, emptyList()),
+        week = LearningJourney.Week("2026-11-23", "2026-11-30", 7, 3, 2, 3, days = emptyList()),
         period = LearningJourney.Period("week", "2026-11-23", "2026-11-30", "day", 241, 248, 7, 2, 3, 12),
     )
 
@@ -56,6 +56,20 @@ class LearningJourneyStoreTest {
         store.reset()
         assertNull(store.summary)
         assertTrue(store.periods.isEmpty())
+    }
+
+    @Test
+    fun moreWordsAppendToTheLoadedPage() = runBlocking {
+        fun word(id: String) = com.syll.domain.journey.JourneyWord(id, id, emptyList(), "2026-11-26")
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("a"), word("b")))
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("c")))
+        val store = LearningJourneyStore(api)
+        store.loadWords(JourneyPeriod.MONTH)
+        store.loadWords(JourneyPeriod.MONTH, more = true)
+        assertEquals(listOf("a", "b", "c"), store.words[JourneyPeriod.MONTH]?.map { it.wordId })
+        assertEquals(listOf(0, 2), api.journeyWordOffsets)
+        store.loadWords(JourneyPeriod.MONTH, more = true)
+        assertEquals("nothing left to load", listOf(0, 2), api.journeyWordOffsets)
     }
 
     @Test
