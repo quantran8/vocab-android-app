@@ -93,6 +93,8 @@ data class WordDetail(val wordId: String, val lemma: String, val meanings: List<
         val speaking: MeaningSpeaking? = null,
         /** Missed recently, the latest answer included (the Weak Words definition). */
         val needsPractice: Boolean? = null,
+        /** Shows the learner's own edit, which can't be reported. Null from an older backend. */
+        val edited: Boolean? = null,
     )
 }
 

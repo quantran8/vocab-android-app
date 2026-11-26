@@ -12,6 +12,9 @@
     <string name="academic_vocabulary_for_a_higher_band_score">Vocabulário acadêmico para uma nota mais alta</string>
     <string name="account">Conta</string>
     <string name="actions_for_x">Ações para %1$s</string>
+    <string name="activity_since_you_started">Atividade desde o início</string>
+    <string name="activity_this_month">Atividade neste mês</string>
+    <string name="activity_this_week">Atividade nesta semana</string>
     <string name="add_topics">Adicionar temas</string>
     <string name="add_word">Adicionar palavra</string>
     <string name="add_x_meanings">Adicionar %1$d significados</string>
@@ -28,6 +31,7 @@
     <string name="all_pairs_matched">Todos os pares combinados</string>
     <string name="all_pairs_matched_2">Todos os pares combinados.</string>
     <string name="all_sounds_were_good">Todos os sons ficaram bons</string>
+    <string name="all_time">Tudo</string>
     <string name="all_words">Todas as palavras</string>
     <string name="allow_microphone_access_in_settings_to_practice">Permita o acesso ao microfone em Ajustes para praticar a fala.</string>
     <string name="almost_there">Quase lá</string>
@@ -47,6 +51,7 @@
     <string name="at_least_one_letter">Pelo menos uma letra</string>
     <string name="at_least_one_number">Pelo menos um número</string>
     <string name="at_most_72_characters">No máximo 72 caracteres</string>
+    <string name="at_start">No início</string>
     <string name="audio_didn_t_play">o áudio não tocou</string>
     <string name="audio_unavailable">Áudio indisponível</string>
     <string name="avatar">Avatar</string>
@@ -110,6 +115,7 @@
     <string name="choose_the_level_that_feels_closest_you_can_chan">Escolha o nível que parecer mais próximo. Você pode mudar quando quiser.</string>
     <string name="choose_the_word_that_fits_naturally">Escolha a palavra que se encaixa naturalmente.</string>
     <string name="choose_topics">Escolher temas</string>
+    <string name="choose_what_s_wrong">Escolha o que está errado</string>
     <string name="choose_your_language">Escolha seu idioma</string>
     <string name="choose_your_level">Escolha seu nível</string>
     <string name="choose_your_x_plan">Escolha seu plano %1$s</string>
@@ -167,6 +173,7 @@
     <string name="current_password">Senha atual</string>
     <string name="current_tier">Divisão atual</string>
     <string name="daily_lessons_and_reviews">Lições e revisões diárias</string>
+    <string name="days_learned">Dias de estudo</string>
     <string name="decrease_new_words_per_day">Diminuir palavras novas por dia</string>
     <string name="decrease_reviews_per_session">Diminuir revisões por sessão</string>
     <string name="dedicated">Dedicado</string>
@@ -178,11 +185,13 @@
     <string name="deleting_your_account">Excluindo sua conta</string>
     <string name="deselect_all">Desmarcar tudo</string>
     <string name="details">Detalhes</string>
+    <string name="details_optional">Detalhes (opcional)</string>
     <string name="didn_t_come_back_on_your_own">Não voltou por conta própria</string>
     <string name="dining_out">Comer fora</string>
     <string name="done">Concluído</string>
     <string name="double_tap_to_wake_him_up">Toque duas vezes para acordá-lo</string>
     <string name="each_day">Cada dia</string>
+    <string name="each_finished_learning_or_review_part_counts_as">Cada parte de estudo ou revisão concluída conta como uma sessão.</string>
     <string name="each_session_reviews_x_words_so_some_words_will">Cada sessão revisa %1$d palavras, então algumas palavras voltarão mais tarde que o planejado e ficam mais fáceis de esquecer.</string>
     <string name="each_word_earns_lp_a_limited_number_of_times_a_d">Cada palavra rende LP um número limitado de vezes por dia, então esta sessão não somou nenhum.</string>
     <string name="earn_lp_this_week_to_appear_on_the_board">Ganhe LP nesta semana para aparecer no ranking.</string>
@@ -229,6 +238,7 @@
     <string name="find_meaning">Buscar significado</string>
     <string name="finish_it_where_you_started_it_or_try_again_in_a">Termine onde você começou ou tente de novo em alguns minutos.</string>
     <string name="finish_today_s_flow_and_your_words_will_collect">Termine a sessão de hoje e suas palavras aparecerão aqui.</string>
+    <string name="finish_your_first_session_to_begin">Conclua sua primeira sessão para começar.</string>
     <string name="finished">Finalizado</string>
     <string name="first_steps">Primeiros passos</string>
     <string name="flip_letters">Flip Letters</string>
@@ -292,6 +302,7 @@
     <string name="keep_going">Continue</string>
     <string name="keep_going_at_your_own_pace">Continue no seu ritmo.</string>
     <string name="keep_it_under_x_characters">Use menos de %1$d caracteres.</string>
+    <string name="keep_it_under_x_characters_2">No máximo %1$d caracteres</string>
     <string name="keep_learning">Continuar aprendendo</string>
     <string name="keep_learning_as_usual">Continuar aprendendo normalmente</string>
     <string name="keep_playing">Continuar jogando</string>
@@ -318,6 +329,7 @@
     <string name="learner">Estudante</string>
     <string name="learning">Aprendendo</string>
     <string name="learning_days">Dias de estudo</string>
+    <string name="learning_journey">Jornada de estudo</string>
     <string name="leave">Sair</string>
     <string name="leave_and_reset">Sair e reiniciar</string>
     <string name="leave_it_to_start_this_one_it_won_t_count_as_a_w">Saia dele para iniciar este. Não contará como vitória.</string>
@@ -369,6 +381,7 @@
     <string name="match_x_pairs_no_timer">Combine %1$d pares. Sem cronômetro.</string>
     <string name="matched">Combinados</string>
     <string name="meaning">Significado</string>
+    <string name="meaning_reviews">Revisões de significados</string>
     <string name="meaning_to_find">Significado a encontrar</string>
     <string name="meaning_x">Significado: %1$s</string>
     <string name="meanings">Significados</string>
@@ -377,9 +390,12 @@
     <string name="memory">Memória</string>
     <string name="microphone_access_is_off_you_can_turn_it_on_in_s">O acesso ao microfone está desativado. Você pode ativá-lo em Ajustes.</string>
     <string name="mistakes">Erros</string>
+    <string name="month">Mês</string>
     <string name="monthly">Mensal</string>
     <string name="moods">Humores</string>
     <string name="more_actions">Mais ações</string>
+    <string name="my_answer_should_be_accepted">Minha resposta deveria ser aceita</string>
+    <string name="my_pronunciation_was_marked_wrong">Minha pronúncia foi marcada como errada</string>
     <string name="my_words">Minhas Palavras</string>
     <string name="name">Nome</string>
     <string name="need_practice">Precisam de prática</string>
@@ -399,6 +415,9 @@
     <string name="new_words_day">Palavras novas / dia</string>
     <string name="new_words_per_day">Palavras novas por dia</string>
     <string name="new_words_per_session">Palavras novas por sessão</string>
+    <string name="new_words_since_you_started">Palavras novas desde o início</string>
+    <string name="new_words_this_month">Palavras novas neste mês</string>
+    <string name="new_words_this_week">Palavras novas nesta semana</string>
     <string name="new_words_x">Palavras novas +%1$d</string>
     <string name="next">Próximo</string>
     <string name="next_level">Próximo nível</string>
@@ -415,7 +434,9 @@
     <string name="nice_work_2">Bom trabalho.</string>
     <string name="nicely_done">Muito bem!</string>
     <string name="no_ads">Sem anúncios</string>
+    <string name="no_learning_yet_in_this_period">Ainda não há estudo neste período.</string>
     <string name="no_longer_available">Não está mais disponível</string>
+    <string name="no_new_words_in_this_period">Nenhuma palavra nova neste período.</string>
     <string name="no_new_words_left_in_your_topics_x_words_you_add">Não há mais palavras novas nos seus temas. Ainda faltam aprender %1$d palavras que você adicionou.</string>
     <string name="no_new_words_today">sem palavras novas hoje</string>
     <string name="no_reviews_today">sem revisões hoje</string>
@@ -451,11 +472,13 @@
     <string name="not_sure_take_the_test">Não tem certeza? Faça o teste</string>
     <string name="not_sure_tap_skip_a_guess_can_place_you_too_high">Não tem certeza? Toque em Pular: um palpite pode colocar você alto demais.</string>
     <string name="not_tried_yet">Ainda não tentou</string>
+    <string name="not_up_to_date">Desatualizado</string>
     <string name="not_yet">Ainda não</string>
     <string name="nothing_here_is_scored_or_saved">Nada aqui é pontuado nem salvo.</string>
     <string name="nothing_to_practise_right_now">Nada para praticar agora</string>
     <string name="nothing_to_review">Nada para revisar</string>
     <string name="noun">substantivo</string>
+    <string name="now">Agora</string>
     <string name="now_fluent_x">Agora com fluência (%1$d)</string>
     <string name="now_for_new_words_from_x">Agora, palavras novas de %1$s</string>
     <string name="off">Desativado</string>
@@ -467,6 +490,7 @@
     <string name="only_x_new_words_left_today_in_x">Restam só %1$d palavras novas hoje em %2$s</string>
     <string name="opens_the_exercise">Abre o exercício.</string>
     <string name="opens_the_word">Abre a palavra.</string>
+    <string name="opens_your_learning_history">Abre seu histórico de estudo</string>
     <string name="or">ou</string>
     <string name="or_choose_it_yourself">Ou escolha você mesmo</string>
     <string name="other_meanings">Outros significados</string>
@@ -506,6 +530,7 @@
     <string name="price">Preço</string>
     <string name="privacy_policy">Política de Privacidade</string>
     <string name="private_to_you">Privado, só para você</string>
+    <string name="problem_with_the_audio_or_pronunciation">Problema no áudio ou na pronúncia</string>
     <string name="productivity">Produtividade</string>
     <string name="professional_language_for_work_and_career">Linguagem profissional para trabalho e carreira</string>
     <string name="proficient">Proficiente</string>
@@ -520,6 +545,7 @@
     <string name="question_x_of_x">Pergunta %1$d de %2$d</string>
     <string name="random_practice">Prática aleatória</string>
     <string name="ranking">Ranking</string>
+    <string name="reached">Atingido</string>
     <string name="read_words_aloud_in_your_lessons_right_or_wrong">Leia palavras em voz alta nas lições. Certo ou errado, isso nunca muda seu progresso.</string>
     <string name="reading_specialist_texts">Leitura de textos especializados</string>
     <string name="reading_the_news_meetings_debates">Notícias, reuniões e debates</string>
@@ -555,6 +581,8 @@
     <string name="replay">Repetir</string>
     <string name="replay_level">Repetir nível</string>
     <string name="replays_the_word_you_can_play_it_as_often_as_you">Repete a palavra. Você pode ouvir quantas vezes quiser.</string>
+    <string name="report_a_problem">Informar um problema</string>
+    <string name="report_sent_thank_you">Relatório enviado. Obrigado!</string>
     <string name="report_x">Denunciar %1$s?</string>
     <string name="reset_your_password">Redefina sua senha</string>
     <string name="resets_x">Reinicia %1$s</string>
@@ -625,20 +653,25 @@
     <string name="selected">Selecionado</string>
     <string name="send_a_new_code">Enviar um novo código</string>
     <string name="send_code">Enviar código</string>
+    <string name="send_report">Enviar relatório</string>
+    <string name="sending">Enviando…</string>
     <string name="session_completed">Sessão concluída</string>
     <string name="session_details">Detalhes da sessão</string>
     <string name="session_ended">Sessão encerrada</string>
     <string name="session_x">Sessão %1$d</string>
+    <string name="sessions_completed">Sessões concluídas</string>
     <string name="set_new_password">Definir nova senha</string>
     <string name="settings">Ajustes</string>
     <string name="shopping">Compras</string>
     <string name="shopping_asking_the_way_daily_errands">Compras, pedir informações, tarefas do dia a dia</string>
+    <string name="shorten_your_note">Encurte sua nota</string>
     <string name="show_all_x">Ver tudo (%1$d)</string>
     <string name="show_answer">Mostrar resposta</string>
     <string name="show_less">Ver menos</string>
     <string name="show_me_on_the_leaderboard">Mostrar-me no ranking</string>
     <string name="show_password">Mostrar senha</string>
     <string name="show_word_now">Mostrar palavra agora</string>
+    <string name="show_x_more_words">Ver mais %1$d palavras</string>
     <string name="shows_all_topics">Mostra todos os temas</string>
     <string name="shows_every_meaning_of_the_word">Mostra todos os significados da palavra</string>
     <string name="shows_the_results_screen">Mostra a tela de resultados.</string>
@@ -675,6 +708,7 @@
     <string name="step_x_of_x">Etapa %1$d de %2$d</string>
     <string name="still_to_practise">Ainda para praticar</string>
     <string name="stop_recording">Parar gravação</string>
+    <string name="study_days_this_week">Dias de estudo nesta semana</string>
     <string name="subscribe">Assinar</string>
     <string name="subscriptions_renew_automatically_unless_cancell">As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período. Gerencie ou cancele nos ajustes da sua conta da App Store.</string>
     <string name="suspicious_activity">Atividade suspeita</string>
@@ -687,7 +721,10 @@
     <string name="tap_a_word_tile_to_place_it_here_then_check">Toque em uma palavra para colocá-la aqui e depois verifique.</string>
     <string name="tap_the_microphone_and_read_aloud">Toque no microfone e leia em voz alta.</string>
     <string name="technology">Tecnologia</string>
+    <string name="tell_us_what_s_wrong">Conte o que está errado</string>
     <string name="telling_stories_talking_about_work">Contar histórias, falar sobre trabalho</string>
+    <string name="tells_our_editors_something_in_this_content_is_w">Avisa nossos editores sobre um erro neste conteúdo</string>
+    <string name="tells_our_editors_something_in_this_meaning_is_w">Avisa nossos editores sobre um erro neste significado</string>
     <string name="terms_of_use">Termos de Uso</string>
     <string name="thanks_we_ll_take_a_look">Obrigado. Vamos dar uma olhada.</string>
     <string name="that_avatar_isn_t_available_any_more">Esse avatar não está mais disponível.</string>
@@ -701,6 +738,8 @@
     <string name="that_name_isn_t_allowed_try_another_one">Esse nome não é permitido. Tente outro.</string>
     <string name="the_answer_is_x">A resposta é “%1$s”</string>
     <string name="the_correct_answer">A resposta correta</string>
+    <string name="the_definition_is_wrong">A definição está errada</string>
+    <string name="the_example_is_wrong_or_unnatural">O exemplo está errado ou pouco natural</string>
     <string name="the_example_must_contain_x">O exemplo precisa conter “%1$s”.</string>
     <string name="the_free_plan_has_a_limit_on_topics_upgrade_to_p">O plano gratuito tem um limite de temas. Assine o Premium para escolher mais.</string>
     <string name="the_free_plan_includes_x_topics_remove_some_to_s">O plano gratuito inclui %1$d temas. Remova alguns para salvar ou assine para manter todos.</string>
@@ -709,17 +748,22 @@
     <string name="the_free_plan_keeps_the_first_collection_you_cho_2">O plano gratuito mantém a primeira coleção que você escolheu. Faça upgrade para trocar para qualquer coleção.</string>
     <string name="the_leaderboard_isn_t_open_yet">O ranking ainda não está aberto.</string>
     <string name="the_leaderboard_opens_soon_your_lp_and_tier_alre">O ranking abre em breve. Seus LP e sua divisão já contam.</string>
+    <string name="the_meaning_or_translation_is_wrong">O significado ou a tradução está errado</string>
     <string name="the_purchase_didn_t_go_through_you_haven_t_been">A compra não foi concluída. Você não foi cobrado.</string>
+    <string name="the_question_or_answer_doesn_t_make_sense">A pergunta ou a resposta não faz sentido</string>
     <string name="the_same_board_with_no_clock_at_your_own_pace">O mesmo tabuleiro sem relógio, no seu ritmo.</string>
     <string name="the_test_isn_t_ready_yet">O teste ainda não está pronto</string>
     <string name="this_challenge_isn_t_available_right_now">Este desafio não está disponível no momento</string>
     <string name="this_chapter_opens_once_you_ve_learned_enough_ne">Este capítulo abre quando você aprender palavras novas suficientes na sua Lição Diária.</string>
     <string name="this_chapter_uses_x_meanings">Este capítulo usa %1$s significados.</string>
+    <string name="this_content_is_no_longer_available_to_report">Este conteúdo não está mais disponível para informar.</string>
     <string name="this_email_already_has_an_account_try_logging_in">Este e-mail já tem uma conta. Tente entrar.</string>
     <string name="this_level_isn_t_open_yet">Este nível ainda não está aberto</string>
     <string name="this_meaning_hasn_t_been_learned_yet_no_progress">Este significado ainda não foi aprendido. Ainda não há progresso.</string>
+    <string name="this_meaning_shows_your_own_edit_so_it_can_t_be">Este significado mostra sua própria edição, então não pode ser informado.</string>
     <string name="this_needs_syll_premium">Isso requer o Syll Premium.</string>
     <string name="this_practice_round_isn_t_saved">Esta rodada de prática não é salva.</string>
+    <string name="this_report_couldn_t_be_sent_please_try_again">Não foi possível enviar o relatório. Tente novamente.</string>
     <string name="this_run_has_ended">Esta partida terminou</string>
     <string name="this_run_won_t_be_saved_as_a_win">Esta partida não será salva como vitória.</string>
     <string name="this_session_is_no_longer_available_start_a_new">Esta sessão não está mais disponível. Inicie uma nova para continuar.</string>
@@ -733,6 +777,7 @@
     <string name="toeic">TOEIC</string>
     <string name="topics_x_x">Temas · %1$d/%2$d</string>
     <string name="total_attempts">Total de tentativas</string>
+    <string name="tracking_since_x">Registrado desde %1$s</string>
     <string name="translating">Traduzindo</string>
     <string name="translation">Tradução</string>
     <string name="travel">Viagem</string>
@@ -764,6 +809,7 @@
     <string name="used_a_hint">Usou uma dica</string>
     <string name="verb">verbo</string>
     <string name="vietnamese_meaning_x">Significado em vietnamita: %1$s</string>
+    <string name="vocabulary_grew_from_x_to_x_words">O vocabulário passou de %1$d para %2$d palavras</string>
     <string name="we_couldn_t_check_this_run">Não foi possível verificar esta partida</string>
     <string name="we_couldn_t_confirm_this_purchase_please_try_aga">Não conseguimos confirmar esta compra. Tente de novo.</string>
     <string name="we_couldn_t_hear_you_clearly">Não conseguimos ouvir você com clareza.</string>
@@ -774,9 +820,12 @@
     <string name="we_sent_a_code_to_x_enter_it_and_choose_a_new_pa">Enviamos um código para %1$s. Digite-o e escolha uma nova senha.</string>
     <string name="we_sent_a_confirmation_link_to_x_open_it_then_lo">Enviamos um link de confirmação para %1$s. Abra-o e depois entre.</string>
     <string name="weak_words">Palavras fracas</string>
+    <string name="week">Semana</string>
+    <string name="weekly_goal_reached">Meta semanal atingida</string>
     <string name="weekly_leaderboard">Ranking semanal</string>
     <string name="weekly_rank">Posição semanal</string>
     <string name="weekly_ranking">Ranking semanal</string>
+    <string name="what_s_wrong">O que está errado?</string>
     <string name="what_s_your_english_level">Qual é o seu nível de inglês?</string>
     <string name="which_collection_do_you_want_to_learn">Qual coleção você quer aprender?</string>
     <string name="which_topics_interest_you">Quais temas interessam a você?</string>
@@ -810,6 +859,7 @@
     <string name="wrong_email_or_password">E-mail ou senha incorretos.</string>
     <string name="x_after_this_session">%1$s após esta sessão</string>
     <string name="x_already_knew">+%1$d já sabia</string>
+    <string name="x_and_x_more">%1$s e mais %2$d</string>
     <string name="x_answers_weren_t_scored_x">%1$d respostas não foram avaliadas: %2$s</string>
     <string name="x_days_a_week">%1$d dias por semana</string>
     <string name="x_doesn_t_fit_this_sentence">“%1$s” não combina com esta frase.</string>
@@ -847,6 +897,7 @@
     <string name="x_of_x_matched_x_mistakes_longest_combo_x">%1$d de %2$d combinados · %3$d erros · maior combo %4$d</string>
     <string name="x_of_x_meanings_learned">%1$d de %2$d significados aprendidos</string>
     <string name="x_of_x_stars">%1$d de %2$d estrelas</string>
+    <string name="x_of_x_study_days_this_week">%1$d de %2$d dias de estudo nesta semana</string>
     <string name="x_of_x_words_learned">%1$d de %2$d palavras aprendidas</string>
     <string name="x_of_your_x_free_new_words_left">Restam %1$d das suas %2$d palavras novas grátis</string>
     <string name="x_option">%1$s, opção</string>
@@ -858,6 +909,8 @@
     <string name="x_seconds">%1$d segundos</string>
     <string name="x_seconds_left">Restam %1$d segundos</string>
     <string name="x_stars_in_total">%1$d estrelas no total</string>
+    <string name="x_studied_on_x">%1$s, estudou em %2$s</string>
+    <string name="x_study_days_this_week">Dias de estudo nesta semana: %1$d</string>
     <string name="x_to_practise_again">%1$d para praticar de novo</string>
     <string name="x_to_relearn">%1$d para reaprender</string>
     <string name="x_to_review">%1$d para revisar</string>
@@ -925,6 +978,8 @@
     <string name="your_effort_has_become_a_lasting_mark_on_your_jo">Seu esforço virou uma marca duradoura na sua jornada com o Syll.</string>
     <string name="your_first_lesson_has_x_new_words">Sua primeira lição tem %1$d palavras novas.</string>
     <string name="your_focus">Seu foco</string>
+    <string name="your_journey">Sua jornada</string>
+    <string name="your_journey_starts_with_one_word">Sua jornada começa com uma palavra</string>
     <string name="your_learned_words_will_still_be_reviewed_choose">Suas palavras aprendidas ainda serão revisadas. Escolha outra coleção para aprender palavras novas.</string>
     <string name="your_learned_words_will_still_be_reviewed_upgrad">As palavras que você aprendeu continuam sendo revisadas. Assine o %1$s para continuar aprendendo palavras novas.</string>
     <string name="your_level">Seu nível</string>
@@ -943,4 +998,5 @@
     <string name="your_routine">Sua rotina</string>
     <string name="your_sessions_are_adding_up_into_your_first_stre">Suas sessões estão se somando no seu primeiro trecho de progresso.</string>
     <string name="your_stars_are_safe">Suas estrelas estão seguras.</string>
+    <string name="your_vocabulary">Seu vocabulário</string>
 </resources>

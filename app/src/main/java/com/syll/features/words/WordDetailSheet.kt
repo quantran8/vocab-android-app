@@ -51,6 +51,13 @@ import com.syll.app.LocalLearnerStore
 import com.syll.app.LocalPracticeSessionStore
 import com.syll.app.LocalSpeechPlayer
 import com.syll.designsystem.components.FullScreenDialog
+import com.syll.domain.report.ContentReportTarget
+import com.syll.features.report.ContentReportSheet
+import com.syll.features.report.ReportLink
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.syll.designsystem.components.Eyebrow
 import com.syll.designsystem.components.SecondaryButton
 import com.syll.designsystem.components.SectionTitle
@@ -103,6 +110,10 @@ fun WordDetailSheet(
     /** The meaning opened last; the header's audio follows it. */
     var focusedId by remember { mutableStateOf<String?>(null) }
     var playingMeaningId by remember { mutableStateOf<String?>(null) }
+    var reportTarget by remember { mutableStateOf<ContentReportTarget?>(null) }
+    val snackbar = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+    val reportSent = stringResource(R.string.report_sent_thank_you)
 
     LaunchedEffect(wordId, attempt) {
         failed = false
@@ -133,7 +144,7 @@ fun WordDetailSheet(
     val heroPlay = if (pronunciationsDiffer) clipPlay else playAudio ?: clipPlay
 
     // The word is the hero below, so the app bar holds only ✕.
-    FullScreenDialog(title = "", onDismiss = onDismiss) { padding ->
+    FullScreenDialog(title = "", onDismiss = onDismiss, snackbarHost = { SnackbarHost(snackbar) }) { padding ->
         Column(
             Modifier
                 .fillMaxWidth()
@@ -179,6 +190,7 @@ fun WordDetailSheet(
                                     pronunciationsDiffer = pronunciationsDiffer,
                                     isPlaying = playingMeaningId == item.meaningId && practice.audio.isPlaying,
                                     onPlay = item.meaning.audio?.let { clip -> { playingMeaningId = item.meaningId; practice.playClip(clip) } },
+                                    onReport = { reportTarget = meaningReportTarget(lemma, item) },
                                     onToggle = {
                                         if (item.meaningId in expanded) {
                                             expanded.remove(item.meaningId)
@@ -195,6 +207,33 @@ fun WordDetailSheet(
             }
         }
     }
+    reportTarget?.let { target ->
+        ContentReportSheet(
+            target,
+            onDismiss = { reportTarget = null },
+            onSent = {
+                reportTarget = null
+                snackbarScope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(reportSent)
+                }
+            },
+        )
+    }
+}
+
+/** A meaning in word detail or other meanings: the reasons follow what it shows. */
+internal fun meaningReportTarget(lemma: String, item: WordDetail.Meaning): ContentReportTarget {
+    val sense = item.meaning
+    return ContentReportTarget(
+        context = ContentReportTarget.Context.WordDetail(item.meaningId),
+        subtitle = "$lemma · ${sense.text}",
+        reasons = ContentReportTarget.meaningReasons(
+            hasDefinition = !sense.definition.isNullOrEmpty(),
+            hasExample = !sense.examples.isNullOrEmpty(),
+            hasAudio = sense.audio != null,
+        ),
+    )
 }
 
 @Composable
@@ -207,6 +246,7 @@ private fun MeaningCard(
     isPlaying: Boolean,
     onPlay: (() -> Unit)?,
     onToggle: () -> Unit,
+    onReport: () -> Unit,
 ) {
     val motion = LocalMotion.current
     val state = stringResource(if (isExpanded) R.string.expanded else R.string.collapsed)
@@ -253,7 +293,11 @@ private fun MeaningCard(
             enter = expandVertically(motion.animation(MotionTokens.snap), expandFrom = Alignment.Top) + fadeIn(motion.animation(MotionTokens.snap)),
             exit = shrinkVertically(motion.animation(MotionTokens.snap), shrinkTowards = Alignment.Top) + fadeOut(motion.animation(MotionTokens.snap)),
         ) {
-            ExpandedMeaning(lemma, item, Modifier.padding(start = Spacing.xl + Spacing.s, end = Spacing.m, bottom = Spacing.m))
+            Column(Modifier.padding(start = Spacing.xl + Spacing.s, end = Spacing.m, bottom = Spacing.s)) {
+                ExpandedMeaning(lemma, item, Modifier)
+                // The learner's own edit can't be reported (backend docs/content-reports.md).
+                if (item.edited != true) ReportLink(onReport)
+            }
         }
     }
 }

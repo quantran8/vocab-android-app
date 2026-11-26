@@ -12,6 +12,9 @@
     <string name="academic_vocabulary_for_a_higher_band_score">더 높은 밴드 점수를 위한 학술 어휘</string>
     <string name="account">계정</string>
     <string name="actions_for_x">%1$s 작업</string>
+    <string name="activity_since_you_started">시작한 이후 활동</string>
+    <string name="activity_this_month">이번 달 활동</string>
+    <string name="activity_this_week">이번 주 활동</string>
     <string name="add_topics">주제 추가</string>
     <string name="add_word">단어 추가</string>
     <string name="add_x_meanings">뜻 %1$d개 추가</string>
@@ -28,6 +31,7 @@
     <string name="all_pairs_matched">모든 쌍을 맞췄어요</string>
     <string name="all_pairs_matched_2">모든 쌍을 맞췄어요.</string>
     <string name="all_sounds_were_good">모든 소리가 좋았어요</string>
+    <string name="all_time">전체</string>
     <string name="all_words">모든 단어</string>
     <string name="allow_microphone_access_in_settings_to_practice">말하기 연습을 하려면 설정에서 마이크 접근을 허용해 주세요.</string>
     <string name="almost_there">거의 다 왔어요</string>
@@ -47,6 +51,7 @@
     <string name="at_least_one_letter">문자 1개 이상</string>
     <string name="at_least_one_number">숫자 1개 이상</string>
     <string name="at_most_72_characters">최대 72자</string>
+    <string name="at_start">시작</string>
     <string name="audio_didn_t_play">오디오가 재생되지 않았어요</string>
     <string name="audio_unavailable">오디오를 사용할 수 없어요</string>
     <string name="avatar">아바타</string>
@@ -110,6 +115,7 @@
     <string name="choose_the_level_that_feels_closest_you_can_chan">가장 가깝다고 느껴지는 레벨을 선택하세요. 언제든 바꿀 수 있어요.</string>
     <string name="choose_the_word_that_fits_naturally">자연스럽게 어울리는 단어를 고르세요.</string>
     <string name="choose_topics">주제 선택</string>
+    <string name="choose_what_s_wrong">문제를 선택하세요</string>
     <string name="choose_your_language">언어를 선택하세요</string>
     <string name="choose_your_level">레벨을 선택하세요</string>
     <string name="choose_your_x_plan">%1$s 플랜 선택</string>
@@ -167,6 +173,7 @@
     <string name="current_password">현재 비밀번호</string>
     <string name="current_tier">현재 티어</string>
     <string name="daily_lessons_and_reviews">매일 레슨과 복습</string>
+    <string name="days_learned">학습한 날</string>
     <string name="decrease_new_words_per_day">하루 새 단어 수 줄이기</string>
     <string name="decrease_reviews_per_session">세션당 복습 수 줄이기</string>
     <string name="dedicated">열정적</string>
@@ -178,11 +185,13 @@
     <string name="deleting_your_account">계정 삭제 중</string>
     <string name="deselect_all">모두 선택 해제</string>
     <string name="details">자세히</string>
+    <string name="details_optional">자세한 내용(선택)</string>
     <string name="didn_t_come_back_on_your_own">스스로 떠올리지 못했어요</string>
     <string name="dining_out">외식</string>
     <string name="done">완료</string>
     <string name="double_tap_to_wake_him_up">두 번 탭해서 깨우기</string>
     <string name="each_day">매일</string>
+    <string name="each_finished_learning_or_review_part_counts_as">학습이나 복습을 하나 마칠 때마다 1회로 셉니다.</string>
     <string name="each_session_reviews_x_words_so_some_words_will">세션마다 단어 %1$d개를 복습하기 때문에 일부 단어는 계획보다 늦게 다시 나와서 잊어버리기 쉬워요.</string>
     <string name="each_word_earns_lp_a_limited_number_of_times_a_d">단어마다 하루에 LP를 얻을 수 있는 횟수가 정해져 있어서 이번 세션에서는 LP가 추가되지 않았어요.</string>
     <string name="earn_lp_this_week_to_appear_on_the_board">이번 주에 LP를 얻으면 순위표에 표시돼요.</string>
@@ -229,6 +238,7 @@
     <string name="find_meaning">뜻 찾기</string>
     <string name="finish_it_where_you_started_it_or_try_again_in_a">시작한 곳에서 마무리하거나 몇 분 뒤에 다시 시도해 주세요.</string>
     <string name="finish_today_s_flow_and_your_words_will_collect">오늘의 학습을 마치면 단어가 여기에 모여요.</string>
+    <string name="finish_your_first_session_to_begin">첫 학습을 마치면 시작돼요.</string>
     <string name="finished">완료</string>
     <string name="first_steps">첫걸음</string>
     <string name="flip_letters">글자 뒤집기</string>
@@ -292,6 +302,7 @@
     <string name="keep_going">계속하기</string>
     <string name="keep_going_at_your_own_pace">내 속도대로 계속해 봐요.</string>
     <string name="keep_it_under_x_characters">%1$d자 이내로 입력해 주세요.</string>
+    <string name="keep_it_under_x_characters_2">%1$d자 이내로 입력하세요</string>
     <string name="keep_learning">계속 학습하기</string>
     <string name="keep_learning_as_usual">평소처럼 계속 학습하기</string>
     <string name="keep_playing">계속 플레이</string>
@@ -318,6 +329,7 @@
     <string name="learner">학습자</string>
     <string name="learning">학습 중</string>
     <string name="learning_days">학습 요일</string>
+    <string name="learning_journey">학습 여정</string>
     <string name="leave">나가기</string>
     <string name="leave_and_reset">나가고 초기화</string>
     <string name="leave_it_to_start_this_one_it_won_t_count_as_a_w">나가면 이 챌린지를 시작할 수 있어요. 승리로 집계되지 않아요.</string>
@@ -369,6 +381,7 @@
     <string name="match_x_pairs_no_timer">%1$d쌍 맞추기. 타이머 없음.</string>
     <string name="matched">맞춤</string>
     <string name="meaning">뜻</string>
+    <string name="meaning_reviews">의미 복습 횟수</string>
     <string name="meaning_to_find">찾을 뜻</string>
     <string name="meaning_x">뜻: %1$s</string>
     <string name="meanings">뜻</string>
@@ -377,9 +390,12 @@
     <string name="memory">기억</string>
     <string name="microphone_access_is_off_you_can_turn_it_on_in_s">마이크 접근이 꺼져 있어요. 설정에서 켤 수 있어요.</string>
     <string name="mistakes">실수</string>
+    <string name="month">월</string>
     <string name="monthly">월간</string>
     <string name="moods">기분</string>
     <string name="more_actions">더 보기</string>
+    <string name="my_answer_should_be_accepted">내 답도 정답이어야 해요</string>
+    <string name="my_pronunciation_was_marked_wrong">내 발음이 잘못 채점됐어요</string>
     <string name="my_words">내 단어</string>
     <string name="name">이름</string>
     <string name="need_practice">연습 필요</string>
@@ -399,6 +415,9 @@
     <string name="new_words_day">새 단어 / 일</string>
     <string name="new_words_per_day">하루 새 단어 수</string>
     <string name="new_words_per_session">세션당 새 단어 수</string>
+    <string name="new_words_since_you_started">시작한 이후 새 단어</string>
+    <string name="new_words_this_month">이번 달 새 단어</string>
+    <string name="new_words_this_week">이번 주 새 단어</string>
     <string name="new_words_x">새 단어 +%1$d</string>
     <string name="next">다음</string>
     <string name="next_level">다음 레벨</string>
@@ -413,7 +432,9 @@
     <string name="nice_work_2">잘했어요.</string>
     <string name="nicely_done">훌륭해요!</string>
     <string name="no_ads">광고 없음</string>
+    <string name="no_learning_yet_in_this_period">이 기간에는 아직 학습 기록이 없어요.</string>
     <string name="no_longer_available">더 이상 사용할 수 없어요</string>
+    <string name="no_new_words_in_this_period">이 기간에는 새 단어가 없어요.</string>
     <string name="no_new_words_left_in_your_topics_x_words_you_add">선택한 주제에 남은 새 단어가 없어요. 직접 추가한 단어 %1$d개는 아직 학습할 수 있어요.</string>
     <string name="no_new_words_today">오늘은 새 단어 없음</string>
     <string name="no_reviews_today">오늘은 복습 없음</string>
@@ -449,11 +470,13 @@
     <string name="not_sure_take_the_test">잘 모르겠나요? 테스트 보기</string>
     <string name="not_sure_tap_skip_a_guess_can_place_you_too_high">잘 모르겠다면 건너뛰기를 탭하세요. 찍으면 레벨이 너무 높게 배정될 수 있어요.</string>
     <string name="not_tried_yet">아직 안 해 봄</string>
+    <string name="not_up_to_date">최신 정보가 아님</string>
     <string name="not_yet">아직 아니에요</string>
     <string name="nothing_here_is_scored_or_saved">여기서는 점수가 매겨지거나 저장되지 않아요.</string>
     <string name="nothing_to_practise_right_now">지금은 연습할 것이 없어요</string>
     <string name="nothing_to_review">복습할 것이 없어요</string>
     <string name="noun">명사</string>
+    <string name="now">현재</string>
     <string name="now_fluent_x">이제 유창함 (%1$d)</string>
     <string name="now_for_new_words_from_x">이제 %1$s의 새 단어를 학습해요</string>
     <string name="off">끔</string>
@@ -465,6 +488,7 @@
     <string name="only_x_new_words_left_today_in_x">오늘 %2$s에 남은 새 단어는 %1$d개뿐이에요</string>
     <string name="opens_the_exercise">문제를 열어요.</string>
     <string name="opens_the_word">단어를 열어요.</string>
+    <string name="opens_your_learning_history">학습 기록을 엽니다</string>
     <string name="or">또는</string>
     <string name="or_choose_it_yourself">또는 직접 선택하기</string>
     <string name="other_meanings">다른 뜻</string>
@@ -504,6 +528,7 @@
     <string name="price">가격</string>
     <string name="privacy_policy">개인정보 처리방침</string>
     <string name="private_to_you">나만 볼 수 있어요</string>
+    <string name="problem_with_the_audio_or_pronunciation">오디오나 발음에 문제가 있어요</string>
     <string name="productivity">생산성</string>
     <string name="professional_language_for_work_and_career">업무와 커리어를 위한 전문 언어</string>
     <string name="proficient">능숙</string>
@@ -518,6 +543,7 @@
     <string name="question_x_of_x">문제 %1$d / %2$d</string>
     <string name="random_practice">랜덤 연습</string>
     <string name="ranking">랭킹</string>
+    <string name="reached">달성</string>
     <string name="read_words_aloud_in_your_lessons_right_or_wrong">수업에서 단어를 소리 내어 읽어요. 맞든 틀리든 진도에는 영향이 없어요.</string>
     <string name="reading_specialist_texts">전문 글 읽기</string>
     <string name="reading_the_news_meetings_debates">뉴스, 회의, 토론 읽기</string>
@@ -553,6 +579,8 @@
     <string name="replay">다시 재생</string>
     <string name="replay_level">레벨 다시 플레이</string>
     <string name="replays_the_word_you_can_play_it_as_often_as_you">단어를 다시 들려줘요. 원하는 만큼 재생할 수 있어요.</string>
+    <string name="report_a_problem">문제 신고</string>
+    <string name="report_sent_thank_you">신고를 보냈어요. 고마워요!</string>
     <string name="report_x">%1$s을(를) 신고할까요?</string>
     <string name="reset_your_password">비밀번호 재설정</string>
     <string name="resets_x">%1$s에 초기화</string>
@@ -623,20 +651,25 @@
     <string name="selected">선택됨</string>
     <string name="send_a_new_code">새 코드 보내기</string>
     <string name="send_code">코드 보내기</string>
+    <string name="send_report">신고 보내기</string>
+    <string name="sending">보내는 중…</string>
     <string name="session_completed">세션 완료</string>
     <string name="session_details">세션 상세</string>
     <string name="session_ended">세션이 종료됐어요</string>
     <string name="session_x">세션 %1$d</string>
+    <string name="sessions_completed">완료한 학습</string>
     <string name="set_new_password">새 비밀번호 설정</string>
     <string name="settings">설정</string>
     <string name="shopping">쇼핑</string>
     <string name="shopping_asking_the_way_daily_errands">쇼핑, 길 묻기, 일상 용무</string>
+    <string name="shorten_your_note">메모를 줄여 주세요</string>
     <string name="show_all_x">모두 보기 (%1$d)</string>
     <string name="show_answer">정답 보기</string>
     <string name="show_less">접기</string>
     <string name="show_me_on_the_leaderboard">순위표에 나 표시하기</string>
     <string name="show_password">비밀번호 보기</string>
     <string name="show_word_now">단어 바로 보기</string>
+    <string name="show_x_more_words">단어 %1$d개 더 보기</string>
     <string name="shows_all_topics">모든 주제를 보여줘요</string>
     <string name="shows_every_meaning_of_the_word">단어의 모든 뜻을 보여줘요</string>
     <string name="shows_the_results_screen">결과 화면을 보여줘요.</string>
@@ -673,6 +706,7 @@
     <string name="step_x_of_x">%2$d단계 중 %1$d단계</string>
     <string name="still_to_practise">아직 연습할 것</string>
     <string name="stop_recording">녹음 중지</string>
+    <string name="study_days_this_week">이번 주 학습일</string>
     <string name="subscribe">구독하기</string>
     <string name="subscriptions_renew_automatically_unless_cancell">구독은 기간 종료 최소 24시간 전에 취소하지 않으면 자동으로 갱신돼요. App Store 계정 설정에서 관리하거나 취소할 수 있어요.</string>
     <string name="suspicious_activity">의심스러운 활동</string>
@@ -685,7 +719,10 @@
     <string name="tap_a_word_tile_to_place_it_here_then_check">단어 타일을 탭해서 여기에 놓고 확인하세요.</string>
     <string name="tap_the_microphone_and_read_aloud">마이크를 탭하고 소리 내어 읽어 보세요.</string>
     <string name="technology">기술</string>
+    <string name="tell_us_what_s_wrong">어떤 문제인지 알려 주세요</string>
     <string name="telling_stories_talking_about_work">이야기하기, 업무에 대해 말하기</string>
+    <string name="tells_our_editors_something_in_this_content_is_w">이 콘텐츠의 오류를 편집자에게 알려요</string>
+    <string name="tells_our_editors_something_in_this_meaning_is_w">이 뜻의 오류를 편집자에게 알려요</string>
     <string name="terms_of_use">이용 약관</string>
     <string name="thanks_we_ll_take_a_look">감사해요. 확인해 볼게요.</string>
     <string name="that_avatar_isn_t_available_any_more">그 아바타는 더 이상 사용할 수 없어요.</string>
@@ -699,6 +736,8 @@
     <string name="that_name_isn_t_allowed_try_another_one">사용할 수 없는 이름이에요. 다른 이름을 시도해 보세요.</string>
     <string name="the_answer_is_x">정답은 “%1$s”예요</string>
     <string name="the_correct_answer">정답</string>
+    <string name="the_definition_is_wrong">정의가 틀렸어요</string>
+    <string name="the_example_is_wrong_or_unnatural">예문이 틀렸거나 어색해요</string>
     <string name="the_example_must_contain_x">예문에 “%1$s”이(가) 들어 있어야 해요.</string>
     <string name="the_free_plan_has_a_limit_on_topics_upgrade_to_p">무료 플랜은 주제 수에 제한이 있어요. 더 고르려면 Premium으로 업그레이드하세요.</string>
     <string name="the_free_plan_includes_x_topics_remove_some_to_s">무료 플랜은 주제 %1$d개까지예요. 저장하려면 일부를 빼거나, 업그레이드해 모두 유지하세요.</string>
@@ -707,17 +746,22 @@
     <string name="the_free_plan_keeps_the_first_collection_you_cho_2">무료 플랜은 처음 고른 컬렉션을 유지해요. 업그레이드하면 어떤 컬렉션으로든 바꿀 수 있어요.</string>
     <string name="the_leaderboard_isn_t_open_yet">순위표가 아직 열리지 않았어요.</string>
     <string name="the_leaderboard_opens_soon_your_lp_and_tier_alre">순위표가 곧 열려요. LP와 티어는 이미 반영되고 있어요.</string>
+    <string name="the_meaning_or_translation_is_wrong">뜻이나 번역이 틀렸어요</string>
     <string name="the_purchase_didn_t_go_through_you_haven_t_been">구매가 완료되지 않았어요. 결제되지 않았어요.</string>
+    <string name="the_question_or_answer_doesn_t_make_sense">문제나 정답이 이상해요</string>
     <string name="the_same_board_with_no_clock_at_your_own_pace">같은 보드를 시간 제한 없이 내 속도대로 즐겨요.</string>
     <string name="the_test_isn_t_ready_yet">테스트가 아직 준비되지 않았어요</string>
     <string name="this_challenge_isn_t_available_right_now">지금은 이 챌린지를 이용할 수 없어요</string>
     <string name="this_chapter_opens_once_you_ve_learned_enough_ne">오늘의 학습에서 새 단어를 충분히 학습하면 이 챕터가 열려요.</string>
     <string name="this_chapter_uses_x_meanings">이 챕터는 뜻 %1$s개를 사용해요.</string>
+    <string name="this_content_is_no_longer_available_to_report">이 콘텐츠는 더 이상 신고할 수 없어요.</string>
     <string name="this_email_already_has_an_account_try_logging_in">이미 이 이메일로 가입된 계정이 있어요. 로그인해 보세요.</string>
     <string name="this_level_isn_t_open_yet">이 레벨은 아직 열리지 않았어요</string>
     <string name="this_meaning_hasn_t_been_learned_yet_no_progress">아직 이 뜻을 배우지 않아서 진행 상황이 없어요.</string>
+    <string name="this_meaning_shows_your_own_edit_so_it_can_t_be">이 뜻은 직접 수정한 내용이라 신고할 수 없어요.</string>
     <string name="this_needs_syll_premium">Syll Premium이 필요한 기능이에요.</string>
     <string name="this_practice_round_isn_t_saved">이 연습 라운드는 저장되지 않아요.</string>
+    <string name="this_report_couldn_t_be_sent_please_try_again">신고를 보내지 못했어요. 다시 시도해 주세요.</string>
     <string name="this_run_has_ended">이번 도전이 끝났어요</string>
     <string name="this_run_won_t_be_saved_as_a_win">이번 도전은 승리로 저장되지 않아요.</string>
     <string name="this_session_is_no_longer_available_start_a_new">이 세션은 더 이상 사용할 수 없어요. 새로 시작해서 계속해 보세요.</string>
@@ -731,6 +775,7 @@
     <string name="toeic">TOEIC</string>
     <string name="topics_x_x">주제 · %1$d/%2$d</string>
     <string name="total_attempts">총 시도 횟수</string>
+    <string name="tracking_since_x">%1$s부터 기록</string>
     <string name="translating">번역 중</string>
     <string name="translation">번역</string>
     <string name="travel">여행</string>
@@ -762,6 +807,7 @@
     <string name="used_a_hint">힌트 사용함</string>
     <string name="verb">동사</string>
     <string name="vietnamese_meaning_x">베트남어 뜻: %1$s</string>
+    <string name="vocabulary_grew_from_x_to_x_words">어휘가 %1$d개에서 %2$d개로 늘었어요</string>
     <string name="we_couldn_t_check_this_run">이번 도전을 확인하지 못했어요</string>
     <string name="we_couldn_t_confirm_this_purchase_please_try_aga">구매를 확인하지 못했어요. 다시 시도하세요.</string>
     <string name="we_couldn_t_hear_you_clearly">목소리가 잘 들리지 않았어요.</string>
@@ -772,9 +818,12 @@
     <string name="we_sent_a_code_to_x_enter_it_and_choose_a_new_pa">%1$s(으)로 코드를 보냈어요. 코드를 입력하고 새 비밀번호를 정해 주세요.</string>
     <string name="we_sent_a_confirmation_link_to_x_open_it_then_lo">%1$s(으)로 확인 링크를 보냈어요. 링크를 연 다음 로그인해 주세요.</string>
     <string name="weak_words">취약 단어</string>
+    <string name="week">주</string>
+    <string name="weekly_goal_reached">주간 목표 달성</string>
     <string name="weekly_leaderboard">주간 순위표</string>
     <string name="weekly_rank">주간 순위</string>
     <string name="weekly_ranking">주간 랭킹</string>
+    <string name="what_s_wrong">어떤 문제인가요?</string>
     <string name="what_s_your_english_level">영어 레벨이 어느 정도인가요?</string>
     <string name="which_collection_do_you_want_to_learn">어떤 컬렉션을 학습하고 싶나요?</string>
     <string name="which_topics_interest_you">어떤 주제에 관심이 있나요?</string>
@@ -808,6 +857,7 @@
     <string name="wrong_email_or_password">이메일 또는 비밀번호가 올바르지 않아요.</string>
     <string name="x_after_this_session">이 세션 후 %1$s</string>
     <string name="x_already_knew">+%1$d개 이미 알고 있음</string>
+    <string name="x_and_x_more">%1$s 외 %2$d개</string>
     <string name="x_answers_weren_t_scored_x">채점되지 않은 답 %1$d개: %2$s</string>
     <string name="x_days_a_week">일주일에 %1$d일</string>
     <string name="x_doesn_t_fit_this_sentence">“%1$s”은(는) 이 문장에 어울리지 않아요.</string>
@@ -843,6 +893,7 @@
     <string name="x_of_x_matched_x_mistakes_longest_combo_x">%1$d / %2$d 맞춤 · 실수 %3$d회 · 최장 콤보 %4$d</string>
     <string name="x_of_x_meanings_learned">뜻 %1$d / %2$d개 학습함</string>
     <string name="x_of_x_stars">별 %1$d / %2$d개</string>
+    <string name="x_of_x_study_days_this_week">이번 주 학습일 %2$d일 중 %1$d일</string>
     <string name="x_of_x_words_learned">단어 %1$d / %2$d개 학습함</string>
     <string name="x_of_your_x_free_new_words_left">무료 새 단어 %2$d개 중 %1$d개 남았어요</string>
     <string name="x_option">%1$s, 선택지</string>
@@ -854,6 +905,8 @@
     <string name="x_seconds">%1$d초</string>
     <string name="x_seconds_left">%1$d초 남음</string>
     <string name="x_stars_in_total">총 별 %1$d개</string>
+    <string name="x_studied_on_x">%1$s, %2$s에 학습</string>
+    <string name="x_study_days_this_week">이번 주 학습일 %1$d일</string>
     <string name="x_to_practise_again">다시 연습할 것 %1$d개</string>
     <string name="x_to_relearn">다시 학습할 것 %1$d개</string>
     <string name="x_to_review">복습 %1$d개</string>
@@ -921,6 +974,8 @@
     <string name="your_effort_has_become_a_lasting_mark_on_your_jo">노력이 Syll과 함께하는 여정에 오래 남는 흔적이 됐어요.</string>
     <string name="your_first_lesson_has_x_new_words">첫 학습에는 새 단어 %1$d개가 있어요.</string>
     <string name="your_focus">내 포커스</string>
+    <string name="your_journey">나의 여정</string>
+    <string name="your_journey_starts_with_one_word">여정은 단어 하나에서 시작돼요</string>
     <string name="your_learned_words_will_still_be_reviewed_choose">학습한 단어는 계속 복습해요. 새 단어를 학습하려면 다른 컬렉션을 선택하세요.</string>
     <string name="your_learned_words_will_still_be_reviewed_upgrad">배운 단어는 계속 복습돼요. 새 단어를 계속 배우려면 %1$s으로 업그레이드하세요.</string>
     <string name="your_level">내 레벨</string>
@@ -939,4 +994,5 @@
     <string name="your_routine">내 루틴</string>
     <string name="your_sessions_are_adding_up_into_your_first_stre">세션이 쌓여 첫 성장 구간을 이루고 있어요.</string>
     <string name="your_stars_are_safe">별은 안전해요.</string>
+    <string name="your_vocabulary">나의 어휘</string>
 </resources>

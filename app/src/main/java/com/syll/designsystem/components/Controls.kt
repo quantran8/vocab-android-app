@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -372,11 +373,16 @@ fun FlowHeader(
     closeLabel: String,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    /** The slot opposite the ✕ (the report flag in a session); empty keeps the bar centred all the same. */
+    leading: (@Composable () -> Unit)? = null,
 ) {
     val value = stringResource(R.string.question_x_of_x, stageCurrent, stageTotal)
     // ✕ always sits at the top right; an equal empty slot on the left keeps the progress bar centred.
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.m), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.width(SIDE_SLOT))
+        Box(Modifier.width(SIDE_SLOT).height(Spacing.minTouchTarget), contentAlignment = Alignment.Center) {
+            // A 44 dp control laid out in the 24 dp slot, overhanging it, so the bar stays centred.
+            leading?.let { Box(Modifier.requiredSize(Spacing.minTouchTarget), contentAlignment = Alignment.Center) { it() } }
+        }
         ProgressTrack(
             fraction = if (totalSteps > 0) step.toFloat() / totalSteps else 0f,
             height = 10.dp,

@@ -12,6 +12,9 @@
     <string name="academic_vocabulary_for_a_higher_band_score">مفردات أكاديمية لدرجة أعلى في الاختبار</string>
     <string name="account">الحساب</string>
     <string name="actions_for_x">إجراءات لـ %1$s</string>
+    <string name="activity_since_you_started">النشاط منذ أن بدأت</string>
+    <string name="activity_this_month">نشاط هذا الشهر</string>
+    <string name="activity_this_week">نشاط هذا الأسبوع</string>
     <string name="add_topics">إضافة مواضيع</string>
     <string name="add_word">إضافة كلمة</string>
     <string name="add_x_meanings">إضافة المعاني: %1$d</string>
@@ -28,6 +31,7 @@
     <string name="all_pairs_matched">تمت مطابقة كل الأزواج</string>
     <string name="all_pairs_matched_2">تمت مطابقة كل الأزواج.</string>
     <string name="all_sounds_were_good">كل الأصوات جيدة</string>
+    <string name="all_time">كل الوقت</string>
     <string name="all_words">كل الكلمات</string>
     <string name="allow_microphone_access_in_settings_to_practice">اسمح بالوصول إلى الميكروفون من الإعدادات لتتدرّب على التحدث.</string>
     <string name="almost_there">اقتربت</string>
@@ -47,6 +51,7 @@
     <string name="at_least_one_letter">حرف واحد على الأقل</string>
     <string name="at_least_one_number">رقم واحد على الأقل</string>
     <string name="at_most_72_characters">72 حرفًا كحد أقصى</string>
+    <string name="at_start">في البداية</string>
     <string name="audio_didn_t_play">لم يتم تشغيل الصوت</string>
     <string name="audio_unavailable">الصوت غير متاح</string>
     <string name="avatar">الصورة الرمزية</string>
@@ -110,6 +115,7 @@
     <string name="choose_the_level_that_feels_closest_you_can_chan">اختر المستوى الأقرب إليك. يمكنك تغييره في أي وقت.</string>
     <string name="choose_the_word_that_fits_naturally">اختر الكلمة الأنسب طبيعيًا.</string>
     <string name="choose_topics">اختر المواضيع</string>
+    <string name="choose_what_s_wrong">اختر المشكلة</string>
     <string name="choose_your_language">اختر لغتك</string>
     <string name="choose_your_level">اختر مستواك</string>
     <string name="choose_your_x_plan">اختر خطة %1$s</string>
@@ -167,6 +173,7 @@
     <string name="current_password">كلمة المرور الحالية</string>
     <string name="current_tier">الفئة الحالية</string>
     <string name="daily_lessons_and_reviews">دروس ومراجعات يومية</string>
+    <string name="days_learned">أيام التعلّم</string>
     <string name="decrease_new_words_per_day">تقليل الكلمات الجديدة يوميًا</string>
     <string name="decrease_reviews_per_session">تقليل المراجعات في كل جلسة</string>
     <string name="dedicated">مثابر</string>
@@ -178,11 +185,13 @@
     <string name="deleting_your_account">جارٍ حذف حسابك</string>
     <string name="deselect_all">إلغاء تحديد الكل</string>
     <string name="details">التفاصيل</string>
+    <string name="details_optional">التفاصيل (اختياري)</string>
     <string name="didn_t_come_back_on_your_own">لم تتذكّرها بنفسك</string>
     <string name="dining_out">تناول الطعام خارج المنزل</string>
     <string name="done">تم</string>
     <string name="double_tap_to_wake_him_up">انقر مرتين لإيقاظه</string>
     <string name="each_day">كل يوم</string>
+    <string name="each_finished_learning_or_review_part_counts_as">كل جزء تعلّم أو مراجعة مكتمل يُحسب جلسة واحدة.</string>
     <string name="each_session_reviews_x_words_so_some_words_will">كل جلسة تراجع %1$d كلمة، لذا ستعود بعض الكلمات متأخرة عن الموعد المخطط وتصبح أسهل نسيانًا.</string>
     <string name="each_word_earns_lp_a_limited_number_of_times_a_d">تكسب كل كلمة LP عددًا محدودًا من المرات يوميًا، لذا لم تضف هذه الجلسة أي LP.</string>
     <string name="earn_lp_this_week_to_appear_on_the_board">اكسب LP هذا الأسبوع لتظهر في اللوحة.</string>
@@ -229,6 +238,7 @@
     <string name="find_meaning">ابحث عن المعنى</string>
     <string name="finish_it_where_you_started_it_or_try_again_in_a">أكمله من حيث بدأته، أو حاول مرة أخرى بعد بضع دقائق.</string>
     <string name="finish_today_s_flow_and_your_words_will_collect">أكمل جلسة اليوم وستتجمع كلماتك هنا.</string>
+    <string name="finish_your_first_session_to_begin">أكمل جلستك الأولى للبدء.</string>
     <string name="finished">منتهٍ</string>
     <string name="first_steps">الخطوات الأولى</string>
     <string name="flip_letters">قلب الحروف</string>
@@ -292,6 +302,7 @@
     <string name="keep_going">واصل</string>
     <string name="keep_going_at_your_own_pace">واصل بالوتيرة التي تناسبك.</string>
     <string name="keep_it_under_x_characters">اجعله أقل من %1$d حرفًا.</string>
+    <string name="keep_it_under_x_characters_2">الحد الأقصى للأحرف: %1$d</string>
     <string name="keep_learning">واصل التعلّم</string>
     <string name="keep_learning_as_usual">واصل التعلّم كالمعتاد</string>
     <string name="keep_playing">واصل اللعب</string>
@@ -318,6 +329,7 @@
     <string name="learner">متعلّم</string>
     <string name="learning">قيد التعلّم</string>
     <string name="learning_days">أيام التعلّم</string>
+    <string name="learning_journey">رحلة التعلّم</string>
     <string name="leave">مغادرة</string>
     <string name="leave_and_reset">مغادرة وإعادة الضبط</string>
     <string name="leave_it_to_start_this_one_it_won_t_count_as_a_w">غادره لتبدأ هذا. لن يُحتسب فوزًا.</string>
@@ -369,6 +381,7 @@
     <string name="match_x_pairs_no_timer">طابق %1$d أزواج. بلا مؤقت.</string>
     <string name="matched">تمت المطابقة</string>
     <string name="meaning">المعنى</string>
+    <string name="meaning_reviews">مراجعات المعاني</string>
     <string name="meaning_to_find">المعنى المطلوب</string>
     <string name="meaning_x">المعنى: %1$s</string>
     <string name="meanings">المعاني</string>
@@ -377,9 +390,12 @@
     <string name="memory">الذاكرة</string>
     <string name="microphone_access_is_off_you_can_turn_it_on_in_s">الوصول إلى الميكروفون متوقف. يمكنك تفعيله من الإعدادات.</string>
     <string name="mistakes">الأخطاء</string>
+    <string name="month">شهر</string>
     <string name="monthly">شهري</string>
     <string name="moods">الحالات المزاجية</string>
     <string name="more_actions">المزيد من الإجراءات</string>
+    <string name="my_answer_should_be_accepted">يجب قبول إجابتي</string>
+    <string name="my_pronunciation_was_marked_wrong">تم تقييم نطقي كخطأ</string>
     <string name="my_words">كلماتي</string>
     <string name="name">الاسم</string>
     <string name="need_practice">تحتاج إلى تدريب</string>
@@ -399,6 +415,9 @@
     <string name="new_words_day">كلمات جديدة / يوم</string>
     <string name="new_words_per_day">الكلمات الجديدة يوميًا</string>
     <string name="new_words_per_session">الكلمات الجديدة في كل جلسة</string>
+    <string name="new_words_since_you_started">كلمات جديدة منذ أن بدأت</string>
+    <string name="new_words_this_month">كلمات جديدة هذا الشهر</string>
+    <string name="new_words_this_week">كلمات جديدة هذا الأسبوع</string>
     <string name="new_words_x">كلمات جديدة +%1$d</string>
     <string name="next">التالي</string>
     <string name="next_level">المستوى التالي</string>
@@ -418,7 +437,9 @@
     <string name="nice_work_2">عمل جيد.</string>
     <string name="nicely_done">أحسنت!</string>
     <string name="no_ads">بلا إعلانات</string>
+    <string name="no_learning_yet_in_this_period">لا يوجد تعلّم في هذه الفترة بعد.</string>
     <string name="no_longer_available">لم تعد متاحة</string>
+    <string name="no_new_words_in_this_period">لا توجد كلمات جديدة في هذه الفترة.</string>
     <string name="no_new_words_left_in_your_topics_x_words_you_add">لا كلمات جديدة متبقية في مواضيعك. الكلمات التي أضفتها وما زالت للتعلّم: %1$d.</string>
     <string name="no_new_words_today">لا كلمات جديدة اليوم</string>
     <string name="no_reviews_today">لا مراجعات اليوم</string>
@@ -454,11 +475,13 @@
     <string name="not_sure_take_the_test">غير متأكد؟ خُذ الاختبار</string>
     <string name="not_sure_tap_skip_a_guess_can_place_you_too_high">غير متأكد؟ اضغط تخطّي: قد يضعك التخمين في مستوى أعلى من اللازم.</string>
     <string name="not_tried_yet">لم تُجرَّب بعد</string>
+    <string name="not_up_to_date">غير محدّث</string>
     <string name="not_yet">ليس بعد</string>
     <string name="nothing_here_is_scored_or_saved">لا تُحتسب درجات ولا يُحفظ أي شيء هنا.</string>
     <string name="nothing_to_practise_right_now">لا شيء للتدرّب عليه الآن</string>
     <string name="nothing_to_review">لا شيء للمراجعة</string>
     <string name="noun">اسم</string>
+    <string name="now">الآن</string>
     <string name="now_fluent_x">أصبحت بطلاقة (%1$d)</string>
     <string name="now_for_new_words_from_x">والآن كلمات جديدة من %1$s</string>
     <string name="off">متوقف</string>
@@ -470,6 +493,7 @@
     <string name="only_x_new_words_left_today_in_x">الكلمات الجديدة المتبقية اليوم في %2$s: %1$d فقط</string>
     <string name="opens_the_exercise">يفتح التمرين.</string>
     <string name="opens_the_word">يفتح الكلمة.</string>
+    <string name="opens_your_learning_history">يفتح سجل تعلّمك</string>
     <string name="or">أو</string>
     <string name="or_choose_it_yourself">أو اختره بنفسك</string>
     <string name="other_meanings">معانٍ أخرى</string>
@@ -509,6 +533,7 @@
     <string name="price">السعر</string>
     <string name="privacy_policy">سياسة الخصوصية</string>
     <string name="private_to_you">خاص بك</string>
+    <string name="problem_with_the_audio_or_pronunciation">مشكلة في الصوت أو النطق</string>
     <string name="productivity">الإنتاجية</string>
     <string name="professional_language_for_work_and_career">لغة مهنية للعمل والمسيرة المهنية</string>
     <string name="proficient">بارع</string>
@@ -523,6 +548,7 @@
     <string name="question_x_of_x">السؤال %1$d من %2$d</string>
     <string name="random_practice">تدريب عشوائي</string>
     <string name="ranking">الترتيب</string>
+    <string name="reached">تحقق</string>
     <string name="read_words_aloud_in_your_lessons_right_or_wrong">اقرأ الكلمات بصوت عالٍ في دروسك. سواء أصبت أم أخطأت، لن يتغيّر تقدّمك أبدًا.</string>
     <string name="reading_specialist_texts">قراءة النصوص المتخصصة</string>
     <string name="reading_the_news_meetings_debates">قراءة الأخبار والاجتماعات والنقاشات</string>
@@ -558,6 +584,8 @@
     <string name="replay">إعادة التشغيل</string>
     <string name="replay_level">إعادة المستوى</string>
     <string name="replays_the_word_you_can_play_it_as_often_as_you">يعيد تشغيل الكلمة. يمكنك تشغيلها كما تشاء.</string>
+    <string name="report_a_problem">الإبلاغ عن مشكلة</string>
+    <string name="report_sent_thank_you">تم إرسال البلاغ. شكرًا لك!</string>
     <string name="report_x">هل تريد الإبلاغ عن %1$s؟</string>
     <string name="reset_your_password">إعادة تعيين كلمة المرور</string>
     <string name="resets_x">يُعاد الضبط %1$s</string>
@@ -628,20 +656,25 @@
     <string name="selected">محدد</string>
     <string name="send_a_new_code">إرسال رمز جديد</string>
     <string name="send_code">إرسال الرمز</string>
+    <string name="send_report">إرسال البلاغ</string>
+    <string name="sending">جارٍ الإرسال…</string>
     <string name="session_completed">اكتملت الجلسة</string>
     <string name="session_details">تفاصيل الجلسة</string>
     <string name="session_ended">انتهت الجلسة</string>
     <string name="session_x">الجلسة %1$d</string>
+    <string name="sessions_completed">الجلسات المكتملة</string>
     <string name="set_new_password">تعيين كلمة مرور جديدة</string>
     <string name="settings">الإعدادات</string>
     <string name="shopping">التسوق</string>
     <string name="shopping_asking_the_way_daily_errands">التسوق وسؤال الطريق والمشاوير اليومية</string>
+    <string name="shorten_your_note">اختصر ملاحظتك</string>
     <string name="show_all_x">عرض الكل (%1$d)</string>
     <string name="show_answer">إظهار الإجابة</string>
     <string name="show_less">عرض أقل</string>
     <string name="show_me_on_the_leaderboard">أظهرني في لوحة الصدارة</string>
     <string name="show_password">إظهار كلمة المرور</string>
     <string name="show_word_now">إظهار الكلمة الآن</string>
+    <string name="show_x_more_words">عرض المزيد من الكلمات: %1$d</string>
     <string name="shows_all_topics">يعرض كل المواضيع</string>
     <string name="shows_every_meaning_of_the_word">يعرض كل معاني الكلمة</string>
     <string name="shows_the_results_screen">يعرض شاشة النتائج.</string>
@@ -678,6 +711,7 @@
     <string name="step_x_of_x">الخطوة %1$d من %2$d</string>
     <string name="still_to_practise">لا تزال للتدريب</string>
     <string name="stop_recording">إيقاف التسجيل</string>
+    <string name="study_days_this_week">أيام الدراسة هذا الأسبوع</string>
     <string name="subscribe">اشترك</string>
     <string name="subscriptions_renew_automatically_unless_cancell">تتجدّد الاشتراكات تلقائيًا ما لم تُلغَ قبل 24 ساعة على الأقل من نهاية الفترة. يمكنك إدارتها أو إلغاؤها من إعدادات حسابك في App Store.</string>
     <string name="suspicious_activity">نشاط مريب</string>
@@ -690,7 +724,10 @@
     <string name="tap_a_word_tile_to_place_it_here_then_check">اضغط على بطاقة كلمة لوضعها هنا، ثم تحقق.</string>
     <string name="tap_the_microphone_and_read_aloud">اضغط على الميكروفون واقرأ بصوت عالٍ.</string>
     <string name="technology">التقنية</string>
+    <string name="tell_us_what_s_wrong">أخبرنا بالمشكلة</string>
     <string name="telling_stories_talking_about_work">سرد القصص والحديث عن العمل</string>
+    <string name="tells_our_editors_something_in_this_content_is_w">يُبلغ محرّرينا بوجود خطأ في هذا المحتوى</string>
+    <string name="tells_our_editors_something_in_this_meaning_is_w">يُبلغ محرّرينا بوجود خطأ في هذا المعنى</string>
     <string name="terms_of_use">شروط الاستخدام</string>
     <string name="thanks_we_ll_take_a_look">شكرًا لك. سنراجع الأمر.</string>
     <string name="that_avatar_isn_t_available_any_more">هذه الصورة الرمزية لم تعد متاحة.</string>
@@ -704,6 +741,8 @@
     <string name="that_name_isn_t_allowed_try_another_one">هذا الاسم غير مسموح. جرّب اسمًا آخر.</string>
     <string name="the_answer_is_x">الإجابة هي “%1$s”</string>
     <string name="the_correct_answer">الإجابة الصحيحة</string>
+    <string name="the_definition_is_wrong">التعريف غير صحيح</string>
+    <string name="the_example_is_wrong_or_unnatural">المثال غير صحيح أو غير طبيعي</string>
     <string name="the_example_must_contain_x">يجب أن يحتوي المثال على “%1$s”.</string>
     <string name="the_free_plan_has_a_limit_on_topics_upgrade_to_p">الخطة المجانية تحدّ عدد المواضيع. رقِّ إلى Premium لاختيار المزيد.</string>
     <string name="the_free_plan_includes_x_topics_remove_some_to_s">تتضمن الخطة المجانية %1$d مواضيع. أزِل بعضها للحفظ، أو رقِّ للاحتفاظ بها كلها.</string>
@@ -712,17 +751,22 @@
     <string name="the_free_plan_keeps_the_first_collection_you_cho_2">تحتفظ الخطة المجانية بأول مجموعة اخترتها. رقِّ إلى Premium للتبديل إلى أي مجموعة.</string>
     <string name="the_leaderboard_isn_t_open_yet">لوحة الصدارة لم تُفتح بعد.</string>
     <string name="the_leaderboard_opens_soon_your_lp_and_tier_alre">ستُفتح لوحة الصدارة قريبًا. LP وفئتك محتسبان بالفعل.</string>
+    <string name="the_meaning_or_translation_is_wrong">المعنى أو الترجمة غير صحيحة</string>
     <string name="the_purchase_didn_t_go_through_you_haven_t_been">لم تكتمل عملية الشراء. لم يتم خصم أي مبلغ.</string>
+    <string name="the_question_or_answer_doesn_t_make_sense">السؤال أو الإجابة غير منطقية</string>
     <string name="the_same_board_with_no_clock_at_your_own_pace">اللوحة نفسها بلا ساعة، وبالوتيرة التي تناسبك.</string>
     <string name="the_test_isn_t_ready_yet">الاختبار ليس جاهزًا بعد</string>
     <string name="this_challenge_isn_t_available_right_now">هذا التحدي غير متاح حاليًا</string>
     <string name="this_chapter_opens_once_you_ve_learned_enough_ne">يُفتح هذا الفصل عندما تتعلّم عددًا كافيًا من الكلمات الجديدة في درسك اليومي.</string>
     <string name="this_chapter_uses_x_meanings">يستخدم هذا الفصل معاني بلغة %1$s.</string>
+    <string name="this_content_is_no_longer_available_to_report">لم يعد هذا المحتوى متاحًا للإبلاغ.</string>
     <string name="this_email_already_has_an_account_try_logging_in">هذا البريد الإلكتروني لديه حساب بالفعل. جرّب تسجيل الدخول.</string>
     <string name="this_level_isn_t_open_yet">هذا المستوى لم يُفتح بعد</string>
     <string name="this_meaning_hasn_t_been_learned_yet_no_progress">لم تتعلّم هذا المعنى بعد، فلا يوجد تقدّم.</string>
+    <string name="this_meaning_shows_your_own_edit_so_it_can_t_be">يعرض هذا المعنى تعديلك الخاص، لذا لا يمكن الإبلاغ عنه.</string>
     <string name="this_needs_syll_premium">يتطلب هذا Syll Premium.</string>
     <string name="this_practice_round_isn_t_saved">جولة التدريب هذه لا تُحفظ.</string>
+    <string name="this_report_couldn_t_be_sent_please_try_again">تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.</string>
     <string name="this_run_has_ended">انتهت هذه الجولة</string>
     <string name="this_run_won_t_be_saved_as_a_win">لن تُحفظ هذه الجولة كفوز.</string>
     <string name="this_session_is_no_longer_available_start_a_new">هذه الجلسة لم تعد متاحة. ابدأ جلسة جديدة للمتابعة.</string>
@@ -736,6 +780,7 @@
     <string name="toeic">TOEIC</string>
     <string name="topics_x_x">المواضيع · %1$d/%2$d</string>
     <string name="total_attempts">إجمالي المحاولات</string>
+    <string name="tracking_since_x">يتم التتبّع منذ %1$s</string>
     <string name="translating">جارٍ الترجمة</string>
     <string name="translation">الترجمة</string>
     <string name="travel">السفر</string>
@@ -767,6 +812,7 @@
     <string name="used_a_hint">استخدمت تلميحًا</string>
     <string name="verb">فعل</string>
     <string name="vietnamese_meaning_x">المعنى بالفيتنامية: %1$s</string>
+    <string name="vocabulary_grew_from_x_to_x_words">زادت المفردات من %1$d إلى %2$d</string>
     <string name="we_couldn_t_check_this_run">تعذّر فحص هذه الجولة</string>
     <string name="we_couldn_t_confirm_this_purchase_please_try_aga">تعذّر تأكيد عملية الشراء. حاول مرة أخرى.</string>
     <string name="we_couldn_t_hear_you_clearly">لم نسمعك بوضوح.</string>
@@ -777,9 +823,12 @@
     <string name="we_sent_a_code_to_x_enter_it_and_choose_a_new_pa">أرسلنا رمزًا إلى %1$s. أدخله واختر كلمة مرور جديدة.</string>
     <string name="we_sent_a_confirmation_link_to_x_open_it_then_lo">أرسلنا رابط تأكيد إلى %1$s. افتحه ثم سجّل الدخول.</string>
     <string name="weak_words">الكلمات الضعيفة</string>
+    <string name="week">أسبوع</string>
+    <string name="weekly_goal_reached">تم بلوغ هدف الأسبوع</string>
     <string name="weekly_leaderboard">لوحة الصدارة الأسبوعية</string>
     <string name="weekly_rank">الترتيب الأسبوعي</string>
     <string name="weekly_ranking">الترتيب الأسبوعي</string>
+    <string name="what_s_wrong">ما المشكلة؟</string>
     <string name="what_s_your_english_level">ما مستوى إنجليزيتك؟</string>
     <string name="which_collection_do_you_want_to_learn">أي مجموعة تريد أن تتعلّم؟</string>
     <string name="which_topics_interest_you">ما المواضيع التي تهمّك؟</string>
@@ -813,6 +862,7 @@
     <string name="wrong_email_or_password">البريد الإلكتروني أو كلمة المرور غير صحيحة.</string>
     <string name="x_after_this_session">%1$s بعد هذه الجلسة</string>
     <string name="x_already_knew">+%1$d كنت تعرفها</string>
+    <string name="x_and_x_more">%1$s و%2$d أخرى</string>
     <string name="x_answers_weren_t_scored_x">لم تُقيَّم %1$d إجابات: %2$s</string>
     <string name="x_days_a_week">%1$d أيام في الأسبوع</string>
     <string name="x_doesn_t_fit_this_sentence">“%1$s” لا تناسب هذه الجملة.</string>
@@ -853,6 +903,7 @@
     <string name="x_of_x_matched_x_mistakes_longest_combo_x">تمت مطابقة %1$d من %2$d · الأخطاء: %3$d · أطول سلسلة كومبو: %4$d</string>
     <string name="x_of_x_meanings_learned">المعاني المتعلَّمة: %1$d من %2$d</string>
     <string name="x_of_x_stars">%1$d من %2$d نجوم</string>
+    <string name="x_of_x_study_days_this_week">أيام الدراسة هذا الأسبوع: %1$d من %2$d</string>
     <string name="x_of_x_words_learned">الكلمات المتعلَّمة: %1$d من %2$d</string>
     <string name="x_of_your_x_free_new_words_left">تبقّى %1$d من كلماتك الجديدة المجانية الـ %2$d</string>
     <string name="x_option">%1$s، خيار</string>
@@ -864,6 +915,8 @@
     <string name="x_seconds">%1$d ثانية</string>
     <string name="x_seconds_left">المتبقي: %1$d ثانية</string>
     <string name="x_stars_in_total">مجموع النجوم: %1$d</string>
+    <string name="x_studied_on_x">%1$s، تمت الدراسة يوم %2$s</string>
+    <string name="x_study_days_this_week">أيام الدراسة هذا الأسبوع: %1$d</string>
     <string name="x_to_practise_again">للتدرّب مجددًا: %1$d</string>
     <string name="x_to_relearn">لإعادة التعلّم: %1$d</string>
     <string name="x_to_review">للمراجعة: %1$d</string>
@@ -931,6 +984,8 @@
     <string name="your_effort_has_become_a_lasting_mark_on_your_jo">أصبح جهدك أثرًا دائمًا في رحلتك مع Syll.</string>
     <string name="your_first_lesson_has_x_new_words">كلمات درسك الأول الجديدة: %1$d.</string>
     <string name="your_focus">تركيزك</string>
+    <string name="your_journey">رحلتك</string>
+    <string name="your_journey_starts_with_one_word">رحلتك تبدأ بكلمة واحدة</string>
     <string name="your_learned_words_will_still_be_reviewed_choose">ستظل كلماتك المتعلَّمة تُراجع. اختر مجموعة أخرى لتعلّم كلمات جديدة.</string>
     <string name="your_learned_words_will_still_be_reviewed_upgrad">ستستمر مراجعة الكلمات التي تعلّمتها. رقِّ إلى %1$s لمواصلة تعلّم كلمات جديدة.</string>
     <string name="your_level">مستواك</string>
@@ -949,4 +1004,5 @@
     <string name="your_routine">روتينك</string>
     <string name="your_sessions_are_adding_up_into_your_first_stre">جلساتك تتراكم لتشكّل أول مرحلة من تقدّمك.</string>
     <string name="your_stars_are_safe">نجومك في أمان.</string>
+    <string name="your_vocabulary">مفرداتك</string>
 </resources>

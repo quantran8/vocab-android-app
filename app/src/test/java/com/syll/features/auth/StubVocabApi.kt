@@ -286,6 +286,30 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     }
     override suspend fun redeem(code: String): com.syll.network.PremiumPlan = redeemResult.getOrThrow()
 
+    /** Answers `learningJourney(period)`, per period; a missing one fails offline. */
+    val journeyResults = mutableMapOf<com.syll.domain.journey.JourneyPeriod, Result<com.syll.domain.journey.LearningJourney>>()
+    val journeyPeriodsRequested = mutableListOf<com.syll.domain.journey.JourneyPeriod>()
+    override suspend fun learningJourney(period: com.syll.domain.journey.JourneyPeriod): com.syll.domain.journey.LearningJourney {
+        journeyPeriodsRequested += period
+        return (journeyResults[period] ?: Result.failure(com.syll.network.ApiError.Transport)).getOrThrow()
+    }
+
+    /** Answers `learningJourneyWords`, one page per call, in order. */
+    val journeyWordPages = ArrayDeque<com.syll.domain.journey.JourneyWordsPage>()
+    val journeyWordOffsets = mutableListOf<Int>()
+    override suspend fun learningJourneyWords(period: com.syll.domain.journey.JourneyPeriod, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage {
+        journeyWordOffsets += offset
+        return journeyWordPages.removeFirstOrNull() ?: throw com.syll.network.ApiError.Transport
+    }
+
+    /** Answers `submitContentReport`, in order; once used up, every send succeeds. */
+    val contentReportResults = ArrayDeque<Result<com.syll.network.ContentReportReceipt>>()
+    val contentReports = mutableListOf<com.syll.domain.report.ContentReportRequest>()
+    override suspend fun submitContentReport(report: com.syll.domain.report.ContentReportRequest): com.syll.network.ContentReportReceipt {
+        contentReports += report
+        return contentReportResults.removeFirstOrNull()?.getOrThrow() ?: com.syll.network.ContentReportReceipt("r-${contentReports.size}")
+    }
+
     companion object {
         fun profile(
             level: CefrLevel? = null,

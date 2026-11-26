@@ -59,6 +59,13 @@ Deviations in Phase 2:
 - Deviations: Play has no "Sync" like `AppStore.sync()`, so restore re-reads Play's purchases; a purchase the backend calls invalid is left unacknowledged so Play refunds it (iOS finishes it). The legal copy names Google Play and drops Apple's 24-hour rule. Terms link comes from `-PtermsUrl` (iOS uses Apple's standard EULA).
 - Open: Play Console products, RTDN topic and service account; replace the AdMob test IDs; buy, renew, cancel and refund with a license tester on a device; consent form in an EEA region.
 
+### Learning journey and content reports (done; device checks open)
+- [x] Contract: backend `FRONTEND_FLOW.md` §17–18; iOS commits on `feat/learning-journey-report`. `LearningJourney`/`JourneyPeriod` (`core/domain/journey`) and `ContentReportTarget`/`ContentReportRequest`, `TaskAttempt.reportExcerpt`/`canAppealAnswer` (`core/domain/report`); `learningJourney`/`submitContentReport` on `VocabApi`; `WordDetail.Meaning.edited`.
+- [x] `LearningJourneyStore` (week summary, periods, paged `learningJourneyWords`; stale after 5 min or a new day, force-refreshed when the shell appears). Home's `LearningJourneyCard` after Learning: "See details" in the title, this week's new words with `recentWords` by name, and study days as a `StampCard` (slots = goal, one stamp per day learned; the goal counts days, never sessions; postmark when reached). The pushed `LearningJourneyView` (`ShellPage.LEARNING_JOURNEY`): Canvas growth chart with a Material segmented row, the period's new words as a timeline of word tiles grouped by `learnedOn` (`JourneyWordDay`), three activity tiles.
+- [x] `ContentReportStore` (same key on resend) and `ContentReportSheet` (Material bottom sheet, no ✕; a snackbar confirms): the flag sits in `FlowHeader`'s slot opposite the ✕ (left on Android) in a real session; "Report a problem" at the foot of each open meaning in word detail and other meanings, hidden on edited meanings.
+- Tests: `ContentReportTest`, `LearningJourneyDecodingTest`, `LearningJourneyStoreTest`, `ContentReportStoreTest` port iOS `LearningJourneyTests`/`ContentReportTests`.
+- Open: check on a device (TalkBack on the day strip and chart, large font, RTL), and the sheet over a recording task.
+
 Deviation from the table below: settings use SharedPreferences behind `KeyValueStore` (synchronous like `UserDefaults`, which the ported stores assume) instead of DataStore.
 
 ## Stack

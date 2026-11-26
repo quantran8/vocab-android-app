@@ -12,6 +12,9 @@
     <string name="academic_vocabulary_for_a_higher_band_score">ऊँचे बैंड स्कोर के लिए अकादमिक शब्दावली</string>
     <string name="account">खाता</string>
     <string name="actions_for_x">%1$s के लिए विकल्प</string>
+    <string name="activity_since_you_started">शुरुआत से अब तक की गतिविधि</string>
+    <string name="activity_this_month">इस महीने की गतिविधि</string>
+    <string name="activity_this_week">इस सप्ताह की गतिविधि</string>
     <string name="add_topics">विषय जोड़ें</string>
     <string name="add_word">शब्द जोड़ें</string>
     <string name="add_x_meanings">%1$d अर्थ जोड़ें</string>
@@ -28,6 +31,7 @@
     <string name="all_pairs_matched">सभी जोड़े मिल गए</string>
     <string name="all_pairs_matched_2">सभी जोड़े सही मिल गए।</string>
     <string name="all_sounds_were_good">सभी ध्वनियाँ अच्छी थीं</string>
+    <string name="all_time">सभी समय</string>
     <string name="all_words">सभी शब्द</string>
     <string name="allow_microphone_access_in_settings_to_practice">बोलने का अभ्यास करने के लिए सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।</string>
     <string name="almost_there">बस थोड़ा और</string>
@@ -47,6 +51,7 @@
     <string name="at_least_one_letter">कम से कम एक अक्षर</string>
     <string name="at_least_one_number">कम से कम एक अंक</string>
     <string name="at_most_72_characters">अधिकतम 72 अक्षर</string>
+    <string name="at_start">शुरुआत में</string>
     <string name="audio_didn_t_play">ऑडियो नहीं चला</string>
     <string name="audio_unavailable">ऑडियो उपलब्ध नहीं</string>
     <string name="avatar">अवतार</string>
@@ -110,6 +115,7 @@
     <string name="choose_the_level_that_feels_closest_you_can_chan">जो स्तर आपके सबसे करीब लगे, उसे चुनें। आप इसे कभी भी बदल सकते हैं।</string>
     <string name="choose_the_word_that_fits_naturally">वह शब्द चुनें जो स्वाभाविक रूप से सही बैठे।</string>
     <string name="choose_topics">विषय चुनें</string>
+    <string name="choose_what_s_wrong">चुनें कि क्या गलत है</string>
     <string name="choose_your_language">अपनी भाषा चुनें</string>
     <string name="choose_your_level">अपना स्तर चुनें</string>
     <string name="choose_your_x_plan">अपना %1$s प्लान चुनें</string>
@@ -167,6 +173,7 @@
     <string name="current_password">मौजूदा पासवर्ड</string>
     <string name="current_tier">मौजूदा टियर</string>
     <string name="daily_lessons_and_reviews">रोज़ के पाठ और दोहराव</string>
+    <string name="days_learned">पढ़ाई के दिन</string>
     <string name="decrease_new_words_per_day">रोज़ के नए शब्द घटाएँ</string>
     <string name="decrease_reviews_per_session">हर सत्र के दोहराव घटाएँ</string>
     <string name="dedicated">लगनशील</string>
@@ -178,11 +185,13 @@
     <string name="deleting_your_account">आपका खाता हटाया जा रहा है</string>
     <string name="deselect_all">सभी का चयन हटाएँ</string>
     <string name="details">विवरण</string>
+    <string name="details_optional">विवरण (वैकल्पिक)</string>
     <string name="didn_t_come_back_on_your_own">अपने आप याद नहीं आया</string>
     <string name="dining_out">बाहर खाना</string>
     <string name="done">हो गया</string>
     <string name="double_tap_to_wake_him_up">Syllie को जगाने के लिए दो बार टैप करें</string>
     <string name="each_day">हर दिन</string>
+    <string name="each_finished_learning_or_review_part_counts_as">सीखने या दोहराने का हर पूरा हिस्सा एक सत्र गिना जाता है।</string>
     <string name="each_session_reviews_x_words_so_some_words_will">हर सत्र में %1$d शब्द दोहराए जाते हैं, इसलिए कुछ शब्द योजना से देर में लौटेंगे और उन्हें भूलना आसान होगा।</string>
     <string name="each_word_earns_lp_a_limited_number_of_times_a_d">हर शब्द से दिन में सीमित बार ही LP मिलता है, इसलिए इस सत्र में कोई LP नहीं जुड़ा।</string>
     <string name="earn_lp_this_week_to_appear_on_the_board">बोर्ड पर दिखने के लिए इस सप्ताह LP कमाएँ।</string>
@@ -229,6 +238,7 @@
     <string name="find_meaning">अर्थ खोजें</string>
     <string name="finish_it_where_you_started_it_or_try_again_in_a">इसे वहीं पूरा करें जहाँ शुरू किया था, या कुछ मिनट बाद फिर कोशिश करें।</string>
     <string name="finish_today_s_flow_and_your_words_will_collect">आज का फ़्लो पूरा करें, आपके शब्द यहाँ जमा होंगे।</string>
+    <string name="finish_your_first_session_to_begin">शुरू करने के लिए अपना पहला सत्र पूरा करें।</string>
     <string name="finished">सीख लिया</string>
     <string name="first_steps">पहले कदम</string>
     <string name="flip_letters">अक्षर पलटें</string>
@@ -292,6 +302,7 @@
     <string name="keep_going">जारी रखें</string>
     <string name="keep_going_at_your_own_pace">अपनी रफ़्तार से आगे बढ़ते रहें।</string>
     <string name="keep_it_under_x_characters">इसे %1$d अक्षरों से कम रखें।</string>
+    <string name="keep_it_under_x_characters_2">अधिकतम %1$d वर्ण</string>
     <string name="keep_learning">सीखते रहें</string>
     <string name="keep_learning_as_usual">हमेशा की तरह सीखते रहें</string>
     <string name="keep_playing">खेलते रहें</string>
@@ -318,6 +329,7 @@
     <string name="learner">सीखने वाला</string>
     <string name="learning">सीख रहे हैं</string>
     <string name="learning_days">सीखने के दिन</string>
+    <string name="learning_journey">सीखने की यात्रा</string>
     <string name="leave">बाहर निकलें</string>
     <string name="leave_and_reset">बाहर निकलें और रीसेट करें</string>
     <string name="leave_it_to_start_this_one_it_won_t_count_as_a_w">इसे शुरू करने के लिए उसे छोड़ दें। वह जीत में नहीं गिना जाएगा।</string>
@@ -369,6 +381,7 @@
     <string name="match_x_pairs_no_timer">%1$d जोड़े मिलाएँ। कोई टाइमर नहीं।</string>
     <string name="matched">मिलाए गए</string>
     <string name="meaning">अर्थ</string>
+    <string name="meaning_reviews">अर्थ दोहराव</string>
     <string name="meaning_to_find">खोजने वाला अर्थ</string>
     <string name="meaning_x">अर्थ: %1$s</string>
     <string name="meanings">अर्थ</string>
@@ -377,9 +390,12 @@
     <string name="memory">याददाश्त</string>
     <string name="microphone_access_is_off_you_can_turn_it_on_in_s">माइक्रोफ़ोन की अनुमति बंद है। आप इसे सेटिंग्स में चालू कर सकते हैं।</string>
     <string name="mistakes">गलतियाँ</string>
+    <string name="month">महीना</string>
     <string name="monthly">मासिक</string>
     <string name="moods">मूड</string>
     <string name="more_actions">और विकल्प</string>
+    <string name="my_answer_should_be_accepted">मेरा उत्तर स्वीकार होना चाहिए</string>
+    <string name="my_pronunciation_was_marked_wrong">मेरा उच्चारण गलत आंका गया</string>
     <string name="my_words">My Words</string>
     <string name="name">नाम</string>
     <string name="need_practice">अभ्यास की ज़रूरत</string>
@@ -399,6 +415,9 @@
     <string name="new_words_day">नए शब्द / दिन</string>
     <string name="new_words_per_day">रोज़ के नए शब्द</string>
     <string name="new_words_per_session">हर सत्र के नए शब्द</string>
+    <string name="new_words_since_you_started">शुरुआत से अब तक के नए शब्द</string>
+    <string name="new_words_this_month">इस महीने के नए शब्द</string>
+    <string name="new_words_this_week">इस सप्ताह के नए शब्द</string>
     <string name="new_words_x">नए शब्द +%1$d</string>
     <string name="next">आगे</string>
     <string name="next_level">अगला स्तर</string>
@@ -414,7 +433,9 @@
     <string name="nice_work_2">शाबाश।</string>
     <string name="nicely_done">बहुत खूब!</string>
     <string name="no_ads">कोई विज्ञापन नहीं</string>
+    <string name="no_learning_yet_in_this_period">इस अवधि में अभी कोई पढ़ाई नहीं हुई।</string>
     <string name="no_longer_available">अब उपलब्ध नहीं</string>
+    <string name="no_new_words_in_this_period">इस अवधि में कोई नया शब्द नहीं।</string>
     <string name="no_new_words_left_in_your_topics_x_words_you_add">आपके विषयों में कोई नया शब्द नहीं बचा। आपके जोड़े %1$d शब्द अभी सीखने बाकी हैं।</string>
     <string name="no_new_words_today">आज कोई नया शब्द नहीं</string>
     <string name="no_reviews_today">आज कोई दोहराव नहीं</string>
@@ -450,11 +471,13 @@
     <string name="not_sure_take_the_test">पक्का नहीं पता? टेस्ट दें</string>
     <string name="not_sure_tap_skip_a_guess_can_place_you_too_high">पक्का नहीं पता? छोड़ें पर टैप करें: अंदाज़े से आप बहुत ऊँचे स्तर पर पहुँच सकते हैं।</string>
     <string name="not_tried_yet">अभी आज़माया नहीं</string>
+    <string name="not_up_to_date">अपडेट नहीं है</string>
     <string name="not_yet">अभी नहीं</string>
     <string name="nothing_here_is_scored_or_saved">यहाँ कुछ भी स्कोर या सेव नहीं होता।</string>
     <string name="nothing_to_practise_right_now">अभी अभ्यास के लिए कुछ नहीं है</string>
     <string name="nothing_to_review">दोहराने के लिए कुछ नहीं</string>
     <string name="noun">संज्ञा</string>
+    <string name="now">अभी</string>
     <string name="now_fluent_x">अब धाराप्रवाह (%1$d)</string>
     <string name="now_for_new_words_from_x">अब %1$s के नए शब्द</string>
     <string name="off">बंद</string>
@@ -466,6 +489,7 @@
     <string name="only_x_new_words_left_today_in_x">आज %2$s में सिर्फ़ %1$d नए शब्द बचे हैं</string>
     <string name="opens_the_exercise">अभ्यास खोलता है।</string>
     <string name="opens_the_word">शब्द खोलता है।</string>
+    <string name="opens_your_learning_history">आपका सीखने का इतिहास खोलता है</string>
     <string name="or">या</string>
     <string name="or_choose_it_yourself">या खुद चुनें</string>
     <string name="other_meanings">दूसरे अर्थ</string>
@@ -505,6 +529,7 @@
     <string name="price">कीमत</string>
     <string name="privacy_policy">गोपनीयता नीति</string>
     <string name="private_to_you">सिर्फ़ आपको दिखता है</string>
+    <string name="problem_with_the_audio_or_pronunciation">ऑडियो या उच्चारण में समस्या</string>
     <string name="productivity">उत्पादकता</string>
     <string name="professional_language_for_work_and_career">काम और करियर के लिए पेशेवर भाषा</string>
     <string name="proficient">निपुण</string>
@@ -519,6 +544,7 @@
     <string name="question_x_of_x">प्रश्न %1$d / %2$d</string>
     <string name="random_practice">यादृच्छिक अभ्यास</string>
     <string name="ranking">रैंकिंग</string>
+    <string name="reached">पूरा</string>
     <string name="read_words_aloud_in_your_lessons_right_or_wrong">अपने पाठों में शब्द ज़ोर से पढ़ें। सही हो या गलत, इससे आपकी प्रगति कभी नहीं बदलती।</string>
     <string name="reading_specialist_texts">विशेषज्ञ पाठ पढ़ना</string>
     <string name="reading_the_news_meetings_debates">समाचार पढ़ना, मीटिंग, बहस</string>
@@ -554,6 +580,8 @@
     <string name="replay">फिर चलाएँ</string>
     <string name="replay_level">स्तर फिर खेलें</string>
     <string name="replays_the_word_you_can_play_it_as_often_as_you">शब्द को फिर चलाता है। आप इसे जितनी बार चाहें सुन सकते हैं।</string>
+    <string name="report_a_problem">समस्या की रिपोर्ट करें</string>
+    <string name="report_sent_thank_you">रिपोर्ट भेज दी गई। धन्यवाद!</string>
     <string name="report_x">%1$s की रिपोर्ट करें?</string>
     <string name="reset_your_password">अपना पासवर्ड रीसेट करें</string>
     <string name="resets_x">%1$s को रीसेट होगा</string>
@@ -624,20 +652,25 @@
     <string name="selected">चुना गया</string>
     <string name="send_a_new_code">नया कोड भेजें</string>
     <string name="send_code">कोड भेजें</string>
+    <string name="send_report">रिपोर्ट भेजें</string>
+    <string name="sending">भेजा जा रहा है…</string>
     <string name="session_completed">सत्र पूरा हुआ</string>
     <string name="session_details">सत्र का ब्योरा</string>
     <string name="session_ended">सत्र खत्म हुआ</string>
     <string name="session_x">सत्र %1$d</string>
+    <string name="sessions_completed">पूरे किए गए सत्र</string>
     <string name="set_new_password">नया पासवर्ड सेट करें</string>
     <string name="settings">सेटिंग्स</string>
     <string name="shopping">खरीदारी</string>
     <string name="shopping_asking_the_way_daily_errands">खरीदारी, रास्ता पूछना, रोज़ के काम</string>
+    <string name="shorten_your_note">अपना नोट छोटा करें</string>
     <string name="show_all_x">सभी देखें (%1$d)</string>
     <string name="show_answer">उत्तर दिखाएँ</string>
     <string name="show_less">कम दिखाएँ</string>
     <string name="show_me_on_the_leaderboard">मुझे लीडरबोर्ड पर दिखाएँ</string>
     <string name="show_password">पासवर्ड दिखाएँ</string>
     <string name="show_word_now">शब्द अभी दिखाएँ</string>
+    <string name="show_x_more_words">%1$d और शब्द देखें</string>
     <string name="shows_all_topics">सभी विषय दिखाता है</string>
     <string name="shows_every_meaning_of_the_word">शब्द के सभी अर्थ दिखाता है</string>
     <string name="shows_the_results_screen">नतीजे की स्क्रीन दिखाता है।</string>
@@ -674,6 +707,7 @@
     <string name="step_x_of_x">चरण %1$d / %2$d</string>
     <string name="still_to_practise">अभी अभ्यास बाकी</string>
     <string name="stop_recording">रिकॉर्डिंग रोकें</string>
+    <string name="study_days_this_week">इस सप्ताह के अध्ययन दिवस</string>
     <string name="subscribe">सदस्यता लें</string>
     <string name="subscriptions_renew_automatically_unless_cancell">सदस्यताएँ अपने-आप रिन्यू होती हैं, जब तक अवधि खत्म होने से कम से कम 24 घंटे पहले रद्द न की जाएँ। इन्हें अपनी App Store खाता सेटिंग में प्रबंधित या रद्द करें।</string>
     <string name="suspicious_activity">संदिग्ध गतिविधि</string>
@@ -686,7 +720,10 @@
     <string name="tap_a_word_tile_to_place_it_here_then_check">किसी शब्द वाले टाइल पर टैप करके उसे यहाँ रखें, फिर जाँचें।</string>
     <string name="tap_the_microphone_and_read_aloud">माइक्रोफ़ोन पर टैप करें और ज़ोर से पढ़ें।</string>
     <string name="technology">तकनीक</string>
+    <string name="tell_us_what_s_wrong">बताएं कि क्या गलत है</string>
     <string name="telling_stories_talking_about_work">कहानियाँ सुनाना, काम के बारे में बात करना</string>
+    <string name="tells_our_editors_something_in_this_content_is_w">हमारे संपादकों को बताता है कि इस सामग्री में कुछ गलत है</string>
+    <string name="tells_our_editors_something_in_this_meaning_is_w">हमारे संपादकों को बताता है कि इस अर्थ में कुछ गलत है</string>
     <string name="terms_of_use">उपयोग की शर्तें</string>
     <string name="thanks_we_ll_take_a_look">धन्यवाद। हम इसे देखेंगे।</string>
     <string name="that_avatar_isn_t_available_any_more">वह अवतार अब उपलब्ध नहीं है।</string>
@@ -700,6 +737,8 @@
     <string name="that_name_isn_t_allowed_try_another_one">यह नाम मान्य नहीं है। कोई दूसरा आज़माएँ।</string>
     <string name="the_answer_is_x">उत्तर है “%1$s”</string>
     <string name="the_correct_answer">सही उत्तर</string>
+    <string name="the_definition_is_wrong">परिभाषा गलत है</string>
+    <string name="the_example_is_wrong_or_unnatural">उदाहरण गलत या अस्वाभाविक है</string>
     <string name="the_example_must_contain_x">उदाहरण में “%1$s” होना ज़रूरी है।</string>
     <string name="the_free_plan_has_a_limit_on_topics_upgrade_to_p">मुफ़्त प्लान में विषयों की सीमा है। और चुनने के लिए Premium लें।</string>
     <string name="the_free_plan_includes_x_topics_remove_some_to_s">मुफ़्त प्लान में %1$d विषय हैं। सेव करने के लिए कुछ हटाएँ, या सभी रखने के लिए अपग्रेड करें।</string>
@@ -708,17 +747,22 @@
     <string name="the_free_plan_keeps_the_first_collection_you_cho_2">फ़्री प्लान में आपका चुना पहला संग्रह ही रहता है। किसी भी संग्रह पर जाने के लिए अपग्रेड करें।</string>
     <string name="the_leaderboard_isn_t_open_yet">लीडरबोर्ड अभी खुला नहीं है।</string>
     <string name="the_leaderboard_opens_soon_your_lp_and_tier_alre">लीडरबोर्ड जल्द खुलेगा। आपके LP और टियर पहले से गिने जा रहे हैं।</string>
+    <string name="the_meaning_or_translation_is_wrong">अर्थ या अनुवाद गलत है</string>
     <string name="the_purchase_didn_t_go_through_you_haven_t_been">खरीद पूरी नहीं हुई। आपसे कोई शुल्क नहीं लिया गया।</string>
+    <string name="the_question_or_answer_doesn_t_make_sense">प्रश्न या उत्तर का अर्थ नहीं बनता</string>
     <string name="the_same_board_with_no_clock_at_your_own_pace">वही बोर्ड, बिना घड़ी के, आपकी अपनी रफ़्तार से।</string>
     <string name="the_test_isn_t_ready_yet">टेस्ट अभी तैयार नहीं है</string>
     <string name="this_challenge_isn_t_available_right_now">यह चुनौती अभी उपलब्ध नहीं है</string>
     <string name="this_chapter_opens_once_you_ve_learned_enough_ne">यह अध्याय तब खुलेगा जब आप अपने दैनिक पाठ में काफ़ी नए शब्द सीख लेंगे।</string>
     <string name="this_chapter_uses_x_meanings">इस अध्याय में %1$s वाले अर्थ इस्तेमाल होते हैं।</string>
+    <string name="this_content_is_no_longer_available_to_report">यह सामग्री अब रिपोर्ट के लिए उपलब्ध नहीं है।</string>
     <string name="this_email_already_has_an_account_try_logging_in">इस ईमेल से पहले से खाता है। लॉग इन करके देखें।</string>
     <string name="this_level_isn_t_open_yet">यह स्तर अभी खुला नहीं है</string>
     <string name="this_meaning_hasn_t_been_learned_yet_no_progress">यह अर्थ अभी सीखा नहीं गया है, इसलिए कोई प्रगति नहीं है।</string>
+    <string name="this_meaning_shows_your_own_edit_so_it_can_t_be">यह अर्थ आपका अपना संपादन दिखाता है, इसलिए इसकी रिपोर्ट नहीं की जा सकती।</string>
     <string name="this_needs_syll_premium">इसके लिए Syll Premium चाहिए।</string>
     <string name="this_practice_round_isn_t_saved">यह अभ्यास राउंड सेव नहीं होता।</string>
+    <string name="this_report_couldn_t_be_sent_please_try_again">यह रिपोर्ट नहीं भेजी जा सकी। कृपया फिर से कोशिश करें।</string>
     <string name="this_run_has_ended">यह राउंड खत्म हो चुका है</string>
     <string name="this_run_won_t_be_saved_as_a_win">यह राउंड जीत के रूप में सेव नहीं होगा।</string>
     <string name="this_session_is_no_longer_available_start_a_new">यह सत्र अब उपलब्ध नहीं है। जारी रखने के लिए नया सत्र शुरू करें।</string>
@@ -732,6 +776,7 @@
     <string name="toeic">TOEIC</string>
     <string name="topics_x_x">विषय · %1$d/%2$d</string>
     <string name="total_attempts">कुल कोशिशें</string>
+    <string name="tracking_since_x">%1$s से ट्रैक किया जा रहा है</string>
     <string name="translating">अनुवाद हो रहा है</string>
     <string name="translation">अनुवाद</string>
     <string name="travel">यात्रा</string>
@@ -763,6 +808,7 @@
     <string name="used_a_hint">संकेत इस्तेमाल किया</string>
     <string name="verb">क्रिया</string>
     <string name="vietnamese_meaning_x">वियतनामी अर्थ: %1$s</string>
+    <string name="vocabulary_grew_from_x_to_x_words">शब्दावली %1$d से बढ़कर %2$d शब्द हुई</string>
     <string name="we_couldn_t_check_this_run">हम इस राउंड को जाँच नहीं सके</string>
     <string name="we_couldn_t_confirm_this_purchase_please_try_aga">हम इस खरीद की पुष्टि नहीं कर सके। कृपया फिर से कोशिश करें।</string>
     <string name="we_couldn_t_hear_you_clearly">हमें आपकी आवाज़ साफ़ सुनाई नहीं दी।</string>
@@ -773,9 +819,12 @@
     <string name="we_sent_a_code_to_x_enter_it_and_choose_a_new_pa">हमने %1$s पर एक कोड भेजा है। उसे डालें और नया पासवर्ड चुनें।</string>
     <string name="we_sent_a_confirmation_link_to_x_open_it_then_lo">हमने %1$s पर पुष्टि का लिंक भेजा है। उसे खोलें, फिर लॉग इन करें।</string>
     <string name="weak_words">कमज़ोर शब्द</string>
+    <string name="week">सप्ताह</string>
+    <string name="weekly_goal_reached">साप्ताहिक लक्ष्य पूरा</string>
     <string name="weekly_leaderboard">साप्ताहिक लीडरबोर्ड</string>
     <string name="weekly_rank">साप्ताहिक रैंक</string>
     <string name="weekly_ranking">साप्ताहिक रैंकिंग</string>
+    <string name="what_s_wrong">क्या गलत है?</string>
     <string name="what_s_your_english_level">आपका अंग्रेज़ी का स्तर क्या है?</string>
     <string name="which_collection_do_you_want_to_learn">आप कौन सा संग्रह सीखना चाहते हैं?</string>
     <string name="which_topics_interest_you">आपको कौन से विषय पसंद हैं?</string>
@@ -809,6 +858,7 @@
     <string name="wrong_email_or_password">ईमेल या पासवर्ड गलत है।</string>
     <string name="x_after_this_session">इस सत्र के बाद %1$s</string>
     <string name="x_already_knew">+%1$d पहले से पता थे</string>
+    <string name="x_and_x_more">%1$s और %2$d अन्य</string>
     <string name="x_answers_weren_t_scored_x">%1$d उत्तर नहीं जाँचे गए: %2$s</string>
     <string name="x_days_a_week">सप्ताह में %1$d दिन</string>
     <string name="x_doesn_t_fit_this_sentence">“%1$s” इस वाक्य में सही नहीं बैठता।</string>
@@ -845,6 +895,7 @@
     <string name="x_of_x_matched_x_mistakes_longest_combo_x">%1$d / %2$d मिलाए · %3$d गलतियाँ · सबसे लंबा कॉम्बो %4$d</string>
     <string name="x_of_x_meanings_learned">%1$d / %2$d अर्थ सीखे</string>
     <string name="x_of_x_stars">%1$d / %2$d सितारे</string>
+    <string name="x_of_x_study_days_this_week">इस सप्ताह %2$d में से %1$d अध्ययन दिवस</string>
     <string name="x_of_x_words_learned">%1$d / %2$d शब्द सीखे</string>
     <string name="x_of_your_x_free_new_words_left">आपके %2$d मुफ़्त नए शब्दों में से %1$d बाकी हैं</string>
     <string name="x_option">%1$s, विकल्प</string>
@@ -856,6 +907,8 @@
     <string name="x_seconds">%1$d सेकंड</string>
     <string name="x_seconds_left">%1$d सेकंड बाकी</string>
     <string name="x_stars_in_total">कुल %1$d सितारे</string>
+    <string name="x_studied_on_x">%1$s, %2$s को पढ़ाई की</string>
+    <string name="x_study_days_this_week">इस सप्ताह के अध्ययन दिवस: %1$d</string>
     <string name="x_to_practise_again">%1$d को फिर से अभ्यास करना है</string>
     <string name="x_to_relearn">%1$d दोबारा सीखने हैं</string>
     <string name="x_to_review">%1$d दोहराने हैं</string>
@@ -923,6 +976,8 @@
     <string name="your_effort_has_become_a_lasting_mark_on_your_jo">आपकी मेहनत Syll के साथ आपकी यात्रा में एक स्थायी छाप बन गई है।</string>
     <string name="your_first_lesson_has_x_new_words">आपके पहले पाठ में %1$d नए शब्द हैं।</string>
     <string name="your_focus">आपका फ़ोकस</string>
+    <string name="your_journey">आपकी यात्रा</string>
+    <string name="your_journey_starts_with_one_word">आपकी यात्रा एक शब्द से शुरू होती है</string>
     <string name="your_learned_words_will_still_be_reviewed_choose">आपके सीखे हुए शब्द फिर भी दोहराए जाएँगे। नए शब्द सीखने के लिए कोई दूसरा संग्रह चुनें।</string>
     <string name="your_learned_words_will_still_be_reviewed_upgrad">आपके सीखे हुए शब्दों का दोहराव जारी रहेगा। नए शब्द सीखते रहने के लिए %1$s में अपग्रेड करें।</string>
     <string name="your_level">आपका स्तर</string>
@@ -941,4 +996,5 @@
     <string name="your_routine">आपकी दिनचर्या</string>
     <string name="your_sessions_are_adding_up_into_your_first_stre">आपके सत्र जुड़कर प्रगति का आपका पहला दौर बना रहे हैं।</string>
     <string name="your_stars_are_safe">आपके सितारे सुरक्षित हैं।</string>
+    <string name="your_vocabulary">आपकी शब्दावली</string>
 </resources>
