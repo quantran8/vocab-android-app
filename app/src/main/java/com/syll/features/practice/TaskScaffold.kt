@@ -2,10 +2,11 @@ package com.syll.features.practice
 
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.core.MutableTransitionState
 import com.syll.designsystem.motion.symbolBounceOnce
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -499,7 +500,13 @@ private fun RevealButton(attempt: TaskAttempt) {
 fun HintControl(attempt: TaskAttempt, onReveal: () -> Unit = {}) {
     val store = LocalPracticeSessionStore.current
     val canHint = attempt.hintsUsed < TaskAttempt.MAX_HINTS
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+    // Keeps the hint row clear of the Check button below.
+    val bottomGap by animateDpAsState(
+        if (attempt.hints.isEmpty()) 0.dp else Spacing.m,
+        LocalMotion.current.animation(MotionTokens.feedback),
+        label = "hintGap",
+    )
+    Column(Modifier.padding(bottom = bottomGap), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 stringResource(R.string.reveal_hint_x_x, attempt.hintsUsed, TaskAttempt.MAX_HINTS),
@@ -524,30 +531,34 @@ fun HintControl(attempt: TaskAttempt, onReveal: () -> Unit = {}) {
                     .padding(vertical = Spacing.s),
             )
         }
-        attempt.hints.forEach { hint ->
-            val label = stringResource(R.string.hint_x, hint.replace("_", "blank"))
-            // Each new hint pops in (iOS `popTransition` under the `feedback` spring).
-            val appeared = remember { MutableTransitionState(false).apply { targetState = true } }
-            val motion = LocalMotion.current
-            AnimatedVisibility(
-                appeared,
-                enter = if (motion.reduceMotion) {
-                    fadeIn(motion.animation(MotionTokens.feedback))
-                } else {
-                    scaleIn(MotionTokens.feedback.spec(), initialScale = 0.88f, transformOrigin = TransformOrigin(0f, 0.5f)) +
-                        fadeIn(MotionTokens.feedback.spec())
-                },
-            ) {
-            Text(
-                hint,
-                style = Typography.body.copy(fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, letterSpacing = 3.sp),
-                color = SyllColors.blue700,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(SyllColors.blue50, RoundedCornerShape(8.dp))
-                    .padding(horizontal = Spacing.s, vertical = 6.dp)
-                    .semantics { contentDescription = label },
-            )
+        // One row that fills in: each hint opens the next letter of the same row.
+        val hint = attempt.hints.lastOrNull()
+        val motion = LocalMotion.current
+        AnimatedVisibility(
+            visible = hint != null,
+            enter = if (motion.reduceMotion) {
+                fadeIn(motion.animation(MotionTokens.feedback))
+            } else {
+                scaleIn(MotionTokens.feedback.spec(), initialScale = 0.88f, transformOrigin = TransformOrigin(0f, 0.5f)) +
+                    fadeIn(MotionTokens.feedback.spec())
+            },
+            exit = fadeOut(motion.animation(MotionTokens.feedback)),
+        ) {
+            var lastHint by remember { mutableStateOf(hint) }
+            if (hint != null) lastHint = hint
+            val shown = lastHint ?: return@AnimatedVisibility
+            val label = stringResource(R.string.hint_x, shown.replace("_", "blank"))
+            Crossfade(shown, animationSpec = motion.animation(MotionTokens.feedback), label = "hint") { text ->
+                Text(
+                    text,
+                    style = Typography.body.copy(fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, letterSpacing = 3.sp),
+                    color = SyllColors.blue700,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(SyllColors.blue50, RoundedCornerShape(8.dp))
+                        .padding(horizontal = Spacing.s, vertical = 6.dp)
+                        .semantics { contentDescription = label },
+                )
             }
         }
     }
