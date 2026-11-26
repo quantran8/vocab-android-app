@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">आपकी रिकॉर्डिंग जाँची नहीं जा सकी।</string>
     <string name="couldn_t_connect">कनेक्ट नहीं हो सका</string>
     <string name="couldn_t_get_your_result">आपका नतीजा नहीं मिल सका</string>
+    <string name="couldn_t_load">लोड नहीं हो सका</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">प्लान लोड नहीं हो सके। अपना कनेक्शन जाँचें और फिर से कोशिश करें।</string>
     <string name="couldn_t_load_the_test">टेस्ट लोड नहीं हो सका</string>
     <string name="couldn_t_load_this_word">यह शब्द लोड नहीं हो सका</string>
@@ -670,7 +671,10 @@
     <string name="show_me_on_the_leaderboard">मुझे लीडरबोर्ड पर दिखाएँ</string>
     <string name="show_password">पासवर्ड दिखाएँ</string>
     <string name="show_word_now">शब्द अभी दिखाएँ</string>
-    <string name="show_x_more_words">%1$d और शब्द देखें</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="one">%1$d और विषय देखें</item>
+        <item quantity="other">%1$d और विषय देखें</item>
+    </plurals>
     <string name="shows_all_topics">सभी विषय दिखाता है</string>
     <string name="shows_every_meaning_of_the_word">शब्द के सभी अर्थ दिखाता है</string>
     <string name="shows_the_results_screen">नतीजे की स्क्रीन दिखाता है।</string>
@@ -883,6 +887,18 @@
     <string name="x_new_words">%1$d नए शब्द</string>
     <string name="x_new_words_are_waiting">%1$d नए शब्द आपका इंतज़ार कर रहे हैं।</string>
     <string name="x_new_words_left_about_x_sessions">%1$d नए शब्द बाकी, लगभग %2$d सत्र</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="one">शुरुआत से अब तक +%1$d नए शब्द</item>
+        <item quantity="other">शुरुआत से अब तक +%1$d नए शब्द</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="one">इस महीने +%1$d नए शब्द</item>
+        <item quantity="other">इस महीने +%1$d नए शब्द</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="one">इस सप्ताह +%1$d नए शब्द</item>
+        <item quantity="other">इस सप्ताह +%1$d नए शब्द</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">आज %1$d नए शब्द, आपके दोहराव के साथ संतुलित</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">आज %1$d नए शब्द (प्रतीक्षा में शब्द कम होने तक घटाए गए)</string>
     <string name="x_new_words_today_lowered_until_x">आज %1$d नए शब्द (%2$s तक घटाए गए)</string>
@@ -982,6 +998,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">आपके सीखे हुए शब्दों का दोहराव जारी रहेगा। नए शब्द सीखते रहने के लिए %1$s में अपग्रेड करें।</string>
     <string name="your_level">आपका स्तर</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">आपका नाम, अवतार, टियर और इस सप्ताह के LP सार्वजनिक हो जाएँगे</string>
+    <string name="your_own_words">आपके अपने शब्द</string>
     <string name="your_password_has_been_changed">आपका पासवर्ड बदल दिया गया है।</string>
     <string name="your_plan">आपका प्लान</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">आपका प्लान App Store में मैनेज होता है। अगली अवधि का शुल्क न लगे, इसके लिए रिन्यूअल से कम से कम 24 घंटे पहले रद्द करें।</string>

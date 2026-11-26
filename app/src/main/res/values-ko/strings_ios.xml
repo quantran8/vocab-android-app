@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">녹음을 확인하지 못했어요.</string>
     <string name="couldn_t_connect">연결하지 못했어요</string>
     <string name="couldn_t_get_your_result">결과를 가져오지 못했어요</string>
+    <string name="couldn_t_load">불러오지 못했어요</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">플랜을 불러오지 못했어요. 연결을 확인하고 다시 시도하세요.</string>
     <string name="couldn_t_load_the_test">테스트를 불러오지 못했어요</string>
     <string name="couldn_t_load_this_word">이 단어를 불러오지 못했어요</string>
@@ -669,7 +670,9 @@
     <string name="show_me_on_the_leaderboard">순위표에 나 표시하기</string>
     <string name="show_password">비밀번호 보기</string>
     <string name="show_word_now">단어 바로 보기</string>
-    <string name="show_x_more_words">단어 %1$d개 더 보기</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">주제 %1$d개 더 보기</item>
+    </plurals>
     <string name="shows_all_topics">모든 주제를 보여줘요</string>
     <string name="shows_every_meaning_of_the_word">단어의 모든 뜻을 보여줘요</string>
     <string name="shows_the_results_screen">결과 화면을 보여줘요.</string>
@@ -881,6 +884,15 @@
     <string name="x_new_words">새 단어 %1$d개</string>
     <string name="x_new_words_are_waiting">새 단어 %1$d개가 기다리고 있어요.</string>
     <string name="x_new_words_left_about_x_sessions">남은 새 단어 %1$d개, 약 %2$d세션</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">시작한 이후 새 단어 +%1$d개</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">이번 달 새 단어 +%1$d개</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">이번 주 새 단어 +%1$d개</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">오늘 새 단어 %1$d개, 복습과 균형 유지</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">오늘 새 단어 %1$d개 (대기 단어가 줄어들 때까지 줄임)</string>
     <string name="x_new_words_today_lowered_until_x">오늘 새 단어 %1$d개 (%2$s까지 줄임)</string>
@@ -980,6 +992,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">배운 단어는 계속 복습돼요. 새 단어를 계속 배우려면 %1$s으로 업그레이드하세요.</string>
     <string name="your_level">내 레벨</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">내 이름, 아바타, 티어, 이번 주 LP가 공개돼요</string>
+    <string name="your_own_words">직접 추가한 단어</string>
     <string name="your_password_has_been_changed">비밀번호가 변경됐어요.</string>
     <string name="your_plan">내 플랜</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">플랜은 App Store에서 관리됩니다. 다음 기간 요금이 청구되지 않도록 갱신 최소 24시간 전에 취소하세요.</string>

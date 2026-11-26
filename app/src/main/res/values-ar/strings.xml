@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">تُدار خطتك في Google Play. ألغِها قبل التجديد حتى لا تُحاسَب على الفترة التالية.</string>
     <string name="no_subscription_found_for_this_google_account">لم يُعثر على اشتراك لحساب Google هذا.</string>
     <string name="couldn_t_reach_google_play_please_try_again">تعذّر الوصول إلى Google Play. حاول مرة أخرى.</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

@@ -14,4 +14,5 @@
     <string name="couldn_t_reach_google_play_please_try_again">Couldn’t reach Google Play. Please try again.</string>
     <!-- Debug-only screens (design gallery) are not translated. -->
     <string name="debug_design_gallery" translatable="false">Design gallery</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

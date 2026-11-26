@@ -47,7 +47,7 @@ python3 tools/xcstrings2android/convert.py [--strict]        # regenerate string
 
 ## Localization
 
-- Shared strings come from iOS: `tools/xcstrings2android/convert.py` reads `ios_app/VocabFlow/Resources/Localizable.xcstrings` (stale keys skipped) and writes `res/values*/strings_ios.xml` (generated, never edit) with names kept stable in `tools/xcstrings2android/string_names.json` (commit it). `%@`→`%s`, `%lld`→`%d`, always positional; plural keys → `<plurals>`.
+- Shared strings come from iOS: `tools/xcstrings2android/convert.py` reads `ios_app/Syll/Resources/Localizable.xcstrings` (stale keys skipped) and writes `res/values*/strings_ios.xml` (generated, never edit) with names kept stable in `tools/xcstrings2android/string_names.json` (commit it). `%@`→`%s`, `%lld`→`%d`, always positional; plural keys → `<plurals>`.
 - Android-only strings go in `res/values*/strings.xml`; every one needs all 11 languages (`AppLanguage.entries`: vi, en, hi, es, ja, pt-BR, ko, zh-Hant, th, ar, id), like iOS. Debug-only text may be `translatable="false"`.
 - Display language = Android per-app language (`AppSettingsStore.setLanguage` → `AppCompatDelegate.setApplicationLocales`; the activity is recreated and Arabic flips to RTL). Use start/end, never left/right. Resource folders: `values-pt-rBR`, `values-b+zh+Hant`, `values-in` (Indonesian).
 

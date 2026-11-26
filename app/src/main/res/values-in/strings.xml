@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">Paketmu dikelola di Google Play. Batalkan sebelum diperpanjang agar tidak ditagih untuk periode berikutnya.</string>
     <string name="no_subscription_found_for_this_google_account">Tidak ada langganan untuk Akun Google ini.</string>
     <string name="couldn_t_reach_google_play_please_try_again">Tidak dapat terhubung ke Google Play. Coba lagi.</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

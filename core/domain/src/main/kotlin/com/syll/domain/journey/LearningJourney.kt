@@ -82,10 +82,56 @@ data class LearningJourney(
         val completedSessions: Int? = null,
         val reviewedMeanings: Int? = null,
         val points: List<Point> = emptyList(),
-    )
+        /** The period's new words by topic, most first. Null from an older backend: the page hides the card. */
+        val newWordsByTopic: List<TopicNewWords>? = null,
+    ) {
+        /** The figure beside "New words this …": the period's count, or the topics' sum when it is missing. */
+        val topicNewWordsTotal: Int? get() = newWordsByTopic?.let { topics -> newWords ?: topics.sumOf { it.count } }
+    }
+
+    /** One topic's share of the period's new words (FRONTEND_FLOW §17). [topicId] null is the learner's own words. */
+    @Serializable
+    data class TopicNewWords(
+        val topicId: String? = null,
+        val title: String? = null,
+        /** An SF Symbol name; the app maps the ones it knows. */
+        val iosIcon: String? = null,
+        /** The topic's colour, `#RRGGBB`; null for the own-words group or when unset. */
+        val color: String? = null,
+        val count: Int,
+        /** The topic's newest words in the period, newest first, at most three. */
+        val recentLemmas: List<String> = emptyList(),
+        /** The topic was finished during the period: an event of the period, not progress. */
+        val finishedInPeriod: Boolean = false,
+    ) {
+        val isOwnWords: Boolean get() = topicId == null
+        /** The `topicId` query value of `GET /me/learning-journey/words`: the uuid, or "none" for the own words. */
+        val wordsQueryKey: String get() = topicId ?: OWN_WORDS_KEY
+        /** 0xRRGGBB, or null when the row falls back to the neutral colour. */
+        val markHex: Int? get() = if (isOwnWords) null else com.syll.domain.HexColor.parse(color)
+        /** The newest words, with "…" only when the topic has more than those. */
+        val recentLine: String? get() {
+            if (recentLemmas.isEmpty()) return null
+            val joined = recentLemmas.joinToString(", ")
+            return if (count > recentLemmas.size) "$joined…" else joined
+        }
+
+        companion object {
+            const val OWN_WORDS_KEY = "none"
+            /** Rows shown before "Show N more topics". */
+            const val COLLAPSED_LIMIT = 4
+
+            /** The rows on screen: the first [COLLAPSED_LIMIT] unless expanded. */
+            fun visible(topics: List<TopicNewWords>, expanded: Boolean): List<TopicNewWords> =
+                if (expanded) topics else topics.take(COLLAPSED_LIMIT)
+
+            /** How many rows "Show N more topics" opens; 0 hides the row. */
+            fun hiddenCount(topics: List<TopicNewWords>): Int = maxOf(0, topics.size - COLLAPSED_LIMIT)
+        }
+    }
 }
 
-/** iOS `JourneyWordsPage`: `GET /me/learning-journey/words`, the period's new words, newest first. */
+/** iOS `JourneyWordsPage`: `GET /me/learning-journey/words`, one topic's new words in the period, newest first. */
 @Serializable
 data class JourneyWordsPage(val total: Int, val items: List<JourneyWord>)
 
@@ -99,23 +145,4 @@ data class JourneyWord(
     val learnedOn: String,
 ) {
     val meaningText: String get() = meaningTexts.joinToString("; ")
-}
-
-/** iOS `JourneyWordDay`: one day of the new-words timeline. */
-data class JourneyWordDay(val date: String, val words: List<JourneyWord>) {
-    companion object {
-        /** Pages arrive newest first, so a day can span two pages; it stays one group. */
-        fun grouped(words: List<JourneyWord>): List<JourneyWordDay> {
-            val days = mutableListOf<JourneyWordDay>()
-            for (word in words) {
-                val last = days.lastOrNull()
-                if (last != null && last.date == word.learnedOn) {
-                    days[days.lastIndex] = last.copy(words = last.words + word)
-                } else {
-                    days += JourneyWordDay(word.learnedOn, listOf(word))
-                }
-            }
-            return days
-        }
-    }
 }

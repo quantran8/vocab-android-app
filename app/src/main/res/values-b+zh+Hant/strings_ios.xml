@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">無法檢查你的錄音。</string>
     <string name="couldn_t_connect">無法連線</string>
     <string name="couldn_t_get_your_result">無法取得你的結果</string>
+    <string name="couldn_t_load">無法載入</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">無法載入方案。請檢查網路連線後再試一次。</string>
     <string name="couldn_t_load_the_test">無法載入測驗</string>
     <string name="couldn_t_load_this_word">無法載入這個單字</string>
@@ -669,7 +670,9 @@
     <string name="show_me_on_the_leaderboard">在排行榜上顯示我</string>
     <string name="show_password">顯示密碼</string>
     <string name="show_word_now">立即顯示單字</string>
-    <string name="show_x_more_words">再顯示 %1$d 個單字</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">再顯示 %1$d 個主題</item>
+    </plurals>
     <string name="shows_all_topics">顯示所有主題</string>
     <string name="shows_every_meaning_of_the_word">顯示這個單字的所有詞義</string>
     <string name="shows_the_results_screen">顯示結果畫面。</string>
@@ -881,6 +884,15 @@
     <string name="x_new_words">%1$d 個新單字</string>
     <string name="x_new_words_are_waiting">有 %1$d 個新單字等你學。</string>
     <string name="x_new_words_left_about_x_sessions">還剩 %1$d 個新單字，約 %2$d 次練習</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">開始至今新增 %1$d 個單字</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">本月新增 %1$d 個單字</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">本週新增 %1$d 個單字</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">今天 %1$d 個新單字，已與複習取得平衡</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">今天 %1$d 個新單字（調降至等待的單字變少為止）</string>
     <string name="x_new_words_today_lowered_until_x">今天 %1$d 個新單字（調降至%2$s）</string>
@@ -980,6 +992,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">已學的單字仍會繼續複習。升級 %1$s 即可繼續學習新單字。</string>
     <string name="your_level">你的程度</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">你的名稱、頭像、段位和本週 LP 將會公開</string>
+    <string name="your_own_words">你自己新增的單字</string>
     <string name="your_password_has_been_changed">你的密碼已變更。</string>
     <string name="your_plan">你的方案</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">你的方案由 App Store 管理。請在續訂前至少 24 小時取消，以免被收取下一期費用。</string>

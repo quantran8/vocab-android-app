@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">録音を確認できませんでした。</string>
     <string name="couldn_t_connect">接続できませんでした</string>
     <string name="couldn_t_get_your_result">結果を取得できませんでした</string>
+    <string name="couldn_t_load">読み込めませんでした</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">プランを読み込めませんでした。接続を確認してもう一度お試しください。</string>
     <string name="couldn_t_load_the_test">テストを読み込めませんでした</string>
     <string name="couldn_t_load_this_word">この単語を読み込めませんでした</string>
@@ -669,7 +670,9 @@
     <string name="show_me_on_the_leaderboard">リーダーボードに表示する</string>
     <string name="show_password">パスワードを表示</string>
     <string name="show_word_now">今すぐ単語を表示</string>
-    <string name="show_x_more_words">あと%1$d語を表示</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">あと%1$d件のトピックを表示</item>
+    </plurals>
     <string name="shows_all_topics">すべてのトピックを表示します</string>
     <string name="shows_every_meaning_of_the_word">この単語のすべての意味を表示します</string>
     <string name="shows_the_results_screen">結果画面を表示します。</string>
@@ -881,6 +884,15 @@
     <string name="x_new_words">新しい単語 %1$d語</string>
     <string name="x_new_words_are_waiting">新しい単語が%1$d語待っています。</string>
     <string name="x_new_words_left_about_x_sessions">新しい単語はあと%1$d語、約%2$dセッション</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">始めてからの新しい単語 +%1$d語</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">今月の新しい単語 +%1$d語</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">今週の新しい単語 +%1$d語</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">今日の新しい単語 %1$d語（復習とのバランス調整済み）</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">今日の新しい単語 %1$d語（待っている単語が減るまで減らしています）</string>
     <string name="x_new_words_today_lowered_until_x">今日の新しい単語 %1$d語（%2$sまで減らしています）</string>
@@ -980,6 +992,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">学んだ単語の復習はこれからも続きます。新しい単語を学び続けるには %1$s にアップグレードしてください。</string>
     <string name="your_level">あなたのレベル</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">あなたの名前、アバター、ティア、今週のLPが公開されます</string>
+    <string name="your_own_words">自分で追加した単語</string>
     <string name="your_password_has_been_changed">パスワードを変更しました。</string>
     <string name="your_plan">あなたのプラン</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">プランはApp Storeで管理されています。次の期間の料金が発生しないよう、更新の24時間以上前に解約してください。</string>

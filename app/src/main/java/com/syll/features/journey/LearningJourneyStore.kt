@@ -36,13 +36,16 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         private set
     var periodLoads by mutableStateOf<Map<JourneyPeriod, Load>>(emptyMap())
         private set
-    /** The period's new words, as many pages as were loaded, newest first. */
-    var words by mutableStateOf<Map<JourneyPeriod, List<JourneyWord>>>(emptyMap())
+    /** One topic's new words in a period (the topic sheet), as many pages as were loaded, newest first. */
+    var topicWords by mutableStateOf<Map<TopicWordsKey, List<JourneyWord>>>(emptyMap())
         private set
-    var wordTotals by mutableStateOf<Map<JourneyPeriod, Int>>(emptyMap())
+    var topicWordTotals by mutableStateOf<Map<TopicWordsKey, Int>>(emptyMap())
         private set
-    var wordLoads by mutableStateOf<Map<JourneyPeriod, Load>>(emptyMap())
+    var topicWordLoads by mutableStateOf<Map<TopicWordsKey, Load>>(emptyMap())
         private set
+
+    /** [topic] is `TopicNewWords.wordsQueryKey`: the topic id, or "none" for the learner's own words. */
+    data class TopicWordsKey(val period: JourneyPeriod, val topic: String)
 
     /** Bumped by [reset] and [invalidate], so an answer for the previous account or an older state is dropped. */
     private var generation = 0
@@ -92,25 +95,32 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         }
     }
 
-    /** The first page of the period's new words, or the next one with [more]. A failure keeps what was loaded. */
-    suspend fun loadWords(period: JourneyPeriod, more: Boolean = false, force: Boolean = false) {
-        val loaded = words[period].orEmpty()
-        if (!more && !force && words[period] != null) return
-        if (more && loaded.size >= (wordTotals[period] ?: Int.MAX_VALUE)) return
-        if (wordLoads[period] == Load.Loading) return
+    /** The first page of a topic's new words, or the next one with [more]. A failure keeps what was loaded. */
+    suspend fun loadTopicWords(key: TopicWordsKey, more: Boolean = false, force: Boolean = false) {
+        val loaded = topicWords[key].orEmpty()
+        if (!more && !force && topicWords[key] != null) return
+        if (more && loaded.size >= (topicWordTotals[key] ?: Int.MAX_VALUE)) return
+        if (topicWordLoads[key] == Load.Loading) return
         val started = generation
-        wordLoads = wordLoads + (period to Load.Loading)
+        topicWordLoads = topicWordLoads + (key to Load.Loading)
         try {
-            val page = api.learningJourneyWords(period, if (more) WORD_PAGE else FIRST_WORD_PAGE, if (more) loaded.size else 0)
+            val page = api.learningJourneyWords(key.period, key.topic, WORD_PAGE, if (more) loaded.size else 0)
             if (started != generation) return
-            words = words + (period to if (more) loaded + page.items else page.items)
-            wordTotals = wordTotals + (period to page.total)
-            wordLoads = wordLoads + (period to Load.Loaded)
+            topicWords = topicWords + (key to if (more) loaded + page.items else page.items)
+            topicWordTotals = topicWordTotals + (key to page.total)
+            topicWordLoads = topicWordLoads + (key to Load.Loaded)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            if (started == generation) wordLoads = wordLoads + (period to Load.Failed(UserMessage.Api(e.asApiError)))
+            if (started == generation) topicWordLoads = topicWordLoads + (key to Load.Failed(UserMessage.Api(e.asApiError)))
         }
+    }
+
+    /** Whether the sheet can ask for another page: more exist and the last request didn't fail or is still running. */
+    fun canLoadMoreTopicWords(key: TopicWordsKey): Boolean {
+        val loaded = topicWords[key] ?: return false
+        val total = topicWordTotals[key] ?: return false
+        return loaded.size < total && topicWordLoads[key] == Load.Loaded
     }
 
     /** After a committed session: everything is stale, but stays on screen until it reloads. */
@@ -120,9 +130,9 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         periodLoadedAt = emptyMap()
         if (summaryLoad == Load.Loading) summaryLoad = Load.Idle
         periodLoads = periodLoads.mapValues { (_, load) -> if (load == Load.Loading) Load.Idle else load }
-        words = emptyMap()
-        wordTotals = emptyMap()
-        wordLoads = emptyMap()
+        topicWords = emptyMap()
+        topicWordTotals = emptyMap()
+        topicWordLoads = emptyMap()
     }
 
     /** Sign-out and account deletion: nothing carries over to the next account. */
@@ -134,9 +144,9 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
         periods = emptyMap()
         periodLoads = emptyMap()
         periodLoadedAt = emptyMap()
-        words = emptyMap()
-        wordTotals = emptyMap()
-        wordLoads = emptyMap()
+        topicWords = emptyMap()
+        topicWordTotals = emptyMap()
+        topicWordLoads = emptyMap()
     }
 
     private fun isStale(loadedAt: Instant?): Boolean {
@@ -149,8 +159,7 @@ class LearningJourneyStore(private val api: VocabApi, private val now: () -> Ins
     private companion object {
         /** Reloaded after this long, or once the day changes. */
         val FRESH_FOR: Duration = Duration.ofMinutes(5)
-        /** The first page shows this many; "Show more" adds a page. */
-        const val FIRST_WORD_PAGE = 10
-        const val WORD_PAGE = 20
+        /** A topic's words arrive this many at a time; the sheet asks for the next page near its end. */
+        const val WORD_PAGE = 30
     }
 }

@@ -126,7 +126,8 @@ interface VocabApi {
 
     // Learning journey and content reports (FRONTEND_FLOW §17–18)
     suspend fun learningJourney(period: JourneyPeriod): LearningJourney
-    suspend fun learningJourneyWords(period: JourneyPeriod, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage
+    /** [topicId]: a topic's id, or [com.syll.domain.journey.LearningJourney.TopicNewWords.OWN_WORDS_KEY] for the learner's own words. */
+    suspend fun learningJourneyWords(period: JourneyPeriod, topicId: String, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage
     /** Safe to retry: the server replays its first answer for the same `clientReportId`. */
     suspend fun submitContentReport(report: ContentReportRequest): ContentReportReceipt
 }
@@ -375,9 +376,11 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
     override suspend fun learningJourney(period: JourneyPeriod): LearningJourney =
         client.send(get("me/learning-journey").copy(query = listOf("period" to period.raw)), LearningJourney.serializer())
 
-    override suspend fun learningJourneyWords(period: JourneyPeriod, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage =
+    override suspend fun learningJourneyWords(period: JourneyPeriod, topicId: String, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage =
         client.send(
-            get("me/learning-journey/words").copy(query = listOf("period" to period.raw, "limit" to "$limit", "offset" to "$offset")),
+            get("me/learning-journey/words").copy(
+                query = listOf("period" to period.raw, "limit" to "$limit", "offset" to "$offset", "topicId" to topicId),
+            ),
             com.syll.domain.journey.JourneyWordsPage.serializer(),
         )
 

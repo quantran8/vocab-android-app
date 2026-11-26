@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">ตรวจเสียงที่บันทึกไม่ได้</string>
     <string name="couldn_t_connect">เชื่อมต่อไม่ได้</string>
     <string name="couldn_t_get_your_result">ไม่สามารถรับผลลัพธ์ของคุณได้</string>
+    <string name="couldn_t_load">โหลดไม่สำเร็จ</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">โหลดแพ็กเกจไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</string>
     <string name="couldn_t_load_the_test">โหลดแบบทดสอบไม่ได้</string>
     <string name="couldn_t_load_this_word">โหลดคำนี้ไม่ได้</string>
@@ -669,7 +670,9 @@
     <string name="show_me_on_the_leaderboard">แสดงฉันบนอันดับ</string>
     <string name="show_password">แสดงรหัสผ่าน</string>
     <string name="show_word_now">แสดงคำเลย</string>
-    <string name="show_x_more_words">ดูเพิ่มอีก %1$d คำ</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">ดูเพิ่มอีก %1$d หัวข้อ</item>
+    </plurals>
     <string name="shows_all_topics">แสดงหัวข้อทั้งหมด</string>
     <string name="shows_every_meaning_of_the_word">แสดงทุกความหมายของคำนี้</string>
     <string name="shows_the_results_screen">แสดงหน้าจอผลลัพธ์</string>
@@ -881,6 +884,15 @@
     <string name="x_new_words">%1$d คำใหม่</string>
     <string name="x_new_words_are_waiting">%1$d คำใหม่กำลังรอคุณอยู่</string>
     <string name="x_new_words_left_about_x_sessions">เหลือ %1$d คำใหม่ ประมาณ %2$d เซสชัน</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">คำใหม่ +%1$d คำตั้งแต่เริ่มเรียน</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">คำใหม่ +%1$d คำเดือนนี้</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">คำใหม่ +%1$d คำสัปดาห์นี้</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">วันนี้ %1$d คำใหม่ ปรับสมดุลกับการทบทวนแล้ว</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">วันนี้ %1$d คำใหม่ (ลดลงชั่วคราวจนกว่าคำที่รอทบทวนจะน้อยลง)</string>
     <string name="x_new_words_today_lowered_until_x">วันนี้ %1$d คำใหม่ (ลดลงชั่วคราวถึง %2$s)</string>
@@ -980,6 +992,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">คำที่เรียนแล้วจะยังได้รับการทบทวน อัปเกรดเป็น %1$s เพื่อเรียนคำใหม่ต่อ</string>
     <string name="your_level">ระดับของคุณ</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">ชื่อ อวตาร Tier และ LP ของคุณในสัปดาห์นี้จะเป็นสาธารณะ</string>
+    <string name="your_own_words">คำที่คุณเพิ่มเอง</string>
     <string name="your_password_has_been_changed">เปลี่ยนรหัสผ่านแล้ว</string>
     <string name="your_plan">แพ็กเกจของคุณ</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">แพ็กเกจของคุณจัดการใน App Store ยกเลิกอย่างน้อย 24 ชั่วโมงก่อนต่ออายุเพื่อไม่ให้ถูกเรียกเก็บเงินรอบถัดไป</string>

@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">プランは Google Play で管理されています。次の期間の料金が発生しないよう、更新前に解約してください。</string>
     <string name="no_subscription_found_for_this_google_account">この Google アカウントのサブスクリプションは見つかりませんでした。</string>
     <string name="couldn_t_reach_google_play_please_try_again">Google Play に接続できませんでした。もう一度お試しください。</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

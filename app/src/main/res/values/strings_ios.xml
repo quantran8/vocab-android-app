@@ -67,6 +67,7 @@
     <string name="back_tomorrow">Back tomorrow</string>
     <string name="back_tonight">Back tonight</string>
     <string name="balance_reviews_and_new_words">Balance reviews and new words</string>
+    <string name="base">Base</string>
     <string name="beginner">Beginner</string>
     <string name="benefits">Benefits</string>
     <string name="best">Best</string>
@@ -156,6 +157,7 @@
     <string name="couldn_t_check_your_recording">Couldn’t check your recording.</string>
     <string name="couldn_t_connect">Couldn’t connect</string>
     <string name="couldn_t_get_your_result">Couldn’t get your result</string>
+    <string name="couldn_t_load">Couldn’t load</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">Couldn’t load the plans. Check your connection and try again.</string>
     <string name="couldn_t_load_the_test">Couldn’t load the test</string>
     <string name="couldn_t_load_this_word">Couldn’t load this word</string>
@@ -174,6 +176,7 @@
     <string name="current_password">Current password</string>
     <string name="current_tier">Current Tier</string>
     <string name="daily_lessons_and_reviews">Daily lessons and reviews</string>
+    <string name="date">Date</string>
     <string name="days_learned">Days learned</string>
     <string name="decrease_new_words_per_day">Decrease new words per day</string>
     <string name="decrease_reviews_per_session">Decrease reviews per session</string>
@@ -673,7 +676,10 @@
     <string name="show_me_on_the_leaderboard">Show me on the leaderboard</string>
     <string name="show_password">Show password</string>
     <string name="show_word_now">Show word now</string>
-    <string name="show_x_more_words">Show %1$d more words</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="one">Show %1$d more topic</item>
+        <item quantity="other">Show %1$d more topics</item>
+    </plurals>
     <string name="shows_all_topics">Shows all topics</string>
     <string name="shows_every_meaning_of_the_word">Shows every meaning of the word</string>
     <string name="shows_the_results_screen">Shows the results screen.</string>
@@ -844,6 +850,7 @@
     <string name="word_source">Word source</string>
     <string name="word_x">Word: %1$s</string>
     <string name="words">words</string>
+    <string name="words_2">Words</string>
     <string name="words_due_for_review_wait_for_the_next_session">Words due for review wait for the next session.</string>
     <string name="words_for_daily_conversations_and_life">Words for daily conversations and life</string>
     <string name="words_learned">Words learned</string>
@@ -888,6 +895,18 @@
     <string name="x_new_words">%1$d new words</string>
     <string name="x_new_words_are_waiting">%1$d new words are waiting.</string>
     <string name="x_new_words_left_about_x_sessions">%1$d new words left, about %2$d sessions</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="one">+%1$d new word since you started</item>
+        <item quantity="other">+%1$d new words since you started</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="one">+%1$d new word this month</item>
+        <item quantity="other">+%1$d new words this month</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="one">+%1$d new word this week</item>
+        <item quantity="other">+%1$d new words this week</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">%1$d new words today, balanced with your reviews</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">%1$d new words today (lowered until fewer words are waiting)</string>
     <string name="x_new_words_today_lowered_until_x">%1$d new words today (lowered until %2$s)</string>
@@ -990,6 +1009,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">Your learned words will still be reviewed. Upgrade to %1$s to keep learning new words.</string>
     <string name="your_level">Your level</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">Your name, avatar, Tier and LP this week become public</string>
+    <string name="your_own_words">Your own words</string>
     <string name="your_password_has_been_changed">Your password has been changed.</string>
     <string name="your_plan">Your plan</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">Your plan is managed in the App Store. Cancel at least 24 hours before it renews to avoid being charged for the next period.</string>

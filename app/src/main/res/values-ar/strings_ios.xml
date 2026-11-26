@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">تعذّر فحص تسجيلك.</string>
     <string name="couldn_t_connect">تعذّر الاتصال</string>
     <string name="couldn_t_get_your_result">تعذّر الحصول على نتيجتك</string>
+    <string name="couldn_t_load">تعذّر التحميل</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">تعذّر تحميل الخطط. تحقّق من اتصالك وحاول مرة أخرى.</string>
     <string name="couldn_t_load_the_test">تعذّر تحميل الاختبار</string>
     <string name="couldn_t_load_this_word">تعذّر تحميل هذه الكلمة</string>
@@ -674,7 +675,14 @@
     <string name="show_me_on_the_leaderboard">أظهرني في لوحة الصدارة</string>
     <string name="show_password">إظهار كلمة المرور</string>
     <string name="show_word_now">إظهار الكلمة الآن</string>
-    <string name="show_x_more_words">عرض المزيد من الكلمات: %1$d</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="zero">عرض المزيد من المواضيع: %1$d</item>
+        <item quantity="one">عرض موضوع آخر (%1$d)</item>
+        <item quantity="two">عرض موضوعين آخرين (%1$d)</item>
+        <item quantity="few">عرض %1$d مواضيع أخرى</item>
+        <item quantity="many">عرض %1$d موضوعًا آخر</item>
+        <item quantity="other">عرض %1$d موضوع آخر</item>
+    </plurals>
     <string name="shows_all_topics">يعرض كل المواضيع</string>
     <string name="shows_every_meaning_of_the_word">يعرض كل معاني الكلمة</string>
     <string name="shows_the_results_screen">يعرض شاشة النتائج.</string>
@@ -891,6 +899,30 @@
     <string name="x_new_words">الكلمات الجديدة: %1$d</string>
     <string name="x_new_words_are_waiting">الكلمات الجديدة بانتظارك: %1$d</string>
     <string name="x_new_words_left_about_x_sessions">الكلمات الجديدة المتبقية: %1$d، نحو %2$d جلسة</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="zero">+%1$d كلمة جديدة منذ أن بدأت</item>
+        <item quantity="one">+%1$d كلمة جديدة منذ أن بدأت</item>
+        <item quantity="two">+%1$d كلمتان جديدتان منذ أن بدأت</item>
+        <item quantity="few">+%1$d كلمات جديدة منذ أن بدأت</item>
+        <item quantity="many">+%1$d كلمة جديدة منذ أن بدأت</item>
+        <item quantity="other">+%1$d كلمة جديدة منذ أن بدأت</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="zero">+%1$d كلمة جديدة هذا الشهر</item>
+        <item quantity="one">+%1$d كلمة جديدة هذا الشهر</item>
+        <item quantity="two">+%1$d كلمتان جديدتان هذا الشهر</item>
+        <item quantity="few">+%1$d كلمات جديدة هذا الشهر</item>
+        <item quantity="many">+%1$d كلمة جديدة هذا الشهر</item>
+        <item quantity="other">+%1$d كلمة جديدة هذا الشهر</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="zero">+%1$d كلمة جديدة هذا الأسبوع</item>
+        <item quantity="one">+%1$d كلمة جديدة هذا الأسبوع</item>
+        <item quantity="two">+%1$d كلمتان جديدتان هذا الأسبوع</item>
+        <item quantity="few">+%1$d كلمات جديدة هذا الأسبوع</item>
+        <item quantity="many">+%1$d كلمة جديدة هذا الأسبوع</item>
+        <item quantity="other">+%1$d كلمة جديدة هذا الأسبوع</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">الكلمات الجديدة اليوم: %1$d، متوازنة مع مراجعاتك</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">الكلمات الجديدة اليوم: %1$d (مخفّضة حتى يقل عدد الكلمات المنتظرة)</string>
     <string name="x_new_words_today_lowered_until_x">الكلمات الجديدة اليوم: %1$d (مخفّضة حتى %2$s)</string>
@@ -990,6 +1022,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">ستستمر مراجعة الكلمات التي تعلّمتها. رقِّ إلى %1$s لمواصلة تعلّم كلمات جديدة.</string>
     <string name="your_level">مستواك</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">سيصبح اسمك وصورتك الرمزية وفئتك وLP هذا الأسبوع ظاهرة للجميع</string>
+    <string name="your_own_words">كلماتك الخاصة</string>
     <string name="your_password_has_been_changed">تم تغيير كلمة المرور.</string>
     <string name="your_plan">خطتك</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">تُدار خطتك في App Store. ألغِ قبل التجديد بـ 24 ساعة على الأقل حتى لا تُحاسَب على الفترة التالية.</string>

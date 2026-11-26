@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">आपका प्लान Google Play में मैनेज होता है। अगली अवधि का शुल्क न लगे, इसके लिए रिन्यू होने से पहले रद्द करें।</string>
     <string name="no_subscription_found_for_this_google_account">इस Google खाते के लिए कोई सदस्यता नहीं मिली।</string>
     <string name="couldn_t_reach_google_play_please_try_again">Google Play से कनेक्ट नहीं हो सका। कृपया फिर से कोशिश करें।</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

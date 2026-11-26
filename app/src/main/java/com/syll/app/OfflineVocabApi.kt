@@ -277,7 +277,7 @@ class OfflineVocabApi : VocabApi {
 
     override suspend fun learningJourney(period: com.syll.domain.journey.JourneyPeriod): com.syll.domain.journey.LearningJourney = throw ApiError.Transport
 
-    override suspend fun learningJourneyWords(period: com.syll.domain.journey.JourneyPeriod, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage =
+    override suspend fun learningJourneyWords(period: com.syll.domain.journey.JourneyPeriod, topicId: String, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage =
         throw ApiError.Transport
 
     override suspend fun submitContentReport(report: com.syll.domain.report.ContentReportRequest): com.syll.network.ContentReportReceipt =

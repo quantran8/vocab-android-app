@@ -6,6 +6,7 @@ import com.syll.features.auth.StubVocabApi
 import com.syll.network.ApiError
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -58,18 +59,71 @@ class LearningJourneyStoreTest {
         assertTrue(store.periods.isEmpty())
     }
 
+    private fun word(id: String) = com.syll.domain.journey.JourneyWord(id, id, emptyList(), "2026-11-26")
+
     @Test
-    fun moreWordsAppendToTheLoadedPage() = runBlocking {
-        fun word(id: String) = com.syll.domain.journey.JourneyWord(id, id, emptyList(), "2026-11-26")
+    fun moreTopicWordsAppendToTheLoadedPageAndAskForTheTopic() = runBlocking {
         api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("a"), word("b")))
         api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("c")))
         val store = LearningJourneyStore(api)
-        store.loadWords(JourneyPeriod.MONTH)
-        store.loadWords(JourneyPeriod.MONTH, more = true)
-        assertEquals(listOf("a", "b", "c"), store.words[JourneyPeriod.MONTH]?.map { it.wordId })
+        val key = LearningJourneyStore.TopicWordsKey(JourneyPeriod.MONTH, "travel-id")
+        store.loadTopicWords(key)
+        assertTrue(store.canLoadMoreTopicWords(key))
+        store.loadTopicWords(key, more = true)
+        assertEquals(listOf("a", "b", "c"), store.topicWords[key]?.map { it.wordId })
         assertEquals(listOf(0, 2), api.journeyWordOffsets)
-        store.loadWords(JourneyPeriod.MONTH, more = true)
+        assertEquals(listOf("travel-id", "travel-id"), api.journeyWordTopics)
+        assertFalse(store.canLoadMoreTopicWords(key))
+        store.loadTopicWords(key, more = true)
         assertEquals("nothing left to load", listOf(0, 2), api.journeyWordOffsets)
+    }
+
+    @Test
+    fun ownWordsAskForNoneAndTopicsArePagedApart() = runBlocking {
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(1, listOf(word("mine")))
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(1, listOf(word("trip")))
+        val store = LearningJourneyStore(api)
+        val own = LearningJourney.TopicNewWords(topicId = null, count = 1)
+        val ownKey = LearningJourneyStore.TopicWordsKey(JourneyPeriod.WEEK, own.wordsQueryKey)
+        val travelKey = LearningJourneyStore.TopicWordsKey(JourneyPeriod.WEEK, "travel-id")
+        store.loadTopicWords(ownKey)
+        store.loadTopicWords(travelKey)
+        assertEquals(listOf("none", "travel-id"), api.journeyWordTopics)
+        assertEquals(listOf("mine"), store.topicWords[ownKey]?.map { it.wordId })
+        assertEquals(listOf("trip"), store.topicWords[travelKey]?.map { it.wordId })
+        assertNull("another period is its own page", store.topicWords[LearningJourneyStore.TopicWordsKey(JourneyPeriod.MONTH, "travel-id")])
+        store.loadTopicWords(ownKey)
+        assertEquals("a loaded topic isn't reloaded", 2, api.journeyWordTopics.size)
+    }
+
+    @Test
+    fun aFailedNextPageKeepsTheLoadedRowsAndStopsAutoLoading() = runBlocking {
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("a"), word("b")))
+        val store = LearningJourneyStore(api)
+        val key = LearningJourneyStore.TopicWordsKey(JourneyPeriod.MONTH, "t")
+        store.loadTopicWords(key)
+        store.loadTopicWords(key, more = true) // the stub has no page left: fails offline
+        assertEquals(listOf("a", "b"), store.topicWords[key]?.map { it.wordId })
+        assertTrue(store.topicWordLoads[key] is LearningJourneyStore.Load.Failed)
+        assertFalse("a failure waits for a retry", store.canLoadMoreTopicWords(key))
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(3, listOf(word("c")))
+        store.loadTopicWords(key, more = true)
+        assertEquals(listOf("a", "b", "c"), store.topicWords[key]?.map { it.wordId })
+    }
+
+    @Test
+    fun invalidateAndResetDropTopicPages() = runBlocking {
+        val key = LearningJourneyStore.TopicWordsKey(JourneyPeriod.MONTH, "t")
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(1, listOf(word("a")))
+        val store = LearningJourneyStore(api)
+        store.loadTopicWords(key)
+        store.invalidate()
+        assertNull("a commit may have added words", store.topicWords[key])
+        api.journeyWordPages += com.syll.domain.journey.JourneyWordsPage(1, listOf(word("a")))
+        store.loadTopicWords(key)
+        store.reset()
+        assertTrue(store.topicWords.isEmpty())
+        assertTrue(store.topicWordLoads.isEmpty())
     }
 
     @Test

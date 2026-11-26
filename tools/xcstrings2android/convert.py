@@ -30,7 +30,7 @@ from xml.sax.saxutils import escape as xml_escape
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-DEFAULT_CATALOG = ROOT.parent / "ios_app" / "VocabFlow" / "Resources" / "Localizable.xcstrings"
+DEFAULT_CATALOG = ROOT.parent / "ios_app" / "Syll" / "Resources" / "Localizable.xcstrings"
 DEFAULT_RES = ROOT / "app" / "src" / "main" / "res"
 NAMES_FILE = HERE / "string_names.json"
 OUTPUT_NAME = "strings_ios.xml"

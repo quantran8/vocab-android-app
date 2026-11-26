@@ -297,8 +297,11 @@ class StubVocabApi(var storedSession: Boolean = true) : VocabApi {
     /** Answers `learningJourneyWords`, one page per call, in order. */
     val journeyWordPages = ArrayDeque<com.syll.domain.journey.JourneyWordsPage>()
     val journeyWordOffsets = mutableListOf<Int>()
-    override suspend fun learningJourneyWords(period: com.syll.domain.journey.JourneyPeriod, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage {
+    /** The `topicId` of every `learningJourneyWords` call, in order. */
+    val journeyWordTopics = mutableListOf<String>()
+    override suspend fun learningJourneyWords(period: com.syll.domain.journey.JourneyPeriod, topicId: String, limit: Int, offset: Int): com.syll.domain.journey.JourneyWordsPage {
         journeyWordOffsets += offset
+        journeyWordTopics += topicId
         return journeyWordPages.removeFirstOrNull() ?: throw com.syll.network.ApiError.Transport
     }
 

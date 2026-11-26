@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">Tu plan se gestiona en Google Play. Cancélalo antes de que se renueve para que no se te cobre el siguiente periodo.</string>
     <string name="no_subscription_found_for_this_google_account">No se encontró ninguna suscripción para esta cuenta de Google.</string>
     <string name="couldn_t_reach_google_play_please_try_again">No se pudo conectar con Google Play. Inténtalo de nuevo.</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

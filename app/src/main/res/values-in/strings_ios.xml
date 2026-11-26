@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">Tidak dapat memeriksa rekamanmu.</string>
     <string name="couldn_t_connect">Tidak dapat terhubung</string>
     <string name="couldn_t_get_your_result">Tidak dapat mengambil hasilmu</string>
+    <string name="couldn_t_load">Gagal memuat</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">Paket tidak bisa dimuat. Periksa koneksi lalu coba lagi.</string>
     <string name="couldn_t_load_the_test">Tidak dapat memuat tes</string>
     <string name="couldn_t_load_this_word">Tidak dapat memuat kata ini</string>
@@ -669,7 +670,9 @@
     <string name="show_me_on_the_leaderboard">Tampilkan aku di papan peringkat</string>
     <string name="show_password">Tampilkan kata sandi</string>
     <string name="show_word_now">Tampilkan kata sekarang</string>
-    <string name="show_x_more_words">Lihat %1$d kata lagi</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">Lihat %1$d topik lagi</item>
+    </plurals>
     <string name="shows_all_topics">Menampilkan semua topik</string>
     <string name="shows_every_meaning_of_the_word">Menampilkan semua arti kata ini</string>
     <string name="shows_the_results_screen">Menampilkan layar hasil.</string>
@@ -881,6 +884,15 @@
     <string name="x_new_words">%1$d kata baru</string>
     <string name="x_new_words_are_waiting">%1$d kata baru menunggumu.</string>
     <string name="x_new_words_left_about_x_sessions">Sisa %1$d kata baru, sekitar %2$d sesi</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">+%1$d kata baru sejak kamu mulai</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">+%1$d kata baru bulan ini</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">+%1$d kata baru minggu ini</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">%1$d kata baru hari ini, diseimbangkan dengan ulasanmu</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">%1$d kata baru hari ini (dikurangi sampai kata yang menunggu berkurang)</string>
     <string name="x_new_words_today_lowered_until_x">%1$d kata baru hari ini (dikurangi sampai %2$s)</string>
@@ -980,6 +992,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">Kata yang sudah dipelajari tetap diulas. Upgrade ke %1$s untuk terus belajar kata baru.</string>
     <string name="your_level">Levelmu</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">Nama, avatar, Tier, dan LP minggu ini akan terlihat publik</string>
+    <string name="your_own_words">Kata milikmu sendiri</string>
     <string name="your_password_has_been_changed">Kata sandimu telah diubah.</string>
     <string name="your_plan">Paket kamu</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">Paket kamu dikelola di App Store. Batalkan setidaknya 24 jam sebelum diperpanjang agar tidak ditagih untuk periode berikutnya.</string>

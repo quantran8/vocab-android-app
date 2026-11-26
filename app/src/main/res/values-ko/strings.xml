@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">플랜은 Google Play에서 관리됩니다. 다음 기간 요금이 청구되지 않도록 갱신 전에 해지하세요.</string>
     <string name="no_subscription_found_for_this_google_account">이 Google 계정의 구독을 찾을 수 없어요.</string>
     <string name="couldn_t_reach_google_play_please_try_again">Google Play에 연결할 수 없어요. 다시 시도해 주세요.</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

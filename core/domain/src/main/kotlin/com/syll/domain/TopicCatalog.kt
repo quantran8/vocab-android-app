@@ -8,6 +8,8 @@ data class Topic(
     /** Distinct meanings learned and in total; null until the backend's catalog arrives. */
     val learned: Int? = null,
     val total: Int? = null,
+    /** The backend's topic colour as 0xRRGGBB; null when unset (and for the bundled catalog). */
+    val markHex: Int? = null,
 ) {
     /** Every meaning learned. A topic that gains content stops being finished. */
     val isFinished: Boolean get() = (total ?: 0) > 0 && learned == total
@@ -51,6 +53,8 @@ data class CatalogEntry(
         val learnedMeanings: Int? = null,
         val totalMeanings: Int? = null,
         val iosIcon: String? = null,
+        /** `#RRGGBB` set by an admin. */
+        val color: String? = null,
     )
 }
 
@@ -85,12 +89,13 @@ object TopicCatalog {
                         icon = topic.iosIcon ?: icon(bundled, topic.slug, fallback = "tag"),
                         learned = topic.learnedMeanings,
                         total = topic.totalMeanings,
+                        markHex = HexColor.parse(topic.color),
                     )
                 },
                 learned = collection.learnedMeanings,
                 total = collection.totalMeanings,
                 slug = collection.slug,
-                markHex = hex(collection.color),
+                markHex = HexColor.parse(collection.color),
             )
         }
         listeners.forEach { it() }
@@ -108,11 +113,6 @@ object TopicCatalog {
 
     /** Selected topics in catalog order. */
     fun topics(ids: Set<String>): List<Topic> = collections.flatMap { it.topics }.filter { it.id in ids }
-
-    private fun hex(value: String?): Int? {
-        if (value == null || value.length != 7 || !value.startsWith("#")) return null
-        return value.drop(1).toIntOrNull(16)
-    }
 
     /** A slug matching a bundled entry reuses its icon; "business-work" → the bundled "business". */
     private fun icon(bundled: List<VocabCollection>, slug: String, fallback: String): String =

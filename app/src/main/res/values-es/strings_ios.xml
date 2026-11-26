@@ -155,6 +155,7 @@
     <string name="couldn_t_check_your_recording">No se pudo comprobar tu grabación.</string>
     <string name="couldn_t_connect">No se pudo conectar</string>
     <string name="couldn_t_get_your_result">No se pudo obtener tu resultado</string>
+    <string name="couldn_t_load">No se pudo cargar</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">No se pudieron cargar los planes. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="couldn_t_load_the_test">No se pudo cargar la prueba</string>
     <string name="couldn_t_load_this_word">No se pudo cargar esta palabra</string>
@@ -671,7 +672,11 @@
     <string name="show_me_on_the_leaderboard">Mostrarme en la clasificación</string>
     <string name="show_password">Mostrar contraseña</string>
     <string name="show_word_now">Mostrar palabra ahora</string>
-    <string name="show_x_more_words">Ver %1$d palabras más</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="one">Ver %1$d tema más</item>
+        <item quantity="many">Ver %1$d temas más</item>
+        <item quantity="other">Ver %1$d temas más</item>
+    </plurals>
     <string name="shows_all_topics">Muestra todos los temas</string>
     <string name="shows_every_meaning_of_the_word">Muestra todos los significados de la palabra</string>
     <string name="shows_the_results_screen">Muestra la pantalla de resultados.</string>
@@ -885,6 +890,21 @@
     <string name="x_new_words">%1$d palabras nuevas</string>
     <string name="x_new_words_are_waiting">Te esperan %1$d palabras nuevas.</string>
     <string name="x_new_words_left_about_x_sessions">Quedan %1$d palabras nuevas, unas %2$d sesiones</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="one">+%1$d palabra nueva desde que empezaste</item>
+        <item quantity="many">+%1$d palabras nuevas desde que empezaste</item>
+        <item quantity="other">+%1$d palabras nuevas desde que empezaste</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="one">+%1$d palabra nueva este mes</item>
+        <item quantity="many">+%1$d palabras nuevas este mes</item>
+        <item quantity="other">+%1$d palabras nuevas este mes</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="one">+%1$d palabra nueva esta semana</item>
+        <item quantity="many">+%1$d palabras nuevas esta semana</item>
+        <item quantity="other">+%1$d palabras nuevas esta semana</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">%1$d palabras nuevas hoy, equilibradas con tus repasos</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">%1$d palabras nuevas hoy (reducido hasta que haya menos palabras en espera)</string>
     <string name="x_new_words_today_lowered_until_x">%1$d palabras nuevas hoy (reducido hasta %2$s)</string>
@@ -984,6 +1004,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">Seguirás repasando las palabras que aprendiste. Pásate a %1$s para seguir aprendiendo palabras nuevas.</string>
     <string name="your_level">Tu nivel</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">Tu nombre, avatar, rango y LP de esta semana serán públicos</string>
+    <string name="your_own_words">Tus propias palabras</string>
     <string name="your_password_has_been_changed">Tu contraseña ha sido cambiada.</string>
     <string name="your_plan">Tu plan</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">Tu plan se gestiona en el App Store. Cancela al menos 24 horas antes de la renovación para que no se te cobre el siguiente periodo.</string>

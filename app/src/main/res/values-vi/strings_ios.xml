@@ -156,6 +156,7 @@
     <string name="couldn_t_check_your_recording">Không kiểm tra được bản ghi âm của bạn.</string>
     <string name="couldn_t_connect">Không kết nối được</string>
     <string name="couldn_t_get_your_result">Không lấy được kết quả</string>
+    <string name="couldn_t_load">Không tải được</string>
     <string name="couldn_t_load_the_plans_check_your_connection_an">Không tải được các gói. Kiểm tra kết nối và thử lại.</string>
     <string name="couldn_t_load_the_test">Không tải được bài test</string>
     <string name="couldn_t_load_this_word">Không tải được từ này</string>
@@ -670,7 +671,9 @@
     <string name="show_me_on_the_leaderboard">Hiện tôi trên bảng xếp hạng</string>
     <string name="show_password">Hiện mật khẩu</string>
     <string name="show_word_now">Hiện từ ngay</string>
-    <string name="show_x_more_words">Xem thêm %1$d từ</string>
+    <plurals name="show_x_more_topics">
+        <item quantity="other">Xem thêm %1$d chủ đề</item>
+    </plurals>
     <string name="shows_all_topics">Hiện tất cả chủ đề</string>
     <string name="shows_every_meaning_of_the_word">Hiện mọi nghĩa của từ</string>
     <string name="shows_the_results_screen">Xem màn kết quả.</string>
@@ -840,6 +843,7 @@
     <string name="word_source">Nguồn từ</string>
     <string name="word_x">Từ: %1$s</string>
     <string name="words">từ</string>
+    <string name="words_2">Từ</string>
     <string name="words_due_for_review_wait_for_the_next_session">Từ đến hạn còn lại sẽ được ôn ở buổi sau.</string>
     <string name="words_for_daily_conversations_and_life">Từ vựng cho giao tiếp và cuộc sống hằng ngày</string>
     <string name="words_learned">Từ đã học</string>
@@ -883,6 +887,15 @@
     <string name="x_new_words">%1$d từ mới</string>
     <string name="x_new_words_are_waiting">%1$d từ mới đang chờ bạn.</string>
     <string name="x_new_words_left_about_x_sessions">Còn %1$d từ mới, khoảng %2$d buổi</string>
+    <plurals name="x_new_words_since_you_started">
+        <item quantity="other">+%1$d từ mới từ khi bắt đầu</item>
+    </plurals>
+    <plurals name="x_new_words_this_month">
+        <item quantity="other">+%1$d từ mới tháng này</item>
+    </plurals>
+    <plurals name="x_new_words_this_week">
+        <item quantity="other">+%1$d từ mới tuần này</item>
+    </plurals>
     <string name="x_new_words_today_balanced_with_your_reviews">Hôm nay %1$d từ mới, đã cân bằng với phần ôn</string>
     <string name="x_new_words_today_lowered_until_fewer_words_are">Hôm nay %1$d từ mới (bạn đang giảm tạm thời đến khi bớt từ chờ ôn)</string>
     <string name="x_new_words_today_lowered_until_x">Hôm nay %1$d từ mới (bạn đang giảm tạm thời đến %2$s)</string>
@@ -984,6 +997,7 @@
     <string name="your_learned_words_will_still_be_reviewed_upgrad">Các từ đã học vẫn được ôn tập. Nâng cấp %1$s để tiếp tục học từ mới.</string>
     <string name="your_level">Trình độ của bạn</string>
     <string name="your_name_avatar_tier_and_lp_this_week_become_pu">Tên, ảnh đại diện, Tier và LP tuần này của bạn sẽ công khai</string>
+    <string name="your_own_words">Từ bạn tự thêm</string>
     <string name="your_password_has_been_changed">Đã đổi mật khẩu.</string>
     <string name="your_plan">Gói của bạn</string>
     <string name="your_plan_is_managed_in_the_app_store_cancel_at">Gói được quản lý trong App Store. Hủy ít nhất 24 giờ trước ngày gia hạn để không bị tính phí kỳ sau.</string>

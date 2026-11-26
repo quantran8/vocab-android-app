@@ -184,6 +184,8 @@ data class CatalogTopic(
     val totalMeanings: Int? = null,
     /** SF Symbol name set by an admin; the app maps the ones it knows. */
     val iosIcon: String? = null,
+    /** `#RRGGBB` set by an admin. */
+    val color: String? = null,
 )
 
 @Serializable
@@ -201,7 +203,7 @@ data class CatalogCollection(
     fun toEntry() = CatalogEntry(
         id = id, slug = slug, title = title, description = description,
         topics = topics.map {
-            CatalogEntry.TopicEntry(it.id, it.slug, it.title, it.learnedMeanings, it.totalMeanings, it.iosIcon)
+            CatalogEntry.TopicEntry(it.id, it.slug, it.title, it.learnedMeanings, it.totalMeanings, it.iosIcon, it.color)
         },
         learnedMeanings = learnedMeanings, totalMeanings = totalMeanings, color = color,
     )

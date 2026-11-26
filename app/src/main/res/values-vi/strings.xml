@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">Gói được quản lý trong Google Play. Hủy trước ngày gia hạn để không bị tính phí kỳ sau.</string>
     <string name="no_subscription_found_for_this_google_account">Không tìm thấy gói đăng ký nào cho tài khoản Google này.</string>
     <string name="couldn_t_reach_google_play_please_try_again">Không kết nối được Google Play. Vui lòng thử lại.</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>

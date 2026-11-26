@@ -9,4 +9,5 @@
     <string name="your_plan_is_managed_in_google_play">你的方案由 Google Play 管理。請在續訂前取消，以免被收取下一期的費用。</string>
     <string name="no_subscription_found_for_this_google_account">找不到這個 Google 帳戶的訂閱。</string>
     <string name="couldn_t_reach_google_play_please_try_again">無法連線至 Google Play，請再試一次。</string>
+    <!-- Learning journey: new words by topic (iOS adds these in parallel; drop them here once the converter brings them). -->
 </resources>
