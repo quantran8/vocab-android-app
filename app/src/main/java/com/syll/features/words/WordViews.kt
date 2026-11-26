@@ -12,6 +12,10 @@ import com.syll.designsystem.components.StatusPill
 import com.syll.designsystem.components.Eyebrow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ModalBottomSheet
@@ -184,6 +188,10 @@ fun OtherMeaningsLink(count: Int, onClick: () -> Unit) {
 fun OtherMeaningsSheet(lemma: String, meanings: List<WordDetail.Meaning>, onDismiss: () -> Unit) {
     val motion = LocalMotion.current
     val expanded = remember { mutableStateListOf<String>().apply { meanings.firstOrNull()?.let { add(it.meaningId) } } }
+    var reportTarget by remember { mutableStateOf<com.syll.domain.report.ContentReportTarget?>(null) }
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarScope = androidx.compose.runtime.rememberCoroutineScope()
+    val reportSent = stringResource(R.string.report_sent_thank_you)
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(),
@@ -240,13 +248,34 @@ fun OtherMeaningsSheet(lemma: String, meanings: List<WordDetail.Meaning>, onDism
                                 enter = expandVertically(motion.animation(MotionTokens.snap), expandFrom = Alignment.Top) + fadeIn(motion.animation(MotionTokens.snap)),
                                 exit = shrinkVertically(motion.animation(MotionTokens.snap), shrinkTowards = Alignment.Top) + fadeOut(motion.animation(MotionTokens.snap)),
                             ) {
-                                MeaningFields(lemma, item.meaning, Modifier.padding(bottom = Spacing.s))
+                                Column(Modifier.padding(bottom = Spacing.s)) {
+                                    MeaningFields(lemma, item.meaning)
+                                    if (item.edited != true) {
+                                        com.syll.features.report.ReportLink({ reportTarget = meaningReportTarget(lemma, item) })
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        // The sheet is its own window, so its snackbar lives inside it.
+        androidx.compose.material3.SnackbarHost(snackbar)
+    }
+
+    reportTarget?.let { target ->
+        com.syll.features.report.ContentReportSheet(
+            target,
+            onDismiss = { reportTarget = null },
+            onSent = {
+                reportTarget = null
+                snackbarScope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(reportSent)
+                }
+            },
+        )
     }
 }
 

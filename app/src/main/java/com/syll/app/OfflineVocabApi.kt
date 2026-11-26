@@ -275,6 +275,11 @@ class OfflineVocabApi : VocabApi {
     override suspend fun syncPlayStorePurchase(purchaseToken: String, productId: String): com.syll.network.PremiumPlan = throw ApiError.Transport
     override suspend fun redeem(code: String): com.syll.network.PremiumPlan = throw ApiError.Transport
 
+    override suspend fun learningJourney(period: com.syll.domain.journey.JourneyPeriod): com.syll.domain.journey.LearningJourney = throw ApiError.Transport
+
+    override suspend fun submitContentReport(report: com.syll.domain.report.ContentReportRequest): com.syll.network.ContentReportReceipt =
+        com.syll.network.ContentReportReceipt(reportId = report.clientReportId, duplicate = false)
+
     private fun question(id: String, prompt: String, vararg options: String) = PlacementQuestion(
         id = id,
         prompt = PlacementQuestion.Prompt(prompt),

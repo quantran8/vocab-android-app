@@ -1,6 +1,10 @@
 package com.syll.network
 
 import com.syll.domain.CefrLevel
+import com.syll.domain.journey.JourneyPeriod
+import com.syll.domain.journey.LearningJourney
+import com.syll.domain.report.ContentReportRequest
+import com.syll.domain.report.ContentReportTarget
 import com.syll.domain.challenge.ChallengeCommitResponse
 import com.syll.domain.challenge.ChallengeMap
 import com.syll.domain.challenge.ChallengeRunPlan
@@ -30,6 +34,7 @@ import com.syll.domain.practice.RecordingAssessment
 import com.syll.domain.practice.SessionPlan
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -118,6 +123,44 @@ interface VocabApi {
     suspend fun syncPlayStorePurchase(purchaseToken: String, productId: String): PremiumPlan
     /** `POST /me/redeem`: a Syll code (only while `features.redeemEnabled`). */
     suspend fun redeem(code: String): PremiumPlan
+
+    // Learning journey and content reports (FRONTEND_FLOW §17–18)
+    suspend fun learningJourney(period: JourneyPeriod): LearningJourney
+    /** Safe to retry: the server replays its first answer for the same `clientReportId`. */
+    suspend fun submitContentReport(report: ContentReportRequest): ContentReportReceipt
+}
+
+/** iOS `ContentReportReceipt`. */
+@kotlinx.serialization.Serializable
+data class ContentReportReceipt(val reportId: String, val duplicate: Boolean = false)
+
+/** The `POST /me/content-reports` body (iOS `ContentReportRequest.encode`). */
+fun ContentReportRequest.toJson(): JsonObject = buildJsonObject {
+    put("clientReportId", clientReportId)
+    put("source", source.raw)
+    put("reason", reason.raw)
+    note?.let { put("note", it) }
+    put("context", buildJsonObject {
+        when (val c = context) {
+            is ContentReportTarget.Context.LearnCard -> {
+                put("sessionId", c.sessionId)
+                put("learnStepId", c.learnStepId)
+            }
+            is ContentReportTarget.Context.PracticeTask -> {
+                put("sessionId", c.sessionId)
+                put("taskId", c.taskId)
+                attemptExcerpt?.let { excerpt ->
+                    put("attemptExcerpt", buildJsonObject {
+                        excerpt.submittedText?.let { put("submittedText", it) }
+                        excerpt.optionId?.let { put("optionId", it) }
+                        excerpt.tileIds?.let { ids -> put("tileIds", kotlinx.serialization.json.JsonArray(ids.map(::JsonPrimitive))) }
+                        excerpt.receiptId?.let { put("receiptId", it) }
+                    })
+                }
+            }
+            is ContentReportTarget.Context.WordDetail -> put("meaningId", c.meaningId)
+        }
+    })
 }
 
 /** iOS `LiveVocabAPI`. */
@@ -327,6 +370,12 @@ class LiveVocabApi(private val client: ApiClient) : VocabApi {
 
     override suspend fun redeem(code: String): PremiumPlan =
         client.send(postJson("me/redeem", buildJsonObject { put("code", code) }), PremiumPlan.serializer())
+
+    override suspend fun learningJourney(period: JourneyPeriod): LearningJourney =
+        client.send(get("me/learning-journey").copy(query = listOf("period" to period.raw)), LearningJourney.serializer())
+
+    override suspend fun submitContentReport(report: ContentReportRequest): ContentReportReceipt =
+        client.send(postJson("me/content-reports", report.toJson()).copy(retries = READ_RETRIES), ContentReportReceipt.serializer())
 
     @kotlinx.serialization.Serializable
     private data class CustomWordsResponse(val words: List<CustomWord>)

@@ -53,6 +53,8 @@ fun FullScreenDialog(
     bottomBar: @Composable () -> Unit = {},
     /** A step inside the dialog: the back arrow leads the app bar (✕ still closes the whole dialog). */
     onBack: (() -> Unit)? = null,
+    /** A dialog is its own window, so its snackbars must live inside it. */
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Dialog(
@@ -75,6 +77,7 @@ fun FullScreenDialog(
                 )
             },
             bottomBar = bottomBar,
+            snackbarHost = snackbarHost,
             content = content,
         )
     }

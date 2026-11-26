@@ -116,6 +116,8 @@ class HomeActions(
     val onChooseTopics: () -> Unit = {},
     /** True while a session is on screen: the review-load choice never shows then. */
     val isPracticeActive: () -> Boolean = { false },
+    /** Pushes the learning journey (history) onto Home. */
+    val onOpenJourney: () -> Unit = {},
 )
 
 /** iOS `HomeView`. */
@@ -124,6 +126,7 @@ class HomeActions(
 fun HomeView(actions: HomeActions, modifier: Modifier = Modifier) {
     val learner = LocalLearnerStore.current
     val plan = LocalLearningPlanStore.current
+    val journey = com.syll.app.LocalLearningJourneyStore.current
     val scope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     var isChoosingReviewLoad by remember { mutableStateOf(false) }
@@ -141,7 +144,10 @@ fun HomeView(actions: HomeActions, modifier: Modifier = Modifier) {
         onRefresh = {
             scope.launch {
                 isRefreshing = true
-                learner.refresh()
+                kotlinx.coroutines.coroutineScope {
+                    launch { learner.refresh() }
+                    launch { journey.refreshSummary(force = true) }
+                }
                 isRefreshing = false
             }
         },
@@ -160,6 +166,8 @@ fun HomeView(actions: HomeActions, modifier: Modifier = Modifier) {
             CatalogState.collection(plan.current.collectionId)?.let { collection ->
                 LearningSection(collection, actions.onChooseTopics, Modifier.padding(top = Spacing.xl + Spacing.xs))
             }
+            // History comes after what to learn today; a failure here never blocks the lesson above.
+            com.syll.features.journey.LearningJourneyCard(actions.onOpenJourney, Modifier.padding(top = Spacing.xl + Spacing.xs))
         }
     }
 

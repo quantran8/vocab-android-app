@@ -51,6 +51,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -107,6 +109,9 @@ import com.syll.features.plan.CatalogState
 import com.syll.features.plan.displayName
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.syll.domain.report.ContentReportTarget
+import com.syll.features.report.ContentReportButton
+import com.syll.features.report.ContentReportSheet
 import java.util.Locale
 
 /** iOS `PracticeSessionView`: everything between tapping a practice button and returning to the tab it was started from. */
@@ -432,11 +437,17 @@ private fun PracticeFlowView() {
     val store = LocalPracticeSessionStore.current
     val motion = LocalMotion.current
     var isConfirmingExit by remember { mutableStateOf(false) }
+    var reportTarget by remember { mutableStateOf<ContentReportTarget?>(null) }
     val host = remember(store.sessionToken) { StepActionBarHost() }
     val progress = store.partProgress
+    // iOS confirms a sent report with a toast; Android's is a snackbar.
+    val snackbar = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+    val reportSent = stringResource(R.string.report_sent_thank_you)
 
     BackHandler { isConfirmingExit = true }
 
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().statusBarsPadding().imePadding()) {
         FlowHeader(
             stage = stringResource(
@@ -453,6 +464,12 @@ private fun PracticeFlowView() {
             closeLabel = stringResource(R.string.exit_flow),
             onClose = { isConfirmingExit = true },
             modifier = Modifier.padding(horizontal = Spacing.screenGutter).padding(top = Spacing.xxs, bottom = Spacing.s),
+            // The flag captures what's on screen when tapped; off in the Lab and checkpoint challenge.
+            leading = if (store.contentReportTarget != null) {
+                { ContentReportButton(enabled = store.canOpenContentReport, onClick = { reportTarget = store.contentReportTarget }) }
+            } else {
+                null
+            },
         )
         CompositionLocalProvider(LocalStepActionBarHost provides host) {
             AnimatedContent(
@@ -469,6 +486,22 @@ private fun PracticeFlowView() {
         }
         // Only the step content slides; its bottom bar is drawn here and stays in place.
         host.bar?.invoke()
+    }
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding())
+    }
+
+    reportTarget?.let { target ->
+        ContentReportSheet(
+            target,
+            onDismiss = { reportTarget = null },
+            onSent = {
+                reportTarget = null
+                snackbarScope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(reportSent)
+                }
+            },
+        )
     }
 
     if (isConfirmingExit) {

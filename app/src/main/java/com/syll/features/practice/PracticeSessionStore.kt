@@ -14,6 +14,10 @@ import com.syll.domain.practice.CommitResponse
 import com.syll.domain.practice.CommitSummary
 import com.syll.domain.practice.KnownCheck
 import com.syll.domain.practice.LearnCard
+import com.syll.domain.practice.TaskTemplate
+import com.syll.domain.report.ContentReportTarget
+import com.syll.domain.report.canAppealAnswer
+import com.syll.domain.report.reportExcerpt
 import com.syll.domain.practice.NewWordsIssue
 import com.syll.domain.practice.PlanRequest
 import com.syll.domain.practice.PlanStep
@@ -848,4 +852,48 @@ class PracticeSessionStore(
         fun endsSession(error: ApiError): Boolean =
             error.code in setOf("SESSION_STALE", "SESSION_EXPIRED", "SESSION_NOT_OWNED", "TASK_DATA_INVALID")
     }
+
+    // Content reports (iOS PracticeSessionStore+ContentReport)
+
+    /**
+     * What the flag in the header reports right now; null where reporting is off (Practice Lab, checkpoint challenge).
+     * Captured once when the sheet opens, so a later step never changes it.
+     */
+    val contentReportTarget: ContentReportTarget?
+        get() {
+            val sessionId = sessionId ?: return null
+            if (isSandbox || lastRequest?.mode == SessionMode.CHECKPOINT_CHALLENGE) return null
+            return when (val step = currentStep ?: return null) {
+                is PlanStep.Learn -> learnReportTarget(sessionId, step.id, step.card)
+                is PlanStep.Practice -> if (step.phase == TaskPhase.KNOWN_CHECK) {
+                    // The check step shows its word's Learn card, so a report is about that card.
+                    val learnId = knownChecks[step.task.id]?.learnStepId ?: return null
+                    learnReportTarget(sessionId, learnId, knownCheckOffer ?: return null)
+                } else {
+                    val attempt = attempts[step.task.id]
+                    val canAppeal = attempt?.canAppealAnswer ?: false
+                    val isRecording = step.task.template == TaskTemplate.RECORDING
+                    ContentReportTarget(
+                        context = ContentReportTarget.Context.PracticeTask(sessionId, step.task.id, if (canAppeal) attempt?.reportExcerpt else null),
+                        subtitle = step.task.question,
+                        reasons = ContentReportTarget.taskReasons(canAppeal, hasAudio = isRecording || step.task.prompt?.isAudio == true),
+                        isRecording = isRecording,
+                    )
+                }
+            }
+        }
+
+    /** The flag is shown but off while recording or uploading: the sheet must never open over a live mic. */
+    val canOpenContentReport: Boolean
+        get() = recording != RecordingStage.Recording && recording != RecordingStage.Uploading
+
+    private fun learnReportTarget(sessionId: String, learnStepId: String, card: LearnCard) = ContentReportTarget(
+        context = ContentReportTarget.Context.LearnCard(sessionId, learnStepId),
+        subtitle = card.word,
+        reasons = ContentReportTarget.meaningReasons(
+            hasDefinition = !card.definition.isNullOrEmpty(),
+            hasExample = !card.examples.isNullOrEmpty(),
+            hasAudio = card.audio != null,
+        ),
+    )
 }

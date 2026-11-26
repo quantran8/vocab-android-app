@@ -76,7 +76,7 @@ enum class MainTab(val title: Int, val icon: ImageVector) {
 }
 
 /** iOS `ShellPage`: pages the tabs push. Settings belongs to Profile, Random Practice to My Words, the Challenge Map to Home. */
-enum class ShellPage { SETTINGS, RANDOM_PRACTICE, CHALLENGE_MAP }
+enum class ShellPage { SETTINGS, RANDOM_PRACTICE, CHALLENGE_MAP, LEARNING_JOURNEY }
 
 /** iOS `PlanSheet`: plan editors Profile presents as bottom sheets. */
 enum class PlanSheet { LEVEL, FOCUS, ROUTINE }
@@ -101,6 +101,7 @@ fun MainShellView(
     val practice = LocalPracticeSessionStore.current
     val challengeMap = LocalChallengeMapStore.current
     val challengeRun = LocalChallengeRunStore.current
+    val journey = com.syll.app.LocalLearningJourneyStore.current
     val ads = LocalAdStore.current
     var paywallReason by remember { mutableStateOf<PaywallReason?>(null) }
     val appScope = LocalAppScope.current
@@ -147,6 +148,8 @@ fun MainShellView(
         coroutineScope {
             launch { learner.refresh() }
             launch { challengeMap.refresh() }
+            // The shell reappears after every session, so this also picks up a new commit.
+            launch { journey.refreshSummary(force = true) }
             // Settles a run the app was killed in; it refreshes the map again once done.
             launch { challengeRun.recoverPendingRun() }
         }
@@ -174,6 +177,7 @@ fun MainShellView(
             onOpenRandomPractice = ::openRandomPractice,
             onChooseTopics = ::openFocus,
             isPracticeActive = homeActions.isPracticeActive,
+            onOpenJourney = { onHomePageChange(ShellPage.LEARNING_JOURNEY) },
         )
     }
 
@@ -208,6 +212,7 @@ fun MainShellView(
                 MainTab.HOME -> PushedPage(homePage) { shown ->
                     when (shown) {
                         ShellPage.CHALLENGE_MAP -> ChallengeMapView(onBack = { onHomePageChange(null) })
+                        ShellPage.LEARNING_JOURNEY -> com.syll.features.journey.LearningJourneyView(onBack = { onHomePageChange(null) })
                         else -> HomeView(shellHomeActions)
                     }
                 }

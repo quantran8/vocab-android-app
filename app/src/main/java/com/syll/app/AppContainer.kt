@@ -23,7 +23,9 @@ import com.syll.features.placement.PlacementTestStore
 import com.syll.features.practice.PracticeSessionStore
 import com.syll.features.challenge.ChallengeMapStore
 import com.syll.features.challenge.ChallengeRunStore
+import com.syll.features.journey.LearningJourneyStore
 import com.syll.features.ranking.RankingStore
+import com.syll.features.report.ContentReportStore
 import com.syll.features.customwords.CustomWordStore
 import com.syll.features.lab.TemplateSandboxStore
 import com.syll.domain.practice.LabLibrary
@@ -81,6 +83,8 @@ class AppContainer(context: Context) {
     val challengeMap = ChallengeMapStore(api)
     val challengeRun = ChallengeRunStore(api, haptics, appScope, storage = storage)
     val ranking = RankingStore(api)
+    val journey = LearningJourneyStore(api)
+    val contentReports = ContentReportStore(api)
     val customWords = CustomWordStore(api, AudioClipPlayer(context), appScope)
     /** The Practice Lab plays bundled tasks on its own session store, on the offline API: nothing reaches the backend. */
     val lab = TemplateSandboxStore(
@@ -113,6 +117,8 @@ class AppContainer(context: Context) {
         // Free learners are scored on the device; read per session, since the plan can change in between.
         practice.scoringForSession = { learner.recordingScoring }
         auth.onSignedOut = {
+            journey.reset()
+            contentReports.reset()
             placement.cancel()
             practice.close()
             ranking.reset()
@@ -149,6 +155,8 @@ val LocalChallengeRunStore = staticCompositionLocalOf<ChallengeRunStore> { error
 val LocalCustomWordStore = staticCompositionLocalOf<CustomWordStore> { error("CustomWordStore not provided") }
 val LocalTemplateSandboxStore = staticCompositionLocalOf<TemplateSandboxStore?> { null }
 val LocalRankingStore = staticCompositionLocalOf<RankingStore> { error("RankingStore not provided") }
+val LocalLearningJourneyStore = staticCompositionLocalOf<LearningJourneyStore> { error("LearningJourneyStore not provided") }
+val LocalContentReportStore = staticCompositionLocalOf<ContentReportStore> { error("ContentReportStore not provided") }
 val LocalPurchaseStore = staticCompositionLocalOf<PurchaseStore> { error("PurchaseStore not provided") }
 val LocalAdStore = staticCompositionLocalOf<AdStore> { error("AdStore not provided") }
 val LocalPlacementTestStore = staticCompositionLocalOf<PlacementTestStore> { error("PlacementTestStore not provided") }
@@ -166,6 +174,8 @@ fun ProvideStores(container: AppContainer, content: @Composable () -> Unit) {
         LocalChallengeMapStore provides container.challengeMap,
         LocalChallengeRunStore provides container.challengeRun,
         LocalRankingStore provides container.ranking,
+        LocalLearningJourneyStore provides container.journey,
+        LocalContentReportStore provides container.contentReports,
         LocalCustomWordStore provides container.customWords,
         LocalTemplateSandboxStore provides container.lab,
         LocalPurchaseStore provides container.purchases,

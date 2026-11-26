@@ -80,6 +80,8 @@ fun OfflineOnboarding(onClose: () -> Unit, startOnChallengeMap: Boolean = false)
     val challengeMap = remember { ChallengeMapStore(api) }
     val customWords = remember { CustomWordStore(api, SilentAudioClips, scope).also { it.onRoadmapChanged = { learner.refresh() } } }
     val ranking = remember { RankingStore(api).also { it.onProfileChanged = { learner.reloadProfile() } } }
+    val journey = remember { com.syll.features.journey.LearningJourneyStore(api) }
+    val contentReports = remember { com.syll.features.report.ContentReportStore(api) }
     val challengeRun = remember { ChallengeRunStore(api, NoOpFeedback, scope).also { it.onSettled = { challengeMap.refresh() } } }
 
     val purchases = remember { com.syll.features.premium.PurchaseStore(com.syll.features.premium.NoPlayBilling, api, learner, scope) }
@@ -103,6 +105,8 @@ fun OfflineOnboarding(onClose: () -> Unit, startOnChallengeMap: Boolean = false)
         LocalChallengeMapStore provides challengeMap,
         LocalChallengeRunStore provides challengeRun,
         LocalRankingStore provides ranking,
+        com.syll.app.LocalLearningJourneyStore provides journey,
+        com.syll.app.LocalContentReportStore provides contentReports,
         LocalCustomWordStore provides customWords,
         com.syll.app.LocalPurchaseStore provides purchases,
         com.syll.app.LocalAdStore provides ads,
